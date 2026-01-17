@@ -24,16 +24,14 @@ rustic_pos.init = function() {
     rustic_pos.patchItemCart();
 
     rustic_pos.initialized = true;
-    console.log('Rustic POS: Initialized');
-};
+    };
 
 /**
  * Patch ItemDetails to add UOM toggle buttons
  */
 rustic_pos.patchItemDetails = function() {
     if (!erpnext.PointOfSale || !erpnext.PointOfSale.ItemDetails) {
-        console.warn('Rustic POS: ItemDetails not found');
-        return;
+                return;
     }
 
     const ItemDetails = erpnext.PointOfSale.ItemDetails.prototype;
@@ -75,8 +73,7 @@ rustic_pos.patchItemCart = function() {
 rustic_pos.applyItemDetailsCustomizations = function(component, item) {
     // Fetch rustic settings directly from POS Profile
     rustic_pos.getRusticSettings(component, function(settings) {
-        console.log('Rustic POS Settings (fetched):', settings);
-
+        
         // Hide warehouse if not allowed
         if (!settings.rustic_allow_warehouse_change) {
             component.$form_container.find('.warehouse-control').hide();
@@ -179,8 +176,7 @@ rustic_pos.showUomReadonly = function(component, item) {
 rustic_pos.fetchAndShowUomButtons = function(component, item) {
     if (!item || !item.item_code) return;
 
-    console.log('Rustic POS: Fetching UOMs for', item.item_code);
-
+    
     // Fetch UOMs from Item doctype
     frappe.call({
         method: 'frappe.client.get',
@@ -190,16 +186,8 @@ rustic_pos.fetchAndShowUomButtons = function(component, item) {
         },
         async: false,
         callback: function(r) {
-            console.log('Rustic POS: Item data', r.message);
-            if (r.message && r.message.uoms) {
-                console.log('Rustic POS: UOMs found', r.message.uoms);
-                if (r.message.uoms.length > 1) {
-                    rustic_pos.renderUomToggleButtons(component, item, r.message.uoms);
-                } else {
-                    console.log('Rustic POS: Only 1 UOM, not showing buttons');
-                }
-            } else {
-                console.log('Rustic POS: No UOMs found');
+            if (r.message && r.message.uoms && r.message.uoms.length > 1) {
+                rustic_pos.renderUomToggleButtons(component, item, r.message.uoms);
             }
         }
     });
