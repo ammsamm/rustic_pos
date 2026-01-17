@@ -63,12 +63,12 @@ rustic_pos.overrideItemDetails = function() {
             const settings = this.settings || {};
 
             // Hide warehouse control if not allowed
-            if (!settings.allow_warehouse_change) {
+            if (!settings.rustic_allow_warehouse_change) {
                 this.hide_warehouse_control();
             }
 
             // Hide discount control if not allowed
-            if (!settings.allow_discount_change) {
+            if (!settings.rustic_allow_discount_change) {
                 this.hide_discount_control();
             }
 
@@ -102,7 +102,7 @@ rustic_pos.overrideItemDetails = function() {
         handle_uom_display(item, settings) {
             const $uomControl = this.$form_container.find('.uom-control');
 
-            if (!settings.allow_uom_change) {
+            if (!settings.rustic_allow_uom_change) {
                 // Show UOM as read-only text
                 this.render_uom_readonly(item);
                 return;
@@ -333,7 +333,7 @@ rustic_pos.overrideItemDetails = function() {
             const settings = this.settings || {};
 
             // If UOM change not allowed, just render readonly
-            if (!settings.allow_uom_change) {
+            if (!settings.rustic_allow_uom_change) {
                 this.render_uom_readonly(item);
                 return;
             }
@@ -402,7 +402,7 @@ rustic_pos.overrideItemCart = function() {
             const settings = this.settings || {};
 
             // Hide cart-level discount if not allowed
-            if (!settings.allow_discount_change) {
+            if (!settings.rustic_allow_discount_change) {
                 this.hide_cart_discount();
             }
         }

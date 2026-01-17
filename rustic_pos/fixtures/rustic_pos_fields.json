@@ -11,9 +11,9 @@
     },
     {
         "doctype": "Custom Field",
-        "name": "POS Profile-allow_warehouse_change",
+        "name": "POS Profile-rustic_allow_warehouse_change",
         "dt": "POS Profile",
-        "fieldname": "allow_warehouse_change",
+        "fieldname": "rustic_allow_warehouse_change",
         "fieldtype": "Check",
         "label": "Allow Warehouse Change",
         "insert_after": "rustic_pos_section",
@@ -22,23 +22,23 @@
     },
     {
         "doctype": "Custom Field",
-        "name": "POS Profile-allow_discount_change",
+        "name": "POS Profile-rustic_allow_discount_change",
         "dt": "POS Profile",
-        "fieldname": "allow_discount_change",
+        "fieldname": "rustic_allow_discount_change",
         "fieldtype": "Check",
         "label": "Allow Discount Change",
-        "insert_after": "allow_warehouse_change",
+        "insert_after": "rustic_allow_warehouse_change",
         "default": "1",
         "description": "Allow cashier to apply discounts in POS"
     },
     {
         "doctype": "Custom Field",
-        "name": "POS Profile-allow_uom_change",
+        "name": "POS Profile-rustic_allow_uom_change",
         "dt": "POS Profile",
-        "fieldname": "allow_uom_change",
+        "fieldname": "rustic_allow_uom_change",
         "fieldtype": "Check",
         "label": "Allow UOM Change",
-        "insert_after": "allow_discount_change",
+        "insert_after": "rustic_allow_discount_change",
         "default": "1",
         "description": "Allow cashier to change Unit of Measure in POS"
     }

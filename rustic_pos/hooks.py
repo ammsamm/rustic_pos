@@ -235,9 +235,9 @@ fixtures = [
             ["dt", "=", "POS Profile"],
             ["fieldname", "in", [
                 "rustic_pos_section",
-                "allow_warehouse_change",
-                "allow_discount_change",
-                "allow_uom_change"
+                "rustic_allow_warehouse_change",
+                "rustic_allow_discount_change",
+                "rustic_allow_uom_change"
             ]]
         ]
     }
