@@ -159,6 +159,11 @@ rustic_pos.showUomReadonly = function(component, item) {
     if (!$uomControl.length) return;
 
     $uomControl.hide();
+
+    // Hide conversion factor and price list rate
+    component.$form_container.find('.conversion_factor-control').hide();
+    component.$form_container.find('.price_list_rate-control').hide();
+
     component.$form_container.find('.rustic-uom-readonly').remove();
 
     const html = `
@@ -167,7 +172,8 @@ rustic_pos.showUomReadonly = function(component, item) {
             <span style="font-weight:500;margin-left:4px;">${item.uom || item.stock_uom || ''}</span>
         </div>
     `;
-    $uomControl.after(html);
+    // Append at the end
+    component.$form_container.append(html);
 };
 
 /**
@@ -202,6 +208,10 @@ rustic_pos.renderUomToggleButtons = function(component, item, uoms) {
 
     // Hide original UOM control
     $uomControl.hide();
+
+    // Hide conversion factor and price list rate
+    component.$form_container.find('.conversion_factor-control').hide();
+    component.$form_container.find('.price_list_rate-control').hide();
 
     // Remove existing custom elements
     component.$form_container.find('.rustic-uom-container').remove();
@@ -244,7 +254,8 @@ rustic_pos.renderUomToggleButtons = function(component, item, uoms) {
         </div>
     `;
 
-    $uomControl.after(containerHtml);
+    // Append at the end of form container
+    component.$form_container.append(containerHtml);
 
     // Bind click events
     component.$form_container.find('.rustic-uom-btn').on('click', function() {
@@ -260,16 +271,8 @@ rustic_pos.renderUomToggleButtons = function(component, item, uoms) {
         // Update item UOM
         component.events.form_updated(component.current_item, 'uom', newUom);
 
-        // Update conversion factor (keep read-only)
+        // Update conversion factor
         component.events.form_updated(component.current_item, 'conversion_factor', newCf);
-
-        // Force conversion factor to stay read-only
-        setTimeout(function() {
-            const $cfControl = component.$form_container.find('.conversion_factor-control');
-            $cfControl.find('input').prop('disabled', true).prop('readonly', true);
-            $cfControl.find('.control-input').hide();
-            $cfControl.find('.control-value').show().text(newCf);
-        }, 100);
 
         // Update conversion info
         let infoText = '';
