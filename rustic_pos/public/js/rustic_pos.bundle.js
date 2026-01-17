@@ -200,7 +200,7 @@ rustic_pos.renderUomToggleButtons = function(component, item, uoms) {
     const $uomControl = component.$form_container.find('.uom-control');
     if (!$uomControl.length) return;
 
-    // Hide original control
+    // Hide original UOM control
     $uomControl.hide();
 
     // Remove existing custom elements
@@ -260,9 +260,11 @@ rustic_pos.renderUomToggleButtons = function(component, item, uoms) {
         // Update item UOM
         component.events.form_updated(component.current_item, 'uom', newUom);
 
-        // Update conversion factor control if exists
+        // Update conversion factor control if exists (keep read-only)
         if (component.conversion_factor_control) {
             component.conversion_factor_control.set_value(newCf);
+            component.conversion_factor_control.df.read_only = 1;
+            component.conversion_factor_control.refresh();
         }
 
         // Update conversion info
