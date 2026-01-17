@@ -73,44 +73,85 @@ rustic_pos.patchItemCart = function() {
  * Apply customizations to ItemDetails
  */
 rustic_pos.applyItemDetailsCustomizations = function(component, item) {
-    const settings = component.settings || {};
+    // Fetch rustic settings directly from POS Profile
+    rustic_pos.getRusticSettings(component, function(settings) {
+        console.log('Rustic POS Settings (fetched):', settings);
 
-    // Debug: log settings
-    console.log('Rustic POS Settings:', {
-        rustic_allow_warehouse_change: settings.rustic_allow_warehouse_change,
-        rustic_allow_discount_change: settings.rustic_allow_discount_change,
-        rustic_allow_uom_change: settings.rustic_allow_uom_change
+        // Hide warehouse if not allowed
+        if (!settings.rustic_allow_warehouse_change) {
+            component.$form_container.find('.warehouse-control').hide();
+        }
+
+        // Hide discount if not allowed
+        if (!settings.rustic_allow_discount_change) {
+            component.$form_container.find('.discount_percentage-control').hide();
+        }
+
+        // Handle UOM
+        if (!settings.rustic_allow_uom_change) {
+            rustic_pos.showUomReadonly(component, item);
+        } else {
+            rustic_pos.fetchAndShowUomButtons(component, item);
+        }
     });
+};
 
-    // Hide warehouse if not allowed (check for falsy OR explicit 0)
-    if (!cint(settings.rustic_allow_warehouse_change)) {
-        component.$form_container.find('.warehouse-control').hide();
+/**
+ * Get Rustic POS settings from POS Profile
+ */
+rustic_pos.getRusticSettings = function(component, callback) {
+    // Check cache first
+    if (rustic_pos.settings_cache) {
+        callback(rustic_pos.settings_cache);
+        return;
     }
 
-    // Hide discount if not allowed
-    if (!cint(settings.rustic_allow_discount_change)) {
-        component.$form_container.find('.discount_percentage-control').hide();
+    // Get POS Profile name from component
+    const posProfile = component.settings?.name ||
+                       (window.cur_pos && window.cur_pos.pos_profile);
+
+    if (!posProfile) {
+        console.warn('Rustic POS: No POS Profile found');
+        callback({});
+        return;
     }
 
-    // Handle UOM
-    if (!cint(settings.rustic_allow_uom_change)) {
-        // Show as readonly
-        rustic_pos.showUomReadonly(component, item);
-    } else {
-        // Fetch UOMs and show toggle buttons if multiple
-        rustic_pos.fetchAndShowUomButtons(component, item);
-    }
+    frappe.call({
+        method: 'frappe.client.get_value',
+        args: {
+            doctype: 'POS Profile',
+            filters: { name: posProfile },
+            fieldname: [
+                'rustic_allow_warehouse_change',
+                'rustic_allow_discount_change',
+                'rustic_allow_uom_change'
+            ]
+        },
+        async: false,
+        callback: function(r) {
+            if (r.message) {
+                rustic_pos.settings_cache = {
+                    rustic_allow_warehouse_change: cint(r.message.rustic_allow_warehouse_change),
+                    rustic_allow_discount_change: cint(r.message.rustic_allow_discount_change),
+                    rustic_allow_uom_change: cint(r.message.rustic_allow_uom_change)
+                };
+                callback(rustic_pos.settings_cache);
+            } else {
+                callback({});
+            }
+        }
+    });
 };
 
 /**
  * Apply customizations to ItemCart
  */
 rustic_pos.applyCartCustomizations = function(component) {
-    const settings = component.settings || {};
-
-    if (!settings.rustic_allow_discount_change) {
-        component.$component.find('.add-discount-wrapper').remove();
-    }
+    rustic_pos.getRusticSettings(component, function(settings) {
+        if (!settings.rustic_allow_discount_change) {
+            component.$component.find('.add-discount-wrapper').remove();
+        }
+    });
 };
 
 /**
