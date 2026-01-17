@@ -260,12 +260,16 @@ rustic_pos.renderUomToggleButtons = function(component, item, uoms) {
         // Update item UOM
         component.events.form_updated(component.current_item, 'uom', newUom);
 
-        // Update conversion factor control if exists (keep read-only)
-        if (component.conversion_factor_control) {
-            component.conversion_factor_control.set_value(newCf);
-            component.conversion_factor_control.df.read_only = 1;
-            component.conversion_factor_control.refresh();
-        }
+        // Update conversion factor (keep read-only)
+        component.events.form_updated(component.current_item, 'conversion_factor', newCf);
+
+        // Force conversion factor to stay read-only
+        setTimeout(function() {
+            const $cfControl = component.$form_container.find('.conversion_factor-control');
+            $cfControl.find('input').prop('disabled', true).prop('readonly', true);
+            $cfControl.find('.control-input').hide();
+            $cfControl.find('.control-value').show().text(newCf);
+        }, 100);
 
         // Update conversion info
         let infoText = '';
