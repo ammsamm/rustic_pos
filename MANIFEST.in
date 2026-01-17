@@ -1,0 +1,18 @@
+include MANIFEST.in
+include requirements.txt
+include *.json
+include *.md
+include *.py
+include *.txt
+recursive-include rustic_pos *.css
+recursive-include rustic_pos *.csv
+recursive-include rustic_pos *.html
+recursive-include rustic_pos *.ico
+recursive-include rustic_pos *.js
+recursive-include rustic_pos *.json
+recursive-include rustic_pos *.md
+recursive-include rustic_pos *.png
+recursive-include rustic_pos *.py
+recursive-include rustic_pos *.svg
+recursive-include rustic_pos *.txt
+recursive-exclude rustic_pos *.pyc

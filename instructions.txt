@@ -1,0 +1,107 @@
+## **COMPLETE FINAL PROMPT FOR CLAUDE CODE:**
+
+---
+
+**Act as a Frappe/ERPNext Expert. Create a custom Frappe app named "rustic_pos" that extends the ERPNext Point of Sale (v15) with the following requirements:**
+
+---
+
+### **0. REPOSITORY ANALYSIS (MANDATORY FIRST STEP):**
+- Clone/analyze: https://github.com/frappe/erpnext (branch: version-15)
+- Study the POS structure in: `erpnext/selling/page/point_of_sale/`
+- Identify these EXACT files/components:
+  * Main POS entry point: `point_of_sale.js` and `pos_controller.js`
+  * Vue components directory: `erpnext/selling/page/point_of_sale/pos_*.js`
+  * ItemCart component: Look for `pos_item_cart.js` or similar
+  * ItemEditor/ItemDetails: Look for `pos_item_details.js` or item row editor
+  * UOM handling: Find where UOM dropdowns/conversions are rendered
+  * Discount UI: Find where discount inputs and buttons are defined
+- Map out the component hierarchy and data flow (how pos_profile settings reach components)
+- Identify the extension points: Which components can be overridden via page hooks
+
+---
+
+### **0.1 ANALYSIS DELIVERABLE (REQUIRED BEFORE CODING):**
+- After studying the ERPNext repository, create a markdown document: `ANALYSIS.md`
+- This document MUST include:
+  * File structure map: List all relevant POS files and their purposes
+  * Component hierarchy: Diagram showing how POS components relate to each other
+  * Data flow: How pos_profile settings flow from backend → frontend → components
+  * Extension points identified: Specific hooks/methods available for overriding
+  * UOM implementation: How ERPNext currently handles UOM dropdowns and conversions
+  * Discount UI location: Exact components/methods that render discount fields
+  * Warehouse UI location: Exact components/methods that render warehouse selector
+  * Proposed override strategy: Which files in rustic_pos will override which ERPNext components
+- **STOP after creating this document and present it for review**
+- **DO NOT write any code until the analysis is approved**
+
+---
+
+### **1. BACKEND (Python/Hooks):**
+- Use `fixtures` to add the following Custom Fields to `POS Profile`: 
+  * `allow_warehouse_change` (Check)
+  * `allow_discount_change` (Check)
+  * `allow_uom_change` (Check)
+- Use `jsobject` hooks to pass these POS Profile settings to the frontend POS assets
+
+---
+
+### **2. FRONTEND (Vue.js/Javascript - EXTENSION APPROACH):**
+- **DO NOT copy ERPNext POS components**
+- Use Frappe's page override mechanism:
+  * In `rustic_pos/public/js/`, create override files
+  * Use `frappe.pages["point-of-sale"].on_page_load` or component extension patterns found in the repo
+- Extend the specific components (ItemCart, ItemDetails) using Vue's component override or monkey-patching
+- Access pos_profile settings from the existing POS store/controller (study how ERPNext passes this data)
+- Implement v-if directives to hide UI elements based on custom field values
+
+---
+
+### **3. UOM QUICK-SWITCH FEATURE (TOGGLE BUTTONS):**
+- In the Item Row/Editor, detect if an Item has multiple UOMs in its `UOMs` table
+- If `allow_uom_change` = 1 AND item has multiple UOMs:
+  * Replace the standard UOM dropdown with horizontal Toggle Buttons
+  * Display format: `[Box] [Piece] [Carton]` (one button per UOM)
+  * Active UOM: Highlighted/selected state (use primary color or distinct background)
+  * Inactive UOMs: Neutral background, clickable
+  * One-click behavior: Clicking any button immediately updates `uom` and `conversion_factor`
+  * Show UOM name only on buttons (keep compact for POS speed)
+  * Optional: Display conversion factor info in item details below buttons (e.g., "1 Box = 12 Pieces")
+- Auto-recalculate: qty, rate, and amount based on the new conversion factor
+- If item has only 1 UOM: Show UOM as read-only text (no buttons needed)
+
+---
+
+### **4. CODE STYLE:**
+- Follow Frappe best practices: Use `override_doctype_class` or monkey-patching via Javascript where appropriate
+- Keep the code minimal and clean. Avoid modifying core ERPNext files; use the `public/js` directory in the custom app for overrides
+
+---
+
+### **5. V15 ARCHITECTURE REQUIREMENTS:**
+- Target ERPNext v15 POS (Vue 3 Composition API)
+- Override POS components using Vue's `extends` or component replacement pattern
+- Access POS settings from the centralized `posStore` (Pinia/reactive store)
+- Ensure custom fields are available in the store's `pos_profile` object
+- Use Vue's `computed` properties for reactive UI hiding (v-if, not v-show)
+- Build process: Include proper Vue component compilation in your app
+
+---
+
+### **6. UI HIDING RULES (UX):**
+- Use v-if (complete removal from DOM, not just hiding with CSS)
+- When `allow_warehouse_change` = 0: Remove warehouse selector entirely from item row
+- When `allow_discount_change` = 0: Remove discount input + "Apply Discount" button + any discount badges/indicators
+- When `allow_uom_change` = 0: 
+  * Remove UOM toggle buttons completely (even if item has multiple UOMs)
+  * Remove standard UOM dropdown
+  * Show UOM as read-only text only (e.g., "UOM: Box" - non-interactive)
+- When `allow_uom_change` = 1:
+  * If item has multiple UOMs: Show toggle buttons (as per section 3)
+  * If item has single UOM: Show as read-only text
+- **NO tooltips or disabled states - complete removal from UI**
+- Ensure removed fields don't break the layout (use proper Vue conditional rendering)
+
+---
+
+**Your prompt is ready! All references now use "rustic_pos" as the app name.**
