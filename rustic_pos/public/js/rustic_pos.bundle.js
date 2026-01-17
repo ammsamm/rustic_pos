@@ -75,18 +75,25 @@ rustic_pos.patchItemCart = function() {
 rustic_pos.applyItemDetailsCustomizations = function(component, item) {
     const settings = component.settings || {};
 
-    // Hide warehouse if not allowed
-    if (!settings.rustic_allow_warehouse_change) {
+    // Debug: log settings
+    console.log('Rustic POS Settings:', {
+        rustic_allow_warehouse_change: settings.rustic_allow_warehouse_change,
+        rustic_allow_discount_change: settings.rustic_allow_discount_change,
+        rustic_allow_uom_change: settings.rustic_allow_uom_change
+    });
+
+    // Hide warehouse if not allowed (check for falsy OR explicit 0)
+    if (!cint(settings.rustic_allow_warehouse_change)) {
         component.$form_container.find('.warehouse-control').hide();
     }
 
     // Hide discount if not allowed
-    if (!settings.rustic_allow_discount_change) {
+    if (!cint(settings.rustic_allow_discount_change)) {
         component.$form_container.find('.discount_percentage-control').hide();
     }
 
     // Handle UOM
-    if (!settings.rustic_allow_uom_change) {
+    if (!cint(settings.rustic_allow_uom_change)) {
         // Show as readonly
         rustic_pos.showUomReadonly(component, item);
     } else {
@@ -131,18 +138,27 @@ rustic_pos.showUomReadonly = function(component, item) {
 rustic_pos.fetchAndShowUomButtons = function(component, item) {
     if (!item || !item.item_code) return;
 
+    console.log('Rustic POS: Fetching UOMs for', item.item_code);
+
     // Fetch UOMs from Item doctype
     frappe.call({
         method: 'frappe.client.get',
         args: {
             doctype: 'Item',
-            name: item.item_code,
-            fields: ['uoms']
+            name: item.item_code
         },
         async: false,
         callback: function(r) {
-            if (r.message && r.message.uoms && r.message.uoms.length > 1) {
-                rustic_pos.renderUomToggleButtons(component, item, r.message.uoms);
+            console.log('Rustic POS: Item data', r.message);
+            if (r.message && r.message.uoms) {
+                console.log('Rustic POS: UOMs found', r.message.uoms);
+                if (r.message.uoms.length > 1) {
+                    rustic_pos.renderUomToggleButtons(component, item, r.message.uoms);
+                } else {
+                    console.log('Rustic POS: Only 1 UOM, not showing buttons');
+                }
+            } else {
+                console.log('Rustic POS: No UOMs found');
             }
         }
     });
