@@ -12,31 +12,88 @@
 frappe.provide('rustic_pos');
 
 rustic_pos.initialized = false;
+rustic_pos.prototypesPatched = false;
+
+/**
+ * Clean up dynamic styles from previous session
+ */
+rustic_pos.cleanupStyles = function() {
+    // Remove all rustic dynamic styles so they can be re-added based on current settings
+    $('#rustic-hide-item-group-styles').remove();
+    $('#rustic-hide-loyalty-styles').remove();
+    $('#rustic-hide-form-view-styles').remove();
+    $('#rustic-list-styles').remove();
+};
 
 /**
  * Initialize Rustic POS
  */
 rustic_pos.init = function() {
-    if (rustic_pos.initialized) return;
+    // Clean up previous session styles
+    rustic_pos.cleanupStyles();
 
-    // Patch ItemSelector prototype (fix qty display)
-    rustic_pos.patchItemSelector();
+    // Clear settings cache on each init to ensure fresh settings
+    rustic_pos.settings_cache = null;
+    rustic_pos.view_mode = null;
+    rustic_pos.hide_loyalty = null;
+    rustic_pos.hide_item_group = null;
+    rustic_pos.hide_form_view = null;
 
-    // Patch ItemDetails prototype
-    rustic_pos.patchItemDetails();
-
-    // Patch ItemCart prototype
-    rustic_pos.patchItemCart();
-
-    // Patch customer dialog for simplified form
-    rustic_pos.patchCustomerDialog();
+    // Patch prototypes only once
+    if (!rustic_pos.prototypesPatched) {
+        rustic_pos.patchItemSelector();
+        rustic_pos.patchItemDetails();
+        rustic_pos.patchItemCart();
+        rustic_pos.patchCustomerDialog();
+        rustic_pos.prototypesPatched = true;
+    }
 
     rustic_pos.initialized = true;
 
-    // Apply view mode after initialization
-    setTimeout(function() {
+    // Apply customizations to existing instances and view mode
+    rustic_pos.applyToExistingInstances();
+};
+
+/**
+ * Apply customizations to already-instantiated POS components
+ */
+rustic_pos.applyToExistingInstances = function() {
+    const checkAndApply = function() {
+        if (!window.cur_pos) return false;
+
+        // Apply view mode and settings
         rustic_pos.initViewMode();
-    }, 500);
+
+        // Re-apply to existing item_details if it has a current item
+        if (window.cur_pos.item_details && window.cur_pos.item_details.current_item) {
+            rustic_pos.applyItemDetailsCustomizations(
+                window.cur_pos.item_details,
+                window.cur_pos.item_details.current_item
+            );
+        }
+
+        // Re-apply to existing cart
+        if (window.cur_pos.cart) {
+            rustic_pos.applyCartCustomizations(window.cur_pos.cart);
+        }
+
+        return true;
+    };
+
+    // Try immediately, then poll for cur_pos
+    if (!checkAndApply()) {
+        let attempts = 0;
+        const maxAttempts = 100;
+        const interval = setInterval(function() {
+            attempts++;
+            if (checkAndApply() || attempts >= maxAttempts) {
+                clearInterval(interval);
+            }
+        }, 100);
+    }
+
+    // Also use MutationObserver for dynamic content
+    rustic_pos.observePOSChanges();
 };
 
 /**
@@ -50,38 +107,62 @@ rustic_pos.initViewMode = function() {
 
     if (!posProfile) return;
 
+    // Use synchronous call to ensure settings are loaded before applying
     frappe.call({
         method: 'frappe.client.get_value',
         args: {
             doctype: 'POS Profile',
             filters: { name: posProfile },
-            fieldname: ['rustic_item_view_mode', 'rustic_hide_loyalty', 'rustic_hide_item_group', 'rustic_hide_form_view']
+            fieldname: [
+                'rustic_item_view_mode',
+                'rustic_hide_loyalty',
+                'rustic_hide_item_group',
+                'rustic_hide_form_view',
+                'rustic_allow_discount_change',
+                'rustic_allow_uom_change',
+                'rustic_hide_warehouse'
+            ]
         },
+        async: false, // Synchronous to ensure settings are loaded first
         callback: function(r) {
             if (r.message) {
+                // Update all cached settings
                 rustic_pos.view_mode = r.message.rustic_item_view_mode || 'Grid';
                 rustic_pos.hide_loyalty = cint(r.message.rustic_hide_loyalty);
                 rustic_pos.hide_item_group = cint(r.message.rustic_hide_item_group);
                 rustic_pos.hide_form_view = cint(r.message.rustic_hide_form_view);
 
-                // Hide item group filter if setting enabled
-                if (rustic_pos.hide_item_group) {
-                    rustic_pos.hideItemGroupFilter(component);
-                }
-
-                // Hide form view button globally if setting enabled
-                if (rustic_pos.hide_form_view) {
-                    rustic_pos.hideFormViewButton();
-                }
-
-                // Refresh items to apply view mode
-                rustic_pos.applyViewMode(component);
-                // Trigger refresh
-                const searchTerm = component.$component.find('.search-field input').val() || '';
-                component.search_field.set_value(searchTerm);
+                // Also update the settings cache
+                rustic_pos.settings_cache = {
+                    rustic_allow_discount_change: cint(r.message.rustic_allow_discount_change),
+                    rustic_allow_uom_change: cint(r.message.rustic_allow_uom_change),
+                    rustic_item_view_mode: r.message.rustic_item_view_mode || 'Grid',
+                    rustic_hide_loyalty: cint(r.message.rustic_hide_loyalty),
+                    rustic_hide_item_group: cint(r.message.rustic_hide_item_group),
+                    rustic_hide_warehouse: cint(r.message.rustic_hide_warehouse),
+                    rustic_hide_form_view: cint(r.message.rustic_hide_form_view)
+                };
             }
         }
     });
+
+    // Apply settings after fetch completes (sync call ensures this)
+    if (rustic_pos.hide_item_group) {
+        rustic_pos.hideItemGroupFilter(component);
+    }
+
+    if (rustic_pos.hide_form_view) {
+        rustic_pos.hideFormViewButton();
+    }
+
+    // Apply view mode
+    rustic_pos.applyViewMode(component);
+
+    // Trigger refresh to re-render items with correct view
+    if (component.search_field) {
+        const searchTerm = component.$component.find('.search-field input').val() || '';
+        component.search_field.set_value(searchTerm);
+    }
 };
 
 /**
@@ -147,12 +228,27 @@ rustic_pos.hideItemGroupFilter = function(component) {
 
     // Try to find and hide the item group Link field specifically
     component.$component.find('.frappe-control[data-fieldname="item_group"]').hide();
+
+    // Also hide via CSS class for persistence
+    if (!$('#rustic-hide-item-group-styles').length) {
+        $('head').append(`
+            <style id="rustic-hide-item-group-styles">
+                .point-of-sale-app .item-group-field,
+                .point-of-sale-app [data-fieldname="item_group"],
+                .point-of-sale-app .item-group-filter {
+                    display: none !important;
+                }
+            </style>
+        `);
+    }
 };
 
 /**
  * Apply view mode class to items container
  */
 rustic_pos.applyViewMode = function(component) {
+    if (!component || !component.$component) return;
+
     const $itemsContainer = component.$component.find('.items-container');
     if (!$itemsContainer.length) return;
 
@@ -164,7 +260,9 @@ rustic_pos.applyViewMode = function(component) {
 
     if (rustic_pos.isListViewActive()) {
         $itemsContainer.addClass('rustic-list-view');
-        $selectorWrapper.addClass('rustic-list-active');
+        if ($selectorWrapper.length) {
+            $selectorWrapper.addClass('rustic-list-active');
+        }
         // Override grid layout to single column
         $itemsContainer.css({
             'display': 'block',
@@ -174,7 +272,9 @@ rustic_pos.applyViewMode = function(component) {
         rustic_pos.addListHeader(component);
     } else {
         $itemsContainer.removeClass('rustic-list-view');
-        $selectorWrapper.removeClass('rustic-list-active');
+        if ($selectorWrapper.length) {
+            $selectorWrapper.removeClass('rustic-list-active');
+        }
         // Restore grid layout
         $itemsContainer.css({
             'display': '',
@@ -187,6 +287,8 @@ rustic_pos.applyViewMode = function(component) {
  * Add fixed header for list view
  */
 rustic_pos.addListHeader = function(component) {
+    if (!component || !component.$component) return;
+
     const $itemsContainer = component.$component.find('.items-container');
     if (!$itemsContainer.length) return;
 
@@ -400,6 +502,9 @@ rustic_pos.applyCustomerFieldsCustomizations = function(component) {
  * Apply customizations to ItemDetails
  */
 rustic_pos.applyItemDetailsCustomizations = function(component, item) {
+    if (!component || !component.$form_container) return;
+    if (!item) return;
+
     // Fetch rustic settings directly from POS Profile
     rustic_pos.getRusticSettings(component, function(settings) {
         // Hide warehouse selector if setting enabled
@@ -477,55 +582,75 @@ rustic_pos.getRusticSettings = function(component, callback) {
         return;
     }
 
-    // Get POS Profile name from component
-    const posProfile = component.settings?.name ||
-                       (window.cur_pos && window.cur_pos.pos_profile);
+    // Get POS Profile name from component or global
+    let posProfile = null;
+    if (component && component.settings && component.settings.name) {
+        posProfile = component.settings.name;
+    } else if (window.cur_pos && window.cur_pos.pos_profile) {
+        posProfile = window.cur_pos.pos_profile;
+    }
 
     if (!posProfile) {
-        console.warn('Rustic POS: No POS Profile found');
-        callback({});
+        console.warn('Rustic POS: No POS Profile found, using defaults');
+        // Return safe defaults
+        callback({
+            rustic_allow_discount_change: 1,
+            rustic_allow_uom_change: 1,
+            rustic_item_view_mode: 'Grid',
+            rustic_hide_loyalty: 0,
+            rustic_hide_item_group: 0,
+            rustic_hide_warehouse: 0,
+            rustic_hide_form_view: 0
+        });
         return;
     }
 
-    frappe.call({
-        method: 'frappe.client.get_value',
-        args: {
-            doctype: 'POS Profile',
-            filters: { name: posProfile },
-            fieldname: [
-                'rustic_allow_discount_change',
-                'rustic_allow_uom_change',
-                'rustic_item_view_mode',
-                'rustic_hide_loyalty',
-                'rustic_hide_item_group',
-                'rustic_hide_warehouse',
-                'rustic_hide_form_view'
-            ]
-        },
-        async: false,
-        callback: function(r) {
-            if (r.message) {
-                rustic_pos.settings_cache = {
-                    rustic_allow_discount_change: cint(r.message.rustic_allow_discount_change),
-                    rustic_allow_uom_change: cint(r.message.rustic_allow_uom_change),
-                    rustic_item_view_mode: r.message.rustic_item_view_mode || 'Grid',
-                    rustic_hide_loyalty: cint(r.message.rustic_hide_loyalty),
-                    rustic_hide_item_group: cint(r.message.rustic_hide_item_group),
-                    rustic_hide_warehouse: cint(r.message.rustic_hide_warehouse),
-                    rustic_hide_form_view: cint(r.message.rustic_hide_form_view)
-                };
-                callback(rustic_pos.settings_cache);
-            } else {
-                callback({});
+    try {
+        frappe.call({
+            method: 'frappe.client.get_value',
+            args: {
+                doctype: 'POS Profile',
+                filters: { name: posProfile },
+                fieldname: [
+                    'rustic_allow_discount_change',
+                    'rustic_allow_uom_change',
+                    'rustic_item_view_mode',
+                    'rustic_hide_loyalty',
+                    'rustic_hide_item_group',
+                    'rustic_hide_warehouse',
+                    'rustic_hide_form_view'
+                ]
+            },
+            async: false,
+            callback: function(r) {
+                if (r.message) {
+                    rustic_pos.settings_cache = {
+                        rustic_allow_discount_change: cint(r.message.rustic_allow_discount_change),
+                        rustic_allow_uom_change: cint(r.message.rustic_allow_uom_change),
+                        rustic_item_view_mode: r.message.rustic_item_view_mode || 'Grid',
+                        rustic_hide_loyalty: cint(r.message.rustic_hide_loyalty),
+                        rustic_hide_item_group: cint(r.message.rustic_hide_item_group),
+                        rustic_hide_warehouse: cint(r.message.rustic_hide_warehouse),
+                        rustic_hide_form_view: cint(r.message.rustic_hide_form_view)
+                    };
+                    callback(rustic_pos.settings_cache);
+                } else {
+                    callback({});
+                }
             }
-        }
-    });
+        });
+    } catch (e) {
+        console.error('Rustic POS: Error fetching settings', e);
+        callback({});
+    }
 };
 
 /**
  * Apply customizations to ItemCart
  */
 rustic_pos.applyCartCustomizations = function(component) {
+    if (!component || !component.$component) return;
+
     rustic_pos.getRusticSettings(component, function(settings) {
         if (!settings.rustic_allow_discount_change) {
             component.$component.find('.add-discount-wrapper').remove();
@@ -542,6 +667,8 @@ rustic_pos.applyCartCustomizations = function(component) {
  * Hide loyalty-related fields in customer section
  */
 rustic_pos.hideLoyaltyFields = function(component) {
+    if (!component || !component.$component) return;
+
     // Hide loyalty program and loyalty points fields
     component.$component.find('[data-fieldname="loyalty_program"]').closest('.frappe-control').hide();
     component.$component.find('[data-fieldname="loyalty_points"]').closest('.frappe-control').hide();
@@ -549,6 +676,20 @@ rustic_pos.hideLoyaltyFields = function(component) {
     // Also try alternative selectors for customer info section
     component.$component.find('.loyalty_program-control').hide();
     component.$component.find('.loyalty_points-control').hide();
+
+    // Add CSS for persistence
+    if (!$('#rustic-hide-loyalty-styles').length) {
+        $('head').append(`
+            <style id="rustic-hide-loyalty-styles">
+                .point-of-sale-app [data-fieldname="loyalty_program"],
+                .point-of-sale-app [data-fieldname="loyalty_points"],
+                .point-of-sale-app .loyalty_program-control,
+                .point-of-sale-app .loyalty_points-control {
+                    display: none !important;
+                }
+            </style>
+        `);
+    }
 };
 
 /**
@@ -779,11 +920,59 @@ rustic_pos.renderUomToggleButtons = function(component, item, uoms) {
 };
 
 /**
+ * Observe POS DOM changes to reapply customizations
+ */
+rustic_pos.observePOSChanges = function() {
+    // Disconnect existing observer if any
+    if (rustic_pos.observer) {
+        rustic_pos.observer.disconnect();
+    }
+
+    const posApp = document.querySelector('.point-of-sale-app');
+    if (!posApp) return;
+
+    rustic_pos.observer = new MutationObserver(function(mutations) {
+        // Debounce to avoid excessive calls
+        if (rustic_pos.observerTimeout) {
+            clearTimeout(rustic_pos.observerTimeout);
+        }
+        rustic_pos.observerTimeout = setTimeout(function() {
+            // Check if form view button appeared and needs hiding
+            if (rustic_pos.hide_form_view) {
+                rustic_pos.hideFormViewButton();
+            }
+
+            // Check if item group filter appeared and needs hiding
+            if (rustic_pos.hide_item_group && window.cur_pos && window.cur_pos.item_selector) {
+                rustic_pos.hideItemGroupFilter(window.cur_pos.item_selector);
+            }
+        }, 50);
+    });
+
+    rustic_pos.observer.observe(posApp, {
+        childList: true,
+        subtree: true
+    });
+};
+
+/**
  * Wait for POS to load and initialize
  */
 $(document).on('page-change', function() {
     if (frappe.get_route_str() === 'point-of-sale') {
+        // Reset initialized flag to allow re-initialization
+        rustic_pos.initialized = false;
         rustic_pos.waitAndInit();
+    } else {
+        // Clean up when leaving POS
+        if (rustic_pos.observer) {
+            rustic_pos.observer.disconnect();
+            rustic_pos.observer = null;
+        }
+        // Clean up styles when leaving POS page
+        rustic_pos.cleanupStyles();
+        // Clear settings cache so fresh settings are loaded on return
+        rustic_pos.settings_cache = null;
     }
 });
 
@@ -797,20 +986,40 @@ $(document).ready(function() {
 });
 
 rustic_pos.waitAndInit = function() {
-    let attempts = 0;
-    const maxAttempts = 50;
+    // Clear any existing interval
+    if (rustic_pos.initInterval) {
+        clearInterval(rustic_pos.initInterval);
+    }
 
-    const checkInterval = setInterval(function() {
+    let attempts = 0;
+    const maxAttempts = 100; // Increased attempts
+
+    rustic_pos.initInterval = setInterval(function() {
         attempts++;
 
+        // Check if POS classes exist
         if (erpnext.PointOfSale && erpnext.PointOfSale.ItemDetails && erpnext.PointOfSale.ItemCart) {
-            clearInterval(checkInterval);
-            rustic_pos.init();
+            clearInterval(rustic_pos.initInterval);
+            rustic_pos.initInterval = null;
+
+            // Small delay to ensure POS is fully rendered
+            setTimeout(function() {
+                rustic_pos.init();
+            }, 200);
         }
 
         if (attempts >= maxAttempts) {
-            clearInterval(checkInterval);
+            clearInterval(rustic_pos.initInterval);
+            rustic_pos.initInterval = null;
             console.warn('Rustic POS: Timeout waiting for POS components');
         }
-    }, 100);
+    }, 50); // Faster polling
+};
+
+/**
+ * Force re-apply all customizations (can be called manually if needed)
+ */
+rustic_pos.refresh = function() {
+    rustic_pos.settings_cache = null;
+    rustic_pos.applyToExistingInstances();
 };
