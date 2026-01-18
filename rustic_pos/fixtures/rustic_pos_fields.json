@@ -53,5 +53,16 @@
         "options": "Grid\nList",
         "default": "Grid",
         "description": "Select how items are displayed in POS: Grid (with images) or List (table view)"
+    },
+    {
+        "doctype": "Custom Field",
+        "name": "POS Profile-rustic_hide_loyalty",
+        "dt": "POS Profile",
+        "fieldname": "rustic_hide_loyalty",
+        "fieldtype": "Check",
+        "label": "Hide Loyalty Section",
+        "insert_after": "rustic_item_view_mode",
+        "default": "0",
+        "description": "Hide loyalty program and points from POS customer section"
     }
 ]

@@ -5,6 +5,8 @@
  * - Configurable warehouse selector visibility
  * - Configurable discount controls visibility
  * - UOM toggle buttons for items with multiple UOMs
+ * - Hide loyalty section option
+ * - Simplified customer form (name, mobile, email only)
  */
 
 frappe.provide('rustic_pos');
@@ -25,6 +27,9 @@ rustic_pos.init = function() {
 
     // Patch ItemCart prototype
     rustic_pos.patchItemCart();
+
+    // Patch customer dialog for simplified form
+    rustic_pos.patchCustomerDialog();
 
     rustic_pos.initialized = true;
 
@@ -50,11 +55,12 @@ rustic_pos.initViewMode = function() {
         args: {
             doctype: 'POS Profile',
             filters: { name: posProfile },
-            fieldname: ['rustic_item_view_mode']
+            fieldname: ['rustic_item_view_mode', 'rustic_hide_loyalty']
         },
         callback: function(r) {
             if (r.message) {
                 rustic_pos.view_mode = r.message.rustic_item_view_mode || 'Grid';
+                rustic_pos.hide_loyalty = cint(r.message.rustic_hide_loyalty);
                 // Refresh items to apply view mode
                 rustic_pos.applyViewMode(component);
                 // Trigger refresh
@@ -279,7 +285,7 @@ rustic_pos.patchItemDetails = function() {
 };
 
 /**
- * Patch ItemCart to hide discount button
+ * Patch ItemCart to hide discount button and loyalty fields
  */
 rustic_pos.patchItemCart = function() {
     if (!erpnext.PointOfSale || !erpnext.PointOfSale.ItemCart) {
@@ -289,6 +295,7 @@ rustic_pos.patchItemCart = function() {
 
     const ItemCart = erpnext.PointOfSale.ItemCart.prototype;
     const originalMakeCartTotals = ItemCart.make_cart_totals_section;
+    const originalRenderCustomerFields = ItemCart.render_customer_fields;
 
     ItemCart.make_cart_totals_section = function() {
         // Call original method
@@ -297,6 +304,45 @@ rustic_pos.patchItemCart = function() {
         // Apply Rustic POS customizations
         rustic_pos.applyCartCustomizations(this);
     };
+
+    // Patch render_customer_fields to hide loyalty and restrict to name/mobile/email
+    ItemCart.render_customer_fields = function(customer_info) {
+        // Call original method first
+        originalRenderCustomerFields.call(this, customer_info);
+
+        // Apply rustic customizations to customer fields
+        rustic_pos.applyCustomerFieldsCustomizations(this);
+    };
+};
+
+/**
+ * Apply customizations to customer fields section
+ */
+rustic_pos.applyCustomerFieldsCustomizations = function(component) {
+    rustic_pos.getRusticSettings(component, function(settings) {
+        // Hide loyalty fields if setting is enabled
+        if (settings.rustic_hide_loyalty) {
+            // Hide loyalty_program field
+            component.$customer_section.find('[data-fieldname="loyalty_program"]').closest('.frappe-control').hide();
+            // Hide loyalty_points field
+            component.$customer_section.find('[data-fieldname="loyalty_points"]').closest('.frappe-control').hide();
+        }
+
+        // Always restrict to only name, mobile, email for editing
+        // Hide any other fields that may appear
+        const allowedFields = ['email_id', 'mobile_no'];
+        component.$customer_section.find('.frappe-control').each(function() {
+            const $control = $(this);
+            const fieldname = $control.find('[data-fieldname]').attr('data-fieldname');
+            if (fieldname && !allowedFields.includes(fieldname)) {
+                // Check if this is loyalty field (always hide if setting enabled)
+                if (settings.rustic_hide_loyalty &&
+                    (fieldname === 'loyalty_program' || fieldname === 'loyalty_points')) {
+                    $control.hide();
+                }
+            }
+        });
+    });
 };
 
 /**
@@ -354,7 +400,8 @@ rustic_pos.getRusticSettings = function(component, callback) {
                 'rustic_allow_warehouse_change',
                 'rustic_allow_discount_change',
                 'rustic_allow_uom_change',
-                'rustic_item_view_mode'
+                'rustic_item_view_mode',
+                'rustic_hide_loyalty'
             ]
         },
         async: false,
@@ -364,7 +411,8 @@ rustic_pos.getRusticSettings = function(component, callback) {
                     rustic_allow_warehouse_change: cint(r.message.rustic_allow_warehouse_change),
                     rustic_allow_discount_change: cint(r.message.rustic_allow_discount_change),
                     rustic_allow_uom_change: cint(r.message.rustic_allow_uom_change),
-                    rustic_item_view_mode: r.message.rustic_item_view_mode || 'Grid'
+                    rustic_item_view_mode: r.message.rustic_item_view_mode || 'Grid',
+                    rustic_hide_loyalty: cint(r.message.rustic_hide_loyalty)
                 };
                 callback(rustic_pos.settings_cache);
             } else {
@@ -382,7 +430,120 @@ rustic_pos.applyCartCustomizations = function(component) {
         if (!settings.rustic_allow_discount_change) {
             component.$component.find('.add-discount-wrapper').remove();
         }
+
+        // Hide loyalty fields if setting is enabled
+        if (settings.rustic_hide_loyalty) {
+            rustic_pos.hideLoyaltyFields(component);
+        }
     });
+};
+
+/**
+ * Hide loyalty-related fields in customer section
+ */
+rustic_pos.hideLoyaltyFields = function(component) {
+    // Hide loyalty program and loyalty points fields
+    component.$component.find('[data-fieldname="loyalty_program"]').closest('.frappe-control').hide();
+    component.$component.find('[data-fieldname="loyalty_points"]').closest('.frappe-control').hide();
+
+    // Also try alternative selectors for customer info section
+    component.$component.find('.loyalty_program-control').hide();
+    component.$component.find('.loyalty_points-control').hide();
+};
+
+/**
+ * Patch customer dialog to restrict fields to name, mobile, email
+ */
+rustic_pos.patchCustomerDialog = function() {
+    // Override frappe.ui.form.make_quick_entry for Customer doctype
+    const originalMakeQuickEntry = frappe.ui.form.make_quick_entry;
+
+    frappe.ui.form.make_quick_entry = function(doctype, after_insert, init_callback, doc, force) {
+        if (doctype === 'Customer') {
+            // Check if we're in POS context
+            if (window.cur_pos) {
+                rustic_pos.makeSimpleCustomerDialog(after_insert, init_callback, doc);
+                return;
+            }
+        }
+        return originalMakeQuickEntry.call(this, doctype, after_insert, init_callback, doc, force);
+    };
+
+    // Also patch Link field's new_doc method for Customer
+    if (frappe.ui.form.ControlLink) {
+        const originalNewDoc = frappe.ui.form.ControlLink.prototype.new_doc;
+
+        frappe.ui.form.ControlLink.prototype.new_doc = function() {
+            if (this.df.options === 'Customer' && window.cur_pos) {
+                rustic_pos.makeSimpleCustomerDialog((name) => {
+                    this.set_value(name);
+                });
+                return;
+            }
+            return originalNewDoc.call(this);
+        };
+    }
+};
+
+/**
+ * Create simplified customer dialog with only name, mobile, email
+ */
+rustic_pos.makeSimpleCustomerDialog = function(after_insert, init_callback, doc) {
+    const d = new frappe.ui.Dialog({
+        title: __('New Customer'),
+        fields: [
+            {
+                fieldname: 'customer_name',
+                fieldtype: 'Data',
+                label: __('Customer Name'),
+                reqd: 1
+            },
+            {
+                fieldname: 'mobile_no',
+                fieldtype: 'Data',
+                label: __('Mobile Number')
+            },
+            {
+                fieldname: 'email_id',
+                fieldtype: 'Data',
+                label: __('Email Address'),
+                options: 'Email'
+            }
+        ],
+        primary_action_label: __('Create'),
+        primary_action: function(values) {
+            frappe.call({
+                method: 'frappe.client.insert',
+                args: {
+                    doc: {
+                        doctype: 'Customer',
+                        customer_name: values.customer_name,
+                        customer_type: 'Individual',
+                        mobile_no: values.mobile_no,
+                        email_id: values.email_id
+                    }
+                },
+                callback: function(r) {
+                    if (r.message) {
+                        d.hide();
+                        frappe.show_alert({
+                            message: __('Customer {0} created', [r.message.name]),
+                            indicator: 'green'
+                        });
+                        if (after_insert) {
+                            after_insert(r.message.name);
+                        }
+                    }
+                }
+            });
+        }
+    });
+
+    if (init_callback) {
+        init_callback(d);
+    }
+
+    d.show();
 };
 
 /**

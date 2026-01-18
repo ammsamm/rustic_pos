@@ -238,7 +238,8 @@ fixtures = [
                 "rustic_allow_warehouse_change",
                 "rustic_allow_discount_change",
                 "rustic_allow_uom_change",
-                "rustic_item_view_mode"
+                "rustic_item_view_mode",
+                "rustic_hide_loyalty"
             ]]
         ]
     }
