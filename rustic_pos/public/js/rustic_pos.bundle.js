@@ -125,10 +125,20 @@ rustic_pos.applyViewMode = function(component) {
 
     if (rustic_pos.isListViewActive()) {
         $itemsContainer.addClass('rustic-list-view');
+        // Override grid layout to single column
+        $itemsContainer.css({
+            'display': 'block',
+            'grid-template-columns': 'unset'
+        });
         // Add table header
         rustic_pos.addListHeader(component);
     } else {
         $itemsContainer.removeClass('rustic-list-view');
+        // Restore grid layout
+        $itemsContainer.css({
+            'display': '',
+            'grid-template-columns': ''
+        });
     }
 };
 
@@ -188,7 +198,7 @@ rustic_pos.getListItemHtml = function(item, component) {
             data-batch-no="${escape(item.batch_no || '')}"
             data-uom="${escape(stock_uom || '')}"
             data-rate="${escape(price_list_rate || 0)}"
-            style="display:flex; align-items:center; padding:10px 12px; border-bottom:1px solid var(--border-color); cursor:pointer; background:var(--bg-color);"
+            style="display:flex; align-items:center; padding:10px 12px; border-bottom:1px solid var(--border-color); cursor:pointer; background:var(--bg-color); width:100%;"
             onmouseover="this.style.background='var(--subtle-fg)'"
             onmouseout="this.style.background='var(--bg-color)'">
             <div style="flex:1; min-width:0;">
