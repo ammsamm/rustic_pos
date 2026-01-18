@@ -58,6 +58,7 @@ rustic_pos.initViewToggle = function() {
             }
         }
     });
+};
 
 /**
  * Patch ItemSelector to fix floating-point qty display and add list view
