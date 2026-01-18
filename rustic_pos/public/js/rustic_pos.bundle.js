@@ -149,22 +149,75 @@ rustic_pos.addListHeader = function(component) {
     const $itemsContainer = component.$component.find('.items-container');
     if (!$itemsContainer.length) return;
 
+    // Add CSS styles for list view if not already added
+    if (!$('#rustic-list-styles').length) {
+        const styles = `
+            <style id="rustic-list-styles">
+                .rustic-list-view .rustic-list-item {
+                    display: flex;
+                    align-items: center;
+                    padding: 10px 12px;
+                    border-bottom: 1px solid var(--border-color);
+                    cursor: pointer;
+                    background: var(--bg-color);
+                    width: 100%;
+                }
+                .rustic-list-view .rustic-list-item:hover {
+                    background: var(--subtle-fg) !important;
+                }
+                .rustic-list-view .rustic-item-name {
+                    flex: 1;
+                    min-width: 0;
+                    font-weight: 500;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+                .rustic-list-view .rustic-item-stock {
+                    width: 100px;
+                    text-align: right;
+                    margin-right: 15px;
+                }
+                .rustic-list-view .rustic-item-price {
+                    width: 100px;
+                    text-align: right;
+                    font-weight: 600;
+                }
+                .rustic-list-header {
+                    display: flex;
+                    align-items: center;
+                    padding: 10px 12px;
+                    background: var(--subtle-fg);
+                    border-bottom: 2px solid var(--border-color);
+                    font-weight: 600;
+                    font-size: var(--text-sm);
+                    position: sticky;
+                    top: 0;
+                    z-index: 1;
+                }
+                .rustic-list-header > div:first-child {
+                    flex: 1;
+                    min-width: 0;
+                }
+                .rustic-list-header > div:nth-child(2) {
+                    width: 100px;
+                    text-align: right;
+                    margin-right: 15px;
+                }
+                .rustic-list-header > div:last-child {
+                    width: 100px;
+                    text-align: right;
+                }
+            </style>
+        `;
+        $('head').append(styles);
+    }
+
     const headerHtml = `
-        <div class="rustic-list-header" style="
-            display:flex;
-            align-items:center;
-            padding:10px 12px;
-            background:var(--subtle-fg);
-            border-bottom:2px solid var(--border-color);
-            font-weight:600;
-            font-size:var(--text-sm);
-            position:sticky;
-            top:0;
-            z-index:1;
-        ">
-            <div style="flex:1;min-width:0;">${__('Item')}</div>
-            <div style="width:100px;text-align:right;margin-right:15px;">${__('Stock')}</div>
-            <div style="width:100px;text-align:right;">${__('Price')}</div>
+        <div class="rustic-list-header">
+            <div>${__('Item')}</div>
+            <div>${__('Stock')}</div>
+            <div>${__('Price')}</div>
         </div>
     `;
 
@@ -197,22 +250,10 @@ rustic_pos.getListItemHtml = function(item, component) {
             data-serial-no="${escape(item.serial_no || '')}"
             data-batch-no="${escape(item.batch_no || '')}"
             data-uom="${escape(stock_uom || '')}"
-            data-rate="${escape(price_list_rate || 0)}"
-            style="display:flex; align-items:center; padding:10px 12px; border-bottom:1px solid var(--border-color); cursor:pointer; background:var(--bg-color); width:100%;"
-            onmouseover="this.style.background='var(--subtle-fg)'"
-            onmouseout="this.style.background='var(--bg-color)'">
-            <div style="flex:1; min-width:0;">
-                <div style="font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-                    ${frappe.utils.escape_html(item_name || item_code)}
-                </div>
-                <div class="text-muted small">${frappe.utils.escape_html(item_code)}</div>
-            </div>
-            <div style="width:100px; text-align:right; margin-right:15px;">
-                <span class="${stockClass}">${flt(stockQty, 2)} ${frappe.utils.escape_html(stock_uom || '')}</span>
-            </div>
-            <div style="width:100px; text-align:right; font-weight:600;">
-                ${formattedPrice}
-            </div>
+            data-rate="${escape(price_list_rate || 0)}">
+            <div class="rustic-item-name">${frappe.utils.escape_html(item_name || item_code)}</div>
+            <div class="rustic-item-stock ${stockClass}">${flt(stockQty, 2)} ${frappe.utils.escape_html(stock_uom || '')}</div>
+            <div class="rustic-item-price">${formattedPrice}</div>
         </div>
     `;
 };
