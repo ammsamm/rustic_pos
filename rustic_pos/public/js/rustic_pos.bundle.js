@@ -28,16 +28,16 @@ rustic_pos.init = function() {
 
     rustic_pos.initialized = true;
 
-    // Add view toggle after initialization
+    // Apply view mode after initialization
     setTimeout(function() {
-        rustic_pos.initViewToggle();
+        rustic_pos.initViewMode();
     }, 500);
 };
 
 /**
- * Initialize view toggle for ItemSelector
+ * Initialize view mode for ItemSelector based on POS Profile setting
  */
-rustic_pos.initViewToggle = function() {
+rustic_pos.initViewMode = function() {
     if (!window.cur_pos || !window.cur_pos.item_selector) return;
 
     const component = window.cur_pos.item_selector;
@@ -50,11 +50,16 @@ rustic_pos.initViewToggle = function() {
         args: {
             doctype: 'POS Profile',
             filters: { name: posProfile },
-            fieldname: ['rustic_enable_list_view']
+            fieldname: ['rustic_item_view_mode']
         },
         callback: function(r) {
-            if (r.message && cint(r.message.rustic_enable_list_view)) {
-                rustic_pos.renderViewToggle(component);
+            if (r.message) {
+                rustic_pos.view_mode = r.message.rustic_item_view_mode || 'Grid';
+                // Refresh items to apply view mode
+                rustic_pos.applyViewMode(component);
+                // Trigger refresh
+                const searchTerm = component.$component.find('.search-field input').val() || '';
+                component.search_field.set_value(searchTerm);
             }
         }
     });
@@ -102,110 +107,10 @@ rustic_pos.patchItemSelector = function() {
 };
 
 /**
- * Check if list view is active
+ * Check if list view is active (based on POS Profile setting)
  */
 rustic_pos.isListViewActive = function() {
-    return localStorage.getItem('rustic_pos_view_mode') === 'list';
-};
-
-/**
- * Add view toggle button to ItemSelector
- */
-rustic_pos.addViewToggle = function(component) {
-    // Get settings first
-    const posProfile = window.cur_pos && window.cur_pos.pos_profile;
-    if (!posProfile) return;
-
-    frappe.call({
-        method: 'frappe.client.get_value',
-        args: {
-            doctype: 'POS Profile',
-            filters: { name: posProfile },
-            fieldname: ['rustic_enable_list_view']
-        },
-        async: false,
-        callback: function(r) {
-            if (r.message && cint(r.message.rustic_enable_list_view)) {
-                rustic_pos.renderViewToggle(component);
-            }
-        }
-    });
-};
-
-/**
- * Render view toggle button
- */
-rustic_pos.renderViewToggle = function(component) {
-    // Try different selectors
-    let $header = component.$component.find('.filter-section .label');
-    if (!$header.length) {
-        $header = component.$component.find('.filter-section');
-    }
-    if (!$header.length) {
-        $header = component.$component.find('.search-field');
-    }
-    if (!$header.length) return;
-
-    // Check if toggle already exists
-    if (component.$component.find('.rustic-view-toggle').length) return;
-
-    const currentView = rustic_pos.isListViewActive() ? 'list' : 'grid';
-
-    const toggleHtml = `
-        <div class="rustic-view-toggle" style="display:inline-flex;margin-left:10px;vertical-align:middle;">
-            <button type="button" class="btn btn-xs ${currentView === 'grid' ? 'btn-primary' : 'btn-default'} rustic-grid-btn" title="${__('Grid View')}" style="padding:4px 8px;">
-                <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
-                    <rect x="1" y="1" width="6" height="6" rx="1"/>
-                    <rect x="9" y="1" width="6" height="6" rx="1"/>
-                    <rect x="1" y="9" width="6" height="6" rx="1"/>
-                    <rect x="9" y="9" width="6" height="6" rx="1"/>
-                </svg>
-            </button>
-            <button type="button" class="btn btn-xs ${currentView === 'list' ? 'btn-primary' : 'btn-default'} rustic-list-btn" title="${__('List View')}" style="padding:4px 8px;margin-left:2px;">
-                <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
-                    <rect x="1" y="2" width="14" height="2" rx="0.5"/>
-                    <rect x="1" y="7" width="14" height="2" rx="0.5"/>
-                    <rect x="1" y="12" width="14" height="2" rx="0.5"/>
-                </svg>
-            </button>
-        </div>
-    `;
-
-    $header.after(toggleHtml);
-
-    // Bind click events
-    component.$component.find('.rustic-grid-btn').on('click', function() {
-        rustic_pos.setViewMode('grid', component);
-    });
-
-    component.$component.find('.rustic-list-btn').on('click', function() {
-        rustic_pos.setViewMode('list', component);
-    });
-};
-
-/**
- * Set view mode and refresh items
- */
-rustic_pos.setViewMode = function(mode, component) {
-    localStorage.setItem('rustic_pos_view_mode', mode);
-
-    // Update button states
-    const $toggle = component.$component.find('.rustic-view-toggle');
-    $toggle.find('.rustic-grid-btn').removeClass('btn-primary').addClass('btn-default');
-    $toggle.find('.rustic-list-btn').removeClass('btn-primary').addClass('btn-default');
-
-    if (mode === 'grid') {
-        $toggle.find('.rustic-grid-btn').removeClass('btn-default').addClass('btn-primary');
-    } else {
-        $toggle.find('.rustic-list-btn').removeClass('btn-default').addClass('btn-primary');
-    }
-
-    // Refresh item display
-    rustic_pos.applyViewMode(component);
-
-    // Re-render items by triggering search
-    const searchTerm = component.$component.find('.search-field input').val() || '';
-    component.search_field.set_value(searchTerm);
+    return rustic_pos.view_mode === 'List';
 };
 
 /**
@@ -398,7 +303,7 @@ rustic_pos.getRusticSettings = function(component, callback) {
                 'rustic_allow_warehouse_change',
                 'rustic_allow_discount_change',
                 'rustic_allow_uom_change',
-                'rustic_enable_list_view'
+                'rustic_item_view_mode'
             ]
         },
         async: false,
@@ -408,7 +313,7 @@ rustic_pos.getRusticSettings = function(component, callback) {
                     rustic_allow_warehouse_change: cint(r.message.rustic_allow_warehouse_change),
                     rustic_allow_discount_change: cint(r.message.rustic_allow_discount_change),
                     rustic_allow_uom_change: cint(r.message.rustic_allow_uom_change),
-                    rustic_enable_list_view: cint(r.message.rustic_enable_list_view)
+                    rustic_item_view_mode: r.message.rustic_item_view_mode || 'Grid'
                 };
                 callback(rustic_pos.settings_cache);
             } else {

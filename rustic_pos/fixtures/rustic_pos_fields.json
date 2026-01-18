@@ -44,13 +44,14 @@
     },
     {
         "doctype": "Custom Field",
-        "name": "POS Profile-rustic_enable_list_view",
+        "name": "POS Profile-rustic_item_view_mode",
         "dt": "POS Profile",
-        "fieldname": "rustic_enable_list_view",
-        "fieldtype": "Check",
-        "label": "Enable List View Toggle",
+        "fieldname": "rustic_item_view_mode",
+        "fieldtype": "Select",
+        "label": "Item Display Mode",
         "insert_after": "rustic_allow_uom_change",
-        "default": "0",
-        "description": "Show toggle button to switch between Grid and List view in POS"
+        "options": "Grid\nList",
+        "default": "Grid",
+        "description": "Select how items are displayed in POS: Grid (with images) or List (table view)"
     }
 ]
