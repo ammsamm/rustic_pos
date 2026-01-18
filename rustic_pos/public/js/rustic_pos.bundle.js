@@ -55,12 +55,18 @@ rustic_pos.initViewMode = function() {
         args: {
             doctype: 'POS Profile',
             filters: { name: posProfile },
-            fieldname: ['rustic_item_view_mode', 'rustic_hide_loyalty']
+            fieldname: ['rustic_item_view_mode', 'rustic_hide_loyalty', 'rustic_hide_item_group']
         },
         callback: function(r) {
             if (r.message) {
                 rustic_pos.view_mode = r.message.rustic_item_view_mode || 'Grid';
                 rustic_pos.hide_loyalty = cint(r.message.rustic_hide_loyalty);
+                rustic_pos.hide_item_group = cint(r.message.rustic_hide_item_group);
+
+                // Hide item group filter if setting enabled
+                if (rustic_pos.hide_item_group) {
+                    rustic_pos.hideItemGroupFilter(component);
+                }
                 // Refresh items to apply view mode
                 rustic_pos.applyViewMode(component);
                 // Trigger refresh
@@ -117,6 +123,21 @@ rustic_pos.patchItemSelector = function() {
  */
 rustic_pos.isListViewActive = function() {
     return rustic_pos.view_mode === 'List';
+};
+
+/**
+ * Hide item group filter/search box
+ */
+rustic_pos.hideItemGroupFilter = function(component) {
+    if (!component || !component.$component) return;
+
+    // Hide the item group field (usually a Link field or search box)
+    component.$component.find('.item-group-field').hide();
+    component.$component.find('[data-fieldname="item_group"]').closest('.frappe-control').hide();
+
+    // Also try to hide by class name patterns used in POS
+    component.$component.find('.filter-section').hide();
+    component.$component.find('.item-group-filter').hide();
 };
 
 /**
@@ -401,7 +422,8 @@ rustic_pos.getRusticSettings = function(component, callback) {
                 'rustic_allow_discount_change',
                 'rustic_allow_uom_change',
                 'rustic_item_view_mode',
-                'rustic_hide_loyalty'
+                'rustic_hide_loyalty',
+                'rustic_hide_item_group'
             ]
         },
         async: false,
@@ -412,7 +434,8 @@ rustic_pos.getRusticSettings = function(component, callback) {
                     rustic_allow_discount_change: cint(r.message.rustic_allow_discount_change),
                     rustic_allow_uom_change: cint(r.message.rustic_allow_uom_change),
                     rustic_item_view_mode: r.message.rustic_item_view_mode || 'Grid',
-                    rustic_hide_loyalty: cint(r.message.rustic_hide_loyalty)
+                    rustic_hide_loyalty: cint(r.message.rustic_hide_loyalty),
+                    rustic_hide_item_group: cint(r.message.rustic_hide_item_group)
                 };
                 callback(rustic_pos.settings_cache);
             } else {

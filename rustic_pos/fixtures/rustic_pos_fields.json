@@ -64,5 +64,16 @@
         "insert_after": "rustic_item_view_mode",
         "default": "0",
         "description": "Hide loyalty program and points from POS customer section"
+    },
+    {
+        "doctype": "Custom Field",
+        "name": "POS Profile-rustic_hide_item_group",
+        "dt": "POS Profile",
+        "fieldname": "rustic_hide_item_group",
+        "fieldtype": "Check",
+        "label": "Hide Item Group Filter",
+        "insert_after": "rustic_hide_loyalty",
+        "default": "0",
+        "description": "Hide item group filter/search box in POS"
     }
 ]
