@@ -215,11 +215,45 @@ rustic_pos.applyViewMode = function(component) {
     const $itemsContainer = component.$component.find('.items-container');
     if (!$itemsContainer.length) return;
 
+    // Remove existing table header
+    component.$component.find('.rustic-list-header').remove();
+
     if (rustic_pos.isListViewActive()) {
         $itemsContainer.addClass('rustic-list-view');
+        // Add table header
+        rustic_pos.addListHeader(component);
     } else {
         $itemsContainer.removeClass('rustic-list-view');
     }
+};
+
+/**
+ * Add fixed header for list view
+ */
+rustic_pos.addListHeader = function(component) {
+    const $itemsContainer = component.$component.find('.items-container');
+    if (!$itemsContainer.length) return;
+
+    const headerHtml = `
+        <div class="rustic-list-header" style="
+            display:flex;
+            align-items:center;
+            padding:10px 12px;
+            background:var(--subtle-fg);
+            border-bottom:2px solid var(--border-color);
+            font-weight:600;
+            font-size:var(--text-sm);
+            position:sticky;
+            top:0;
+            z-index:1;
+        ">
+            <div style="flex:1;min-width:0;">${__('Item')}</div>
+            <div style="width:100px;text-align:right;margin-right:15px;">${__('Stock')}</div>
+            <div style="width:100px;text-align:right;">${__('Price')}</div>
+        </div>
+    `;
+
+    $itemsContainer.prepend(headerHtml);
 };
 
 /**
@@ -249,17 +283,19 @@ rustic_pos.getListItemHtml = function(item, component) {
             data-batch-no="${escape(item.batch_no || '')}"
             data-uom="${escape(stock_uom || '')}"
             data-rate="${escape(price_list_rate || 0)}"
-            style="display:flex; align-items:center; padding:8px 12px; border-bottom:1px solid var(--border-color); cursor:pointer;">
+            style="display:flex; align-items:center; padding:10px 12px; border-bottom:1px solid var(--border-color); cursor:pointer; background:var(--bg-color);"
+            onmouseover="this.style.background='var(--subtle-fg)'"
+            onmouseout="this.style.background='var(--bg-color)'">
             <div style="flex:1; min-width:0;">
                 <div style="font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
                     ${frappe.utils.escape_html(item_name || item_code)}
                 </div>
                 <div class="text-muted small">${frappe.utils.escape_html(item_code)}</div>
             </div>
-            <div style="width:80px; text-align:right; margin-right:15px;">
+            <div style="width:100px; text-align:right; margin-right:15px;">
                 <span class="${stockClass}">${flt(stockQty, 2)} ${frappe.utils.escape_html(stock_uom || '')}</span>
             </div>
-            <div style="width:80px; text-align:right; font-weight:500;">
+            <div style="width:100px; text-align:right; font-weight:600;">
                 ${formattedPrice}
             </div>
         </div>
