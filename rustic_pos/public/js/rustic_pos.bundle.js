@@ -149,11 +149,15 @@ rustic_pos.applyViewMode = function(component) {
     const $itemsContainer = component.$component.find('.items-container');
     if (!$itemsContainer.length) return;
 
+    // Get the item selector wrapper for fixed width
+    const $selectorWrapper = component.$component.closest('.item-selector-wrapper');
+
     // Remove existing table header
     component.$component.find('.rustic-list-header').remove();
 
     if (rustic_pos.isListViewActive()) {
         $itemsContainer.addClass('rustic-list-view');
+        $selectorWrapper.addClass('rustic-list-active');
         // Override grid layout to single column
         $itemsContainer.css({
             'display': 'block',
@@ -163,6 +167,7 @@ rustic_pos.applyViewMode = function(component) {
         rustic_pos.addListHeader(component);
     } else {
         $itemsContainer.removeClass('rustic-list-view');
+        $selectorWrapper.removeClass('rustic-list-active');
         // Restore grid layout
         $itemsContainer.css({
             'display': '',
@@ -182,40 +187,53 @@ rustic_pos.addListHeader = function(component) {
     if (!$('#rustic-list-styles').length) {
         const styles = `
             <style id="rustic-list-styles">
+                /* Fixed minimum width for item selector when list view is active */
+                .point-of-sale-app .item-selector-wrapper.rustic-list-active {
+                    min-width: 320px !important;
+                    flex-shrink: 0 !important;
+                }
+                .point-of-sale-app .rustic-list-active .items-container {
+                    min-width: 300px !important;
+                }
                 .rustic-list-view .rustic-list-item {
                     display: flex;
                     align-items: center;
-                    padding: 10px 12px;
+                    padding: 8px 10px;
                     border-bottom: 1px solid var(--border-color);
                     cursor: pointer;
                     background: var(--bg-color);
                     width: 100%;
+                    min-width: 280px;
                 }
                 .rustic-list-view .rustic-list-item:hover {
                     background: var(--subtle-fg) !important;
                 }
                 .rustic-list-view .rustic-item-name {
                     flex: 1;
-                    min-width: 0;
+                    min-width: 80px;
                     font-weight: 500;
                     white-space: nowrap;
                     overflow: hidden;
                     text-overflow: ellipsis;
                 }
                 .rustic-list-view .rustic-item-stock {
-                    width: 100px;
+                    width: 70px;
+                    min-width: 70px;
                     text-align: right;
-                    margin-right: 15px;
+                    margin-right: 10px;
+                    font-size: 0.9em;
                 }
                 .rustic-list-view .rustic-item-price {
-                    width: 100px;
+                    width: 70px;
+                    min-width: 70px;
                     text-align: right;
                     font-weight: 600;
+                    font-size: 0.9em;
                 }
                 .rustic-list-header {
                     display: flex;
                     align-items: center;
-                    padding: 10px 12px;
+                    padding: 8px 10px;
                     background: var(--subtle-fg);
                     border-bottom: 2px solid var(--border-color);
                     font-weight: 600;
@@ -223,18 +241,21 @@ rustic_pos.addListHeader = function(component) {
                     position: sticky;
                     top: 0;
                     z-index: 1;
+                    min-width: 280px;
                 }
                 .rustic-list-header > div:first-child {
                     flex: 1;
-                    min-width: 0;
+                    min-width: 80px;
                 }
                 .rustic-list-header > div:nth-child(2) {
-                    width: 100px;
+                    width: 70px;
+                    min-width: 70px;
                     text-align: right;
-                    margin-right: 15px;
+                    margin-right: 10px;
                 }
                 .rustic-list-header > div:last-child {
-                    width: 100px;
+                    width: 70px;
+                    min-width: 70px;
                     text-align: right;
                 }
             </style>
