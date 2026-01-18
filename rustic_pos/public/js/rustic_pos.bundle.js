@@ -17,6 +17,9 @@ rustic_pos.initialized = false;
 rustic_pos.init = function() {
     if (rustic_pos.initialized) return;
 
+    // Patch ItemSelector prototype (fix qty display)
+    rustic_pos.patchItemSelector();
+
     // Patch ItemDetails prototype
     rustic_pos.patchItemDetails();
 
@@ -24,7 +27,27 @@ rustic_pos.init = function() {
     rustic_pos.patchItemCart();
 
     rustic_pos.initialized = true;
+};
+
+/**
+ * Patch ItemSelector to fix floating-point qty display
+ */
+rustic_pos.patchItemSelector = function() {
+    if (!erpnext.PointOfSale || !erpnext.PointOfSale.ItemSelector) {
+        return;
+    }
+
+    const ItemSelector = erpnext.PointOfSale.ItemSelector.prototype;
+    const originalGetItemHtml = ItemSelector.get_item_html;
+
+    ItemSelector.get_item_html = function(item) {
+        // Fix floating-point precision for actual_qty before rendering
+        if (item.actual_qty !== undefined && item.actual_qty !== null) {
+            item.actual_qty = flt(item.actual_qty, 2);
+        }
+        return originalGetItemHtml.call(this, item);
     };
+};
 
 /**
  * Patch ItemDetails to add UOM toggle buttons
