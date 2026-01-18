@@ -438,6 +438,11 @@ rustic_pos.hideFormViewButton = function(component) {
         component.$component.find('.edit-cart-btn').hide();
     }
 
+    // Hide the new-pos-invoice button (Open Form View)
+    $('.point-of-sale-app .new-pos-invoice').hide();
+    $('.point-of-sale-app [data-name="new-pos-invoice"]').hide();
+    $('.point-of-sale-app a[href*="new-pos-invoice"]').hide();
+
     // Hide globally in POS
     $('.point-of-sale-app .open-form-view-btn').hide();
     $('.point-of-sale-app [data-action="open_form_view"]').hide();
@@ -447,6 +452,19 @@ rustic_pos.hideFormViewButton = function(component) {
     $('.point-of-sale-app .dropdown-item:contains("Form View")').hide();
     $('.point-of-sale-app .dropdown-item:contains("Edit Full")').hide();
     $('.point-of-sale-app a:contains("Open Form View")').hide();
+
+    // Add CSS to ensure it stays hidden
+    if (!$('#rustic-hide-form-view-styles').length) {
+        $('head').append(`
+            <style id="rustic-hide-form-view-styles">
+                .point-of-sale-app .new-pos-invoice,
+                .point-of-sale-app [data-name="new-pos-invoice"],
+                .point-of-sale-app a[href*="new-pos-invoice"] {
+                    display: none !important;
+                }
+            </style>
+        `);
+    }
 };
 
 /**
