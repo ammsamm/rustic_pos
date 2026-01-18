@@ -2,10 +2,10 @@
  * Rustic POS - ERPNext v15 POS Extension
  *
  * Extends the standard ERPNext Point of Sale with:
- * - Configurable warehouse selector visibility
  * - Configurable discount controls visibility
  * - UOM toggle buttons for items with multiple UOMs
  * - Hide loyalty section option
+ * - Hide item group filter option
  * - Simplified customer form (name, mobile, email only)
  */
 
@@ -126,18 +126,20 @@ rustic_pos.isListViewActive = function() {
 };
 
 /**
- * Hide item group filter/search box
+ * Hide item group filter only (not the search box)
  */
 rustic_pos.hideItemGroupFilter = function(component) {
     if (!component || !component.$component) return;
 
-    // Hide the item group field (usually a Link field or search box)
+    // Only hide the item group field/dropdown, NOT the search field
     component.$component.find('.item-group-field').hide();
     component.$component.find('[data-fieldname="item_group"]').closest('.frappe-control').hide();
 
-    // Also try to hide by class name patterns used in POS
-    component.$component.find('.filter-section').hide();
+    // Hide item group specific elements
     component.$component.find('.item-group-filter').hide();
+
+    // Try to find and hide the item group Link field specifically
+    component.$component.find('.frappe-control[data-fieldname="item_group"]').hide();
 };
 
 /**
@@ -372,12 +374,6 @@ rustic_pos.applyCustomerFieldsCustomizations = function(component) {
 rustic_pos.applyItemDetailsCustomizations = function(component, item) {
     // Fetch rustic settings directly from POS Profile
     rustic_pos.getRusticSettings(component, function(settings) {
-        
-        // Hide warehouse if not allowed
-        if (!settings.rustic_allow_warehouse_change) {
-            component.$form_container.find('.warehouse-control').hide();
-        }
-
         // Hide discount if not allowed
         if (!settings.rustic_allow_discount_change) {
             component.$form_container.find('.discount_percentage-control').hide();
@@ -418,7 +414,6 @@ rustic_pos.getRusticSettings = function(component, callback) {
             doctype: 'POS Profile',
             filters: { name: posProfile },
             fieldname: [
-                'rustic_allow_warehouse_change',
                 'rustic_allow_discount_change',
                 'rustic_allow_uom_change',
                 'rustic_item_view_mode',
@@ -430,7 +425,6 @@ rustic_pos.getRusticSettings = function(component, callback) {
         callback: function(r) {
             if (r.message) {
                 rustic_pos.settings_cache = {
-                    rustic_allow_warehouse_change: cint(r.message.rustic_allow_warehouse_change),
                     rustic_allow_discount_change: cint(r.message.rustic_allow_discount_change),
                     rustic_allow_uom_change: cint(r.message.rustic_allow_uom_change),
                     rustic_item_view_mode: r.message.rustic_item_view_mode || 'Grid',

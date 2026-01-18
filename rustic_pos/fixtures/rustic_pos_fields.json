@@ -11,23 +11,12 @@
     },
     {
         "doctype": "Custom Field",
-        "name": "POS Profile-rustic_allow_warehouse_change",
-        "dt": "POS Profile",
-        "fieldname": "rustic_allow_warehouse_change",
-        "fieldtype": "Check",
-        "label": "Show Warehouse Selector",
-        "insert_after": "rustic_pos_section",
-        "default": "1",
-        "description": "Show warehouse selector in POS item details"
-    },
-    {
-        "doctype": "Custom Field",
         "name": "POS Profile-rustic_allow_discount_change",
         "dt": "POS Profile",
         "fieldname": "rustic_allow_discount_change",
         "fieldtype": "Check",
         "label": "Show Discount Controls",
-        "insert_after": "rustic_allow_warehouse_change",
+        "insert_after": "rustic_pos_section",
         "default": "1",
         "description": "Show discount input fields in POS"
     },
