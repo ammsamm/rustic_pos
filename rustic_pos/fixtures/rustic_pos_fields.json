@@ -15,10 +15,10 @@
         "dt": "POS Profile",
         "fieldname": "rustic_allow_warehouse_change",
         "fieldtype": "Check",
-        "label": "Allow Warehouse Change",
+        "label": "Show Warehouse Selector",
         "insert_after": "rustic_pos_section",
         "default": "1",
-        "description": "Allow cashier to change warehouse in POS"
+        "description": "Show warehouse selector in POS item details"
     },
     {
         "doctype": "Custom Field",
@@ -26,10 +26,10 @@
         "dt": "POS Profile",
         "fieldname": "rustic_allow_discount_change",
         "fieldtype": "Check",
-        "label": "Allow Discount Change",
+        "label": "Show Discount Controls",
         "insert_after": "rustic_allow_warehouse_change",
         "default": "1",
-        "description": "Allow cashier to apply discounts in POS"
+        "description": "Show discount input fields in POS"
     },
     {
         "doctype": "Custom Field",
@@ -37,10 +37,10 @@
         "dt": "POS Profile",
         "fieldname": "rustic_allow_uom_change",
         "fieldtype": "Check",
-        "label": "Allow UOM Change",
+        "label": "Show UOM Toggle Buttons",
         "insert_after": "rustic_allow_discount_change",
         "default": "1",
-        "description": "Allow cashier to change Unit of Measure in POS"
+        "description": "Show UOM toggle buttons for items with multiple units"
     },
     {
         "doctype": "Custom Field",
