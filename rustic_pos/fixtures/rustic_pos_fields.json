@@ -41,5 +41,16 @@
         "insert_after": "rustic_allow_discount_change",
         "default": "1",
         "description": "Allow cashier to change Unit of Measure in POS"
+    },
+    {
+        "doctype": "Custom Field",
+        "name": "POS Profile-rustic_enable_list_view",
+        "dt": "POS Profile",
+        "fieldname": "rustic_enable_list_view",
+        "fieldtype": "Check",
+        "label": "Enable List View Toggle",
+        "insert_after": "rustic_allow_uom_change",
+        "default": "0",
+        "description": "Show toggle button to switch between Grid and List view in POS"
     }
 ]

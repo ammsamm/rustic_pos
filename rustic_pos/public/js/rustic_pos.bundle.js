@@ -30,7 +30,7 @@ rustic_pos.init = function() {
 };
 
 /**
- * Patch ItemSelector to fix floating-point qty display
+ * Patch ItemSelector to fix floating-point qty display and add list view
  */
 rustic_pos.patchItemSelector = function() {
     if (!erpnext.PointOfSale || !erpnext.PointOfSale.ItemSelector) {
@@ -39,14 +39,193 @@ rustic_pos.patchItemSelector = function() {
 
     const ItemSelector = erpnext.PointOfSale.ItemSelector.prototype;
     const originalGetItemHtml = ItemSelector.get_item_html;
+    const originalMake = ItemSelector.make;
+    const originalRenderItemList = ItemSelector.render_item_list;
 
+    // Patch make() to add view toggle button
+    ItemSelector.make = function() {
+        originalMake.call(this);
+        rustic_pos.addViewToggle(this);
+    };
+
+    // Patch get_item_html() to fix qty and support list view
     ItemSelector.get_item_html = function(item) {
         // Fix floating-point precision for actual_qty before rendering
         if (item.actual_qty !== undefined && item.actual_qty !== null) {
             item.actual_qty = flt(item.actual_qty, 2);
         }
+
+        // Check if list view is active
+        if (rustic_pos.isListViewActive()) {
+            return rustic_pos.getListItemHtml(item, this);
+        }
+
         return originalGetItemHtml.call(this, item);
     };
+
+    // Patch render_item_list() to apply list view class
+    ItemSelector.render_item_list = function(items) {
+        originalRenderItemList.call(this, items);
+        rustic_pos.applyViewMode(this);
+    };
+};
+
+/**
+ * Check if list view is active
+ */
+rustic_pos.isListViewActive = function() {
+    return localStorage.getItem('rustic_pos_view_mode') === 'list';
+};
+
+/**
+ * Add view toggle button to ItemSelector
+ */
+rustic_pos.addViewToggle = function(component) {
+    // Get settings first
+    const posProfile = window.cur_pos && window.cur_pos.pos_profile;
+    if (!posProfile) return;
+
+    frappe.call({
+        method: 'frappe.client.get_value',
+        args: {
+            doctype: 'POS Profile',
+            filters: { name: posProfile },
+            fieldname: ['rustic_enable_list_view']
+        },
+        async: false,
+        callback: function(r) {
+            if (r.message && cint(r.message.rustic_enable_list_view)) {
+                rustic_pos.renderViewToggle(component);
+            }
+        }
+    });
+};
+
+/**
+ * Render view toggle button
+ */
+rustic_pos.renderViewToggle = function(component) {
+    const $header = component.$component.find('.filter-section');
+    if (!$header.length) return;
+
+    // Check if toggle already exists
+    if ($header.find('.rustic-view-toggle').length) return;
+
+    const currentView = rustic_pos.isListViewActive() ? 'list' : 'grid';
+
+    const toggleHtml = `
+        <div class="rustic-view-toggle" style="display:flex;margin-left:10px;">
+            <button type="button" class="btn btn-xs ${currentView === 'grid' ? 'btn-primary' : 'btn-default'} rustic-grid-btn" title="${__('Grid View')}" style="padding:5px 8px;">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                    <rect x="1" y="1" width="6" height="6" rx="1"/>
+                    <rect x="9" y="1" width="6" height="6" rx="1"/>
+                    <rect x="1" y="9" width="6" height="6" rx="1"/>
+                    <rect x="9" y="9" width="6" height="6" rx="1"/>
+                </svg>
+            </button>
+            <button type="button" class="btn btn-xs ${currentView === 'list' ? 'btn-primary' : 'btn-default'} rustic-list-btn" title="${__('List View')}" style="padding:5px 8px;margin-left:2px;">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                    <rect x="1" y="2" width="14" height="2" rx="0.5"/>
+                    <rect x="1" y="7" width="14" height="2" rx="0.5"/>
+                    <rect x="1" y="12" width="14" height="2" rx="0.5"/>
+                </svg>
+            </button>
+        </div>
+    `;
+
+    $header.append(toggleHtml);
+
+    // Bind click events
+    $header.find('.rustic-grid-btn').on('click', function() {
+        rustic_pos.setViewMode('grid', component);
+    });
+
+    $header.find('.rustic-list-btn').on('click', function() {
+        rustic_pos.setViewMode('list', component);
+    });
+};
+
+/**
+ * Set view mode and refresh items
+ */
+rustic_pos.setViewMode = function(mode, component) {
+    localStorage.setItem('rustic_pos_view_mode', mode);
+
+    // Update button states
+    const $toggle = component.$component.find('.rustic-view-toggle');
+    $toggle.find('.rustic-grid-btn').removeClass('btn-primary').addClass('btn-default');
+    $toggle.find('.rustic-list-btn').removeClass('btn-primary').addClass('btn-default');
+
+    if (mode === 'grid') {
+        $toggle.find('.rustic-grid-btn').removeClass('btn-default').addClass('btn-primary');
+    } else {
+        $toggle.find('.rustic-list-btn').removeClass('btn-default').addClass('btn-primary');
+    }
+
+    // Refresh item display
+    rustic_pos.applyViewMode(component);
+
+    // Re-render items by triggering search
+    const searchTerm = component.$component.find('.search-field input').val() || '';
+    component.search_field.set_value(searchTerm);
+};
+
+/**
+ * Apply view mode class to items container
+ */
+rustic_pos.applyViewMode = function(component) {
+    const $itemsContainer = component.$component.find('.items-container');
+    if (!$itemsContainer.length) return;
+
+    if (rustic_pos.isListViewActive()) {
+        $itemsContainer.addClass('rustic-list-view');
+    } else {
+        $itemsContainer.removeClass('rustic-list-view');
+    }
+};
+
+/**
+ * Get list view HTML for an item
+ */
+rustic_pos.getListItemHtml = function(item, component) {
+    const me = component;
+
+    const { item_code, item_name, stock_uom, price_list_rate, actual_qty, is_stock_item } = item;
+
+    // Determine stock indicator
+    let stockClass = 'text-muted';
+    let stockQty = actual_qty || 0;
+    if (is_stock_item) {
+        if (stockQty > 10) stockClass = 'text-success';
+        else if (stockQty > 0) stockClass = 'text-warning';
+        else stockClass = 'text-danger';
+    }
+
+    // Format price
+    const formattedPrice = format_currency(price_list_rate, me.currency);
+
+    return `
+        <div class="item-wrapper rustic-list-item"
+            data-item-code="${escape(item_code)}"
+            data-serial-no="${escape(item.serial_no || '')}"
+            data-batch-no="${escape(item.batch_no || '')}"
+            data-uom="${escape(stock_uom || '')}"
+            data-rate="${escape(price_list_rate || 0)}"
+            style="display:flex; align-items:center; padding:8px 12px; border-bottom:1px solid var(--border-color); cursor:pointer;">
+            <div style="flex:1; min-width:0;">
+                <div style="font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                    ${frappe.utils.escape_html(item_name || item_code)}
+                </div>
+                <div class="text-muted small">${frappe.utils.escape_html(item_code)}</div>
+            </div>
+            <div style="width:80px; text-align:right; margin-right:15px;">
+                <span class="${stockClass}">${flt(stockQty, 2)} ${frappe.utils.escape_html(stock_uom || '')}</span>
+            </div>
+            <div style="width:80px; text-align:right; font-weight:500;">
+                ${formattedPrice}
+            </div>
+        </div>
+    `;
 };
 
 /**
@@ -144,7 +323,8 @@ rustic_pos.getRusticSettings = function(component, callback) {
             fieldname: [
                 'rustic_allow_warehouse_change',
                 'rustic_allow_discount_change',
-                'rustic_allow_uom_change'
+                'rustic_allow_uom_change',
+                'rustic_enable_list_view'
             ]
         },
         async: false,
@@ -153,7 +333,8 @@ rustic_pos.getRusticSettings = function(component, callback) {
                 rustic_pos.settings_cache = {
                     rustic_allow_warehouse_change: cint(r.message.rustic_allow_warehouse_change),
                     rustic_allow_discount_change: cint(r.message.rustic_allow_discount_change),
-                    rustic_allow_uom_change: cint(r.message.rustic_allow_uom_change)
+                    rustic_allow_uom_change: cint(r.message.rustic_allow_uom_change),
+                    rustic_enable_list_view: cint(r.message.rustic_enable_list_view)
                 };
                 callback(rustic_pos.settings_cache);
             } else {
