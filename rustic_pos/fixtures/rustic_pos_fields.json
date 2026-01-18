@@ -64,5 +64,16 @@
         "insert_after": "rustic_hide_loyalty",
         "default": "0",
         "description": "Hide item group filter/search box in POS"
+    },
+    {
+        "doctype": "Custom Field",
+        "name": "POS Profile-rustic_hide_warehouse",
+        "dt": "POS Profile",
+        "fieldname": "rustic_hide_warehouse",
+        "fieldtype": "Check",
+        "label": "Hide Warehouse Selector",
+        "insert_after": "rustic_hide_item_group",
+        "default": "0",
+        "description": "Hide warehouse selector in POS item details"
     }
 ]

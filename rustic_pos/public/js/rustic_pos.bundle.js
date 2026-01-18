@@ -395,6 +395,12 @@ rustic_pos.applyCustomerFieldsCustomizations = function(component) {
 rustic_pos.applyItemDetailsCustomizations = function(component, item) {
     // Fetch rustic settings directly from POS Profile
     rustic_pos.getRusticSettings(component, function(settings) {
+        // Hide warehouse selector if setting enabled
+        if (settings.rustic_hide_warehouse) {
+            component.$form_container.find('.warehouse-control').hide();
+            component.$form_container.find('[data-fieldname="warehouse"]').closest('.frappe-control').hide();
+        }
+
         // Hide discount if not allowed
         if (!settings.rustic_allow_discount_change) {
             component.$form_container.find('.discount_percentage-control').hide();
@@ -439,7 +445,8 @@ rustic_pos.getRusticSettings = function(component, callback) {
                 'rustic_allow_uom_change',
                 'rustic_item_view_mode',
                 'rustic_hide_loyalty',
-                'rustic_hide_item_group'
+                'rustic_hide_item_group',
+                'rustic_hide_warehouse'
             ]
         },
         async: false,
@@ -450,7 +457,8 @@ rustic_pos.getRusticSettings = function(component, callback) {
                     rustic_allow_uom_change: cint(r.message.rustic_allow_uom_change),
                     rustic_item_view_mode: r.message.rustic_item_view_mode || 'Grid',
                     rustic_hide_loyalty: cint(r.message.rustic_hide_loyalty),
-                    rustic_hide_item_group: cint(r.message.rustic_hide_item_group)
+                    rustic_hide_item_group: cint(r.message.rustic_hide_item_group),
+                    rustic_hide_warehouse: cint(r.message.rustic_hide_warehouse)
                 };
                 callback(rustic_pos.settings_cache);
             } else {
