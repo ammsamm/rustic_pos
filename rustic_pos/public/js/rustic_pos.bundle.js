@@ -55,18 +55,25 @@ rustic_pos.initViewMode = function() {
         args: {
             doctype: 'POS Profile',
             filters: { name: posProfile },
-            fieldname: ['rustic_item_view_mode', 'rustic_hide_loyalty', 'rustic_hide_item_group']
+            fieldname: ['rustic_item_view_mode', 'rustic_hide_loyalty', 'rustic_hide_item_group', 'rustic_hide_form_view']
         },
         callback: function(r) {
             if (r.message) {
                 rustic_pos.view_mode = r.message.rustic_item_view_mode || 'Grid';
                 rustic_pos.hide_loyalty = cint(r.message.rustic_hide_loyalty);
                 rustic_pos.hide_item_group = cint(r.message.rustic_hide_item_group);
+                rustic_pos.hide_form_view = cint(r.message.rustic_hide_form_view);
 
                 // Hide item group filter if setting enabled
                 if (rustic_pos.hide_item_group) {
                     rustic_pos.hideItemGroupFilter(component);
                 }
+
+                // Hide form view button globally if setting enabled
+                if (rustic_pos.hide_form_view) {
+                    rustic_pos.hideFormViewButton();
+                }
+
                 // Refresh items to apply view mode
                 rustic_pos.applyViewMode(component);
                 // Trigger refresh
@@ -406,6 +413,11 @@ rustic_pos.applyItemDetailsCustomizations = function(component, item) {
             component.$form_container.find('.discount_percentage-control').hide();
         }
 
+        // Hide Open Form View button if setting enabled
+        if (settings.rustic_hide_form_view) {
+            rustic_pos.hideFormViewButton(component);
+        }
+
         // Handle UOM
         if (!settings.rustic_allow_uom_change) {
             rustic_pos.showUomReadonly(component, item);
@@ -413,6 +425,28 @@ rustic_pos.applyItemDetailsCustomizations = function(component, item) {
             rustic_pos.fetchAndShowUomButtons(component, item);
         }
     });
+};
+
+/**
+ * Hide Open Form View button in POS
+ */
+rustic_pos.hideFormViewButton = function(component) {
+    // Hide in item details component
+    if (component && component.$component) {
+        component.$component.find('.open-form-view-btn').hide();
+        component.$component.find('[data-action="open_form_view"]').hide();
+        component.$component.find('.edit-cart-btn').hide();
+    }
+
+    // Hide globally in POS
+    $('.point-of-sale-app .open-form-view-btn').hide();
+    $('.point-of-sale-app [data-action="open_form_view"]').hide();
+    $('.point-of-sale-app .btn-open-form').hide();
+
+    // Hide any menu items containing "Open Form View" or "Edit Full Form"
+    $('.point-of-sale-app .dropdown-item:contains("Form View")').hide();
+    $('.point-of-sale-app .dropdown-item:contains("Edit Full")').hide();
+    $('.point-of-sale-app a:contains("Open Form View")').hide();
 };
 
 /**
@@ -446,7 +480,8 @@ rustic_pos.getRusticSettings = function(component, callback) {
                 'rustic_item_view_mode',
                 'rustic_hide_loyalty',
                 'rustic_hide_item_group',
-                'rustic_hide_warehouse'
+                'rustic_hide_warehouse',
+                'rustic_hide_form_view'
             ]
         },
         async: false,
@@ -458,7 +493,8 @@ rustic_pos.getRusticSettings = function(component, callback) {
                     rustic_item_view_mode: r.message.rustic_item_view_mode || 'Grid',
                     rustic_hide_loyalty: cint(r.message.rustic_hide_loyalty),
                     rustic_hide_item_group: cint(r.message.rustic_hide_item_group),
-                    rustic_hide_warehouse: cint(r.message.rustic_hide_warehouse)
+                    rustic_hide_warehouse: cint(r.message.rustic_hide_warehouse),
+                    rustic_hide_form_view: cint(r.message.rustic_hide_form_view)
                 };
                 callback(rustic_pos.settings_cache);
             } else {

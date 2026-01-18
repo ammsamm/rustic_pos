@@ -75,5 +75,16 @@
         "insert_after": "rustic_hide_item_group",
         "default": "0",
         "description": "Hide warehouse selector in POS item details"
+    },
+    {
+        "doctype": "Custom Field",
+        "name": "POS Profile-rustic_hide_form_view",
+        "dt": "POS Profile",
+        "fieldname": "rustic_hide_form_view",
+        "fieldtype": "Check",
+        "label": "Hide Open Form View Button",
+        "insert_after": "rustic_hide_warehouse",
+        "default": "0",
+        "description": "Hide the Open Form View button/menu in POS"
     }
 ]

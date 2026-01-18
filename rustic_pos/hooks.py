@@ -240,7 +240,8 @@ fixtures = [
                 "rustic_item_view_mode",
                 "rustic_hide_loyalty",
                 "rustic_hide_item_group",
-                "rustic_hide_warehouse"
+                "rustic_hide_warehouse",
+                "rustic_hide_form_view"
             ]]
         ]
     }
