@@ -138,7 +138,7 @@ rustic_pos.injectPersistentStyles = function() {
                 .rustic-list-view .rustic-list-item {
                     display: flex !important;
                     align-items: center;
-                    padding: 6px 8px;
+                    padding: 8px;
                     border-bottom: 1px solid var(--border-color);
                     cursor: pointer;
                     background: var(--bg-color);
@@ -153,29 +153,24 @@ rustic_pos.injectPersistentStyles = function() {
                     overflow: hidden;
                     text-overflow: ellipsis;
                     padding-right: 8px;
-                    font-size: 0.85em;
                 }
                 .rustic-list-view .rustic-item-stock {
                     width: 50px;
                     text-align: right;
                     padding-right: 8px;
-                    font-size: 0.8em;
-                    color: var(--text-muted);
                 }
                 .rustic-list-view .rustic-item-price {
-                    width: 55px;
+                    width: 65px;
                     text-align: right;
                     font-weight: 600;
-                    font-size: 0.85em;
                 }
                 .rustic-list-header {
                     display: flex !important;
                     align-items: center;
-                    padding: 6px 8px;
+                    padding: 8px;
                     background: var(--subtle-fg);
                     border-bottom: 2px solid var(--border-color);
                     font-weight: 600;
-                    font-size: 0.8em;
                     position: sticky;
                     top: 0;
                     z-index: 1;
@@ -189,7 +184,7 @@ rustic_pos.injectPersistentStyles = function() {
                     padding-right: 8px;
                 }
                 .rustic-list-header > div:last-child {
-                    width: 55px;
+                    width: 65px;
                     text-align: right;
                 }
             </style>
@@ -417,8 +412,8 @@ rustic_pos.getListItemHtml = function(item, component) {
         else stockClass = 'text-danger';
     }
 
-    // Format price (short format)
-    const price = flt(price_list_rate || 0, 2);
+    // Format price with currency symbol
+    const formattedPrice = format_currency(price_list_rate, me.currency);
 
     return `
         <div class="item-wrapper rustic-list-item"
@@ -428,8 +423,8 @@ rustic_pos.getListItemHtml = function(item, component) {
             data-uom="${escape(stock_uom || '')}"
             data-rate="${escape(price_list_rate || 0)}">
             <div class="rustic-item-name">${frappe.utils.escape_html(item_name || item_code)}</div>
-            <div class="rustic-item-stock ${stockClass}">${flt(stockQty, 0)}</div>
-            <div class="rustic-item-price">${price}</div>
+            <div class="rustic-item-stock ${stockClass}">${flt(stockQty, 2)}</div>
+            <div class="rustic-item-price">${formattedPrice}</div>
         </div>
     `;
 };
