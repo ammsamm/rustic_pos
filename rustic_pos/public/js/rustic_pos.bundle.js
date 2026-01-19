@@ -58,7 +58,7 @@ rustic_pos.init = function() {
  * Apply customizations to already-instantiated POS components
  */
 rustic_pos.applyToExistingInstances = function() {
-    const checkAndApply = function() {
+    const applyAll = function() {
         if (!window.cur_pos) return false;
 
         // Apply view mode and settings
@@ -80,17 +80,38 @@ rustic_pos.applyToExistingInstances = function() {
         return true;
     };
 
-    // Try immediately, then poll for cur_pos
-    if (!checkAndApply()) {
-        let attempts = 0;
-        const maxAttempts = 100;
-        const interval = setInterval(function() {
-            attempts++;
-            if (checkAndApply() || attempts >= maxAttempts) {
+    // Poll until cur_pos is available, then keep applying for a few seconds
+    let attempts = 0;
+    const maxAttempts = 150;
+    let foundCount = 0;
+
+    const interval = setInterval(function() {
+        attempts++;
+
+        if (window.cur_pos) {
+            applyAll();
+            foundCount++;
+
+            // Keep applying for 10 more times after finding cur_pos
+            // This catches components that render late
+            if (foundCount >= 10) {
                 clearInterval(interval);
             }
-        }, 100);
-    }
+        }
+
+        if (attempts >= maxAttempts) {
+            clearInterval(interval);
+        }
+    }, 100);
+
+    // Also apply at specific delays to catch late renders
+    [500, 1000, 2000, 3000].forEach(function(delay) {
+        setTimeout(function() {
+            if (window.cur_pos) {
+                applyAll();
+            }
+        }, delay);
+    });
 
     // Also use MutationObserver for dynamic content
     rustic_pos.observePOSChanges();
@@ -948,14 +969,31 @@ rustic_pos.observePOSChanges = function() {
             clearTimeout(rustic_pos.observerTimeout);
         }
         rustic_pos.observerTimeout = setTimeout(function() {
+            if (!window.cur_pos) return;
+
             // Check if form view button appeared and needs hiding
             if (rustic_pos.hide_form_view) {
                 rustic_pos.hideFormViewButton();
             }
 
             // Check if item group filter appeared and needs hiding
-            if (rustic_pos.hide_item_group && window.cur_pos && window.cur_pos.item_selector) {
+            if (rustic_pos.hide_item_group && window.cur_pos.item_selector) {
                 rustic_pos.hideItemGroupFilter(window.cur_pos.item_selector);
+            }
+
+            // Re-apply loyalty hiding
+            if (rustic_pos.hide_loyalty && window.cur_pos.cart) {
+                rustic_pos.hideLoyaltyFields(window.cur_pos.cart);
+            }
+
+            // Re-apply cart customizations (discount button)
+            if (window.cur_pos.cart) {
+                rustic_pos.applyCartCustomizations(window.cur_pos.cart);
+            }
+
+            // Re-apply view mode if items container exists
+            if (window.cur_pos.item_selector) {
+                rustic_pos.applyViewMode(window.cur_pos.item_selector);
             }
         }, 50);
     });
@@ -1003,7 +1041,7 @@ rustic_pos.waitAndInit = function() {
     }
 
     let attempts = 0;
-    const maxAttempts = 100; // Increased attempts
+    const maxAttempts = 150;
 
     rustic_pos.initInterval = setInterval(function() {
         attempts++;
@@ -1013,10 +1051,13 @@ rustic_pos.waitAndInit = function() {
             clearInterval(rustic_pos.initInterval);
             rustic_pos.initInterval = null;
 
-            // Small delay to ensure POS is fully rendered
-            setTimeout(function() {
-                rustic_pos.init();
-            }, 200);
+            // Initialize immediately
+            rustic_pos.init();
+
+            // Re-init after delays to catch late-loading components
+            setTimeout(function() { rustic_pos.init(); }, 300);
+            setTimeout(function() { rustic_pos.init(); }, 700);
+            setTimeout(function() { rustic_pos.init(); }, 1500);
         }
 
         if (attempts >= maxAttempts) {
@@ -1024,7 +1065,7 @@ rustic_pos.waitAndInit = function() {
             rustic_pos.initInterval = null;
             console.warn('Rustic POS: Timeout waiting for POS components');
         }
-    }, 50); // Faster polling
+    }, 50);
 };
 
 /**
