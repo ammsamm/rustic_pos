@@ -135,92 +135,61 @@ rustic_pos.injectPersistentStyles = function() {
     if (!$('#rustic-list-styles').length) {
         $('head').append(`
             <style id="rustic-list-styles">
-                /* Fixed minimum width for item selector when list view is active */
-                .point-of-sale-app .item-selector-wrapper.rustic-list-active {
-                    min-width: 400px !important;
-                    flex-shrink: 0 !important;
-                    flex-basis: 400px !important;
-                    overflow: visible !important;
-                }
-                .point-of-sale-app .rustic-list-active .items-container {
-                    min-width: 380px !important;
-                    overflow-x: visible !important;
-                    overflow-y: auto !important;
-                }
-                /* Ensure item selector doesn't shrink when item details opens */
-                .point-of-sale-app .item-selector-wrapper {
-                    flex-shrink: 0 !important;
-                }
-                /* Force POS layout to not compress item selector */
-                .point-of-sale-app .pos-content {
-                    overflow-x: auto !important;
-                }
                 .rustic-list-view .rustic-list-item {
                     display: flex !important;
                     align-items: center;
-                    padding: 8px 10px;
+                    padding: 6px 8px;
                     border-bottom: 1px solid var(--border-color);
                     cursor: pointer;
                     background: var(--bg-color);
-                    width: 100%;
-                    min-width: 360px;
-                    box-sizing: border-box;
                 }
                 .rustic-list-view .rustic-list-item:hover {
                     background: var(--subtle-fg) !important;
                 }
                 .rustic-list-view .rustic-item-name {
-                    flex: 1 1 auto;
-                    min-width: 100px;
+                    flex: 1;
                     font-weight: 500;
                     white-space: nowrap;
                     overflow: hidden;
                     text-overflow: ellipsis;
-                    padding-right: 10px;
+                    padding-right: 8px;
+                    font-size: 0.85em;
                 }
                 .rustic-list-view .rustic-item-stock {
-                    flex: 0 0 90px;
-                    width: 90px;
+                    width: 50px;
                     text-align: right;
-                    margin-right: 10px;
-                    font-size: 0.9em;
-                    white-space: nowrap;
+                    padding-right: 8px;
+                    font-size: 0.8em;
+                    color: var(--text-muted);
                 }
                 .rustic-list-view .rustic-item-price {
-                    flex: 0 0 80px;
-                    width: 80px;
+                    width: 55px;
                     text-align: right;
                     font-weight: 600;
-                    font-size: 0.9em;
-                    white-space: nowrap;
+                    font-size: 0.85em;
                 }
                 .rustic-list-header {
                     display: flex !important;
                     align-items: center;
-                    padding: 8px 10px;
+                    padding: 6px 8px;
                     background: var(--subtle-fg);
                     border-bottom: 2px solid var(--border-color);
                     font-weight: 600;
-                    font-size: var(--text-sm);
+                    font-size: 0.8em;
                     position: sticky;
                     top: 0;
                     z-index: 1;
-                    min-width: 360px;
-                    box-sizing: border-box;
                 }
                 .rustic-list-header > div:first-child {
-                    flex: 1 1 auto;
-                    min-width: 100px;
+                    flex: 1;
                 }
                 .rustic-list-header > div:nth-child(2) {
-                    flex: 0 0 90px;
-                    width: 90px;
+                    width: 50px;
                     text-align: right;
-                    margin-right: 10px;
+                    padding-right: 8px;
                 }
                 .rustic-list-header > div:last-child {
-                    flex: 0 0 80px;
-                    width: 80px;
+                    width: 55px;
                     text-align: right;
                 }
             </style>
@@ -439,8 +408,8 @@ rustic_pos.getListItemHtml = function(item, component) {
 
     const { item_code, item_name, stock_uom, price_list_rate, actual_qty, is_stock_item } = item;
 
-    // Determine stock indicator
-    let stockClass = 'text-muted';
+    // Determine stock indicator color
+    let stockClass = '';
     let stockQty = actual_qty || 0;
     if (is_stock_item) {
         if (stockQty > 10) stockClass = 'text-success';
@@ -448,8 +417,8 @@ rustic_pos.getListItemHtml = function(item, component) {
         else stockClass = 'text-danger';
     }
 
-    // Format price
-    const formattedPrice = format_currency(price_list_rate, me.currency);
+    // Format price (short format)
+    const price = flt(price_list_rate || 0, 2);
 
     return `
         <div class="item-wrapper rustic-list-item"
@@ -459,8 +428,8 @@ rustic_pos.getListItemHtml = function(item, component) {
             data-uom="${escape(stock_uom || '')}"
             data-rate="${escape(price_list_rate || 0)}">
             <div class="rustic-item-name">${frappe.utils.escape_html(item_name || item_code)}</div>
-            <div class="rustic-item-stock ${stockClass}">${flt(stockQty, 2)} ${frappe.utils.escape_html(stock_uom || '')}</div>
-            <div class="rustic-item-price">${formattedPrice}</div>
+            <div class="rustic-item-stock ${stockClass}">${flt(stockQty, 0)}</div>
+            <div class="rustic-item-price">${price}</div>
         </div>
     `;
 };
