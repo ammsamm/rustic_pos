@@ -130,6 +130,102 @@ rustic_pos.injectPersistentStyles = function() {
             </style>
         `);
     }
+
+    // Always inject list view styles (they only apply when class is added)
+    if (!$('#rustic-list-styles').length) {
+        $('head').append(`
+            <style id="rustic-list-styles">
+                /* Fixed minimum width for item selector when list view is active */
+                .point-of-sale-app .item-selector-wrapper.rustic-list-active {
+                    min-width: 400px !important;
+                    flex-shrink: 0 !important;
+                    flex-basis: 400px !important;
+                    overflow: visible !important;
+                }
+                .point-of-sale-app .rustic-list-active .items-container {
+                    min-width: 380px !important;
+                    overflow-x: visible !important;
+                    overflow-y: auto !important;
+                }
+                /* Ensure item selector doesn't shrink when item details opens */
+                .point-of-sale-app .item-selector-wrapper {
+                    flex-shrink: 0 !important;
+                }
+                /* Force POS layout to not compress item selector */
+                .point-of-sale-app .pos-content {
+                    overflow-x: auto !important;
+                }
+                .rustic-list-view .rustic-list-item {
+                    display: flex !important;
+                    align-items: center;
+                    padding: 8px 10px;
+                    border-bottom: 1px solid var(--border-color);
+                    cursor: pointer;
+                    background: var(--bg-color);
+                    width: 100%;
+                    min-width: 360px;
+                    box-sizing: border-box;
+                }
+                .rustic-list-view .rustic-list-item:hover {
+                    background: var(--subtle-fg) !important;
+                }
+                .rustic-list-view .rustic-item-name {
+                    flex: 1 1 auto;
+                    min-width: 100px;
+                    font-weight: 500;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    padding-right: 10px;
+                }
+                .rustic-list-view .rustic-item-stock {
+                    flex: 0 0 90px;
+                    width: 90px;
+                    text-align: right;
+                    margin-right: 10px;
+                    font-size: 0.9em;
+                    white-space: nowrap;
+                }
+                .rustic-list-view .rustic-item-price {
+                    flex: 0 0 80px;
+                    width: 80px;
+                    text-align: right;
+                    font-weight: 600;
+                    font-size: 0.9em;
+                    white-space: nowrap;
+                }
+                .rustic-list-header {
+                    display: flex !important;
+                    align-items: center;
+                    padding: 8px 10px;
+                    background: var(--subtle-fg);
+                    border-bottom: 2px solid var(--border-color);
+                    font-weight: 600;
+                    font-size: var(--text-sm);
+                    position: sticky;
+                    top: 0;
+                    z-index: 1;
+                    min-width: 360px;
+                    box-sizing: border-box;
+                }
+                .rustic-list-header > div:first-child {
+                    flex: 1 1 auto;
+                    min-width: 100px;
+                }
+                .rustic-list-header > div:nth-child(2) {
+                    flex: 0 0 90px;
+                    width: 90px;
+                    text-align: right;
+                    margin-right: 10px;
+                }
+                .rustic-list-header > div:last-child {
+                    flex: 0 0 80px;
+                    width: 80px;
+                    text-align: right;
+                }
+            </style>
+        `);
+    }
 };
 
 /**
@@ -321,96 +417,8 @@ rustic_pos.addListHeader = function(component) {
     const $itemsContainer = component.$component.find('.items-container');
     if (!$itemsContainer.length) return;
 
-    // Add CSS styles for list view if not already added
-    if (!$('#rustic-list-styles').length) {
-        const styles = `
-            <style id="rustic-list-styles">
-                /* Fixed minimum width for item selector when list view is active */
-                .point-of-sale-app .item-selector-wrapper.rustic-list-active {
-                    min-width: 380px !important;
-                    flex-shrink: 0 !important;
-                    flex-basis: 380px !important;
-                }
-                .point-of-sale-app .rustic-list-active .items-container {
-                    min-width: 360px !important;
-                    overflow-x: auto !important;
-                }
-                /* Ensure item selector doesn't shrink when item details opens */
-                .point-of-sale-app .item-selector-wrapper {
-                    flex-shrink: 0 !important;
-                }
-                .rustic-list-view .rustic-list-item {
-                    display: flex;
-                    align-items: center;
-                    padding: 8px 10px;
-                    border-bottom: 1px solid var(--border-color);
-                    cursor: pointer;
-                    background: var(--bg-color);
-                    width: 100%;
-                    min-width: 340px;
-                }
-                .rustic-list-view .rustic-list-item:hover {
-                    background: var(--subtle-fg) !important;
-                }
-                .rustic-list-view .rustic-item-name {
-                    flex: 1;
-                    min-width: 120px;
-                    font-weight: 500;
-                    white-space: nowrap;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                    padding-right: 10px;
-                }
-                .rustic-list-view .rustic-item-stock {
-                    width: 80px;
-                    min-width: 80px;
-                    flex-shrink: 0;
-                    text-align: right;
-                    margin-right: 10px;
-                    font-size: 0.9em;
-                }
-                .rustic-list-view .rustic-item-price {
-                    width: 80px;
-                    min-width: 80px;
-                    flex-shrink: 0;
-                    text-align: right;
-                    font-weight: 600;
-                    font-size: 0.9em;
-                }
-                .rustic-list-header {
-                    display: flex;
-                    align-items: center;
-                    padding: 8px 10px;
-                    background: var(--subtle-fg);
-                    border-bottom: 2px solid var(--border-color);
-                    font-weight: 600;
-                    font-size: var(--text-sm);
-                    position: sticky;
-                    top: 0;
-                    z-index: 1;
-                    min-width: 340px;
-                }
-                .rustic-list-header > div:first-child {
-                    flex: 1;
-                    min-width: 120px;
-                }
-                .rustic-list-header > div:nth-child(2) {
-                    width: 80px;
-                    min-width: 80px;
-                    flex-shrink: 0;
-                    text-align: right;
-                    margin-right: 10px;
-                }
-                .rustic-list-header > div:last-child {
-                    width: 80px;
-                    min-width: 80px;
-                    flex-shrink: 0;
-                    text-align: right;
-                }
-            </style>
-        `;
-        $('head').append(styles);
-    }
+    // Ensure CSS is injected (in case it wasn't already)
+    rustic_pos.injectPersistentStyles();
 
     const headerHtml = `
         <div class="rustic-list-header">
