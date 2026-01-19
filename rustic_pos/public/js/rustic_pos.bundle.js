@@ -13,12 +13,12 @@ frappe.provide('rustic_pos');
 
 rustic_pos.initialized = false;
 rustic_pos.prototypesPatched = false;
+rustic_pos.settingsLoaded = false;
 
 /**
  * Clean up dynamic styles from previous session
  */
 rustic_pos.cleanupStyles = function() {
-    // Remove all rustic dynamic styles so they can be re-added based on current settings
     $('#rustic-hide-item-group-styles').remove();
     $('#rustic-hide-loyalty-styles').remove();
     $('#rustic-hide-form-view-styles').remove();
@@ -26,134 +26,29 @@ rustic_pos.cleanupStyles = function() {
 };
 
 /**
- * Initialize Rustic POS
+ * Pre-load settings before POS initializes (called early)
  */
-rustic_pos.init = function() {
-    // Clean up previous session styles
-    rustic_pos.cleanupStyles();
+rustic_pos.preloadSettings = function(posProfile) {
+    if (!posProfile || rustic_pos.settingsLoaded) return;
 
-    // Clear settings cache on each init to ensure fresh settings
-    rustic_pos.settings_cache = null;
-    rustic_pos.view_mode = null;
-    rustic_pos.hide_loyalty = null;
-    rustic_pos.hide_item_group = null;
-    rustic_pos.hide_form_view = null;
-
-    // Patch prototypes only once
-    if (!rustic_pos.prototypesPatched) {
-        rustic_pos.patchItemSelector();
-        rustic_pos.patchItemDetails();
-        rustic_pos.patchItemCart();
-        rustic_pos.patchCustomerDialog();
-        rustic_pos.prototypesPatched = true;
-    }
-
-    rustic_pos.initialized = true;
-
-    // Apply customizations to existing instances and view mode
-    rustic_pos.applyToExistingInstances();
-};
-
-/**
- * Apply customizations to already-instantiated POS components
- */
-rustic_pos.applyToExistingInstances = function() {
-    const applyAll = function() {
-        if (!window.cur_pos) return false;
-
-        // Apply view mode and settings
-        rustic_pos.initViewMode();
-
-        // Re-apply to existing item_details if it has a current item
-        if (window.cur_pos.item_details && window.cur_pos.item_details.current_item) {
-            rustic_pos.applyItemDetailsCustomizations(
-                window.cur_pos.item_details,
-                window.cur_pos.item_details.current_item
-            );
-        }
-
-        // Re-apply to existing cart
-        if (window.cur_pos.cart) {
-            rustic_pos.applyCartCustomizations(window.cur_pos.cart);
-        }
-
-        return true;
-    };
-
-    // Poll until cur_pos is available, then keep applying for a few seconds
-    let attempts = 0;
-    const maxAttempts = 150;
-    let foundCount = 0;
-
-    const interval = setInterval(function() {
-        attempts++;
-
-        if (window.cur_pos) {
-            applyAll();
-            foundCount++;
-
-            // Keep applying for 10 more times after finding cur_pos
-            // This catches components that render late
-            if (foundCount >= 10) {
-                clearInterval(interval);
-            }
-        }
-
-        if (attempts >= maxAttempts) {
-            clearInterval(interval);
-        }
-    }, 100);
-
-    // Also apply at specific delays to catch late renders
-    [500, 1000, 2000, 3000].forEach(function(delay) {
-        setTimeout(function() {
-            if (window.cur_pos) {
-                applyAll();
-            }
-        }, delay);
-    });
-
-    // Also use MutationObserver for dynamic content
-    rustic_pos.observePOSChanges();
-};
-
-/**
- * Initialize view mode for ItemSelector based on POS Profile setting
- */
-rustic_pos.initViewMode = function() {
-    if (!window.cur_pos || !window.cur_pos.item_selector) return;
-
-    const component = window.cur_pos.item_selector;
-    const posProfile = window.cur_pos.pos_profile;
-
-    if (!posProfile) return;
-
-    // Use synchronous call to ensure settings are loaded before applying
     frappe.call({
         method: 'frappe.client.get_value',
         args: {
             doctype: 'POS Profile',
             filters: { name: posProfile },
             fieldname: [
+                'rustic_allow_discount_change',
+                'rustic_allow_uom_change',
                 'rustic_item_view_mode',
                 'rustic_hide_loyalty',
                 'rustic_hide_item_group',
-                'rustic_hide_form_view',
-                'rustic_allow_discount_change',
-                'rustic_allow_uom_change',
-                'rustic_hide_warehouse'
+                'rustic_hide_warehouse',
+                'rustic_hide_form_view'
             ]
         },
-        async: false, // Synchronous to ensure settings are loaded first
+        async: false,
         callback: function(r) {
             if (r.message) {
-                // Update all cached settings
-                rustic_pos.view_mode = r.message.rustic_item_view_mode || 'Grid';
-                rustic_pos.hide_loyalty = cint(r.message.rustic_hide_loyalty);
-                rustic_pos.hide_item_group = cint(r.message.rustic_hide_item_group);
-                rustic_pos.hide_form_view = cint(r.message.rustic_hide_form_view);
-
-                // Also update the settings cache
                 rustic_pos.settings_cache = {
                     rustic_allow_discount_change: cint(r.message.rustic_allow_discount_change),
                     rustic_allow_uom_change: cint(r.message.rustic_allow_uom_change),
@@ -163,18 +58,131 @@ rustic_pos.initViewMode = function() {
                     rustic_hide_warehouse: cint(r.message.rustic_hide_warehouse),
                     rustic_hide_form_view: cint(r.message.rustic_hide_form_view)
                 };
+                rustic_pos.view_mode = rustic_pos.settings_cache.rustic_item_view_mode;
+                rustic_pos.hide_loyalty = rustic_pos.settings_cache.rustic_hide_loyalty;
+                rustic_pos.hide_item_group = rustic_pos.settings_cache.rustic_hide_item_group;
+                rustic_pos.hide_form_view = rustic_pos.settings_cache.rustic_hide_form_view;
+                rustic_pos.settingsLoaded = true;
+
+                // Inject CSS immediately based on settings
+                rustic_pos.injectPersistentStyles();
             }
         }
     });
+};
 
-    // Apply settings after fetch completes (sync call ensures this)
-    if (rustic_pos.hide_item_group) {
-        rustic_pos.hideItemGroupFilter(component);
+/**
+ * Inject CSS styles immediately based on settings
+ */
+rustic_pos.injectPersistentStyles = function() {
+    if (!rustic_pos.settings_cache) return;
+
+    // Inject hide styles immediately so elements are hidden from first render
+    if (rustic_pos.settings_cache.rustic_hide_item_group && !$('#rustic-hide-item-group-styles').length) {
+        $('head').append(`
+            <style id="rustic-hide-item-group-styles">
+                .point-of-sale-app .item-group-field,
+                .point-of-sale-app [data-fieldname="item_group"],
+                .point-of-sale-app .frappe-control[data-fieldname="item_group"],
+                .point-of-sale-app .item-group-filter {
+                    display: none !important;
+                }
+            </style>
+        `);
     }
 
+    if (rustic_pos.settings_cache.rustic_hide_loyalty && !$('#rustic-hide-loyalty-styles').length) {
+        $('head').append(`
+            <style id="rustic-hide-loyalty-styles">
+                .point-of-sale-app [data-fieldname="loyalty_program"],
+                .point-of-sale-app [data-fieldname="loyalty_points"],
+                .point-of-sale-app .loyalty_program-control,
+                .point-of-sale-app .loyalty_points-control {
+                    display: none !important;
+                }
+            </style>
+        `);
+    }
+
+    if (rustic_pos.settings_cache.rustic_hide_form_view && !$('#rustic-hide-form-view-styles').length) {
+        $('head').append(`
+            <style id="rustic-hide-form-view-styles">
+                .point-of-sale-app .new-pos-invoice,
+                .point-of-sale-app [data-name="new-pos-invoice"],
+                .point-of-sale-app a[href*="new-pos-invoice"],
+                .point-of-sale-app .open-form-view-btn,
+                .point-of-sale-app [data-action="open_form_view"],
+                .point-of-sale-app .edit-cart-btn,
+                .point-of-sale-app .btn-open-form {
+                    display: none !important;
+                }
+            </style>
+        `);
+    }
+
+    if (!rustic_pos.settings_cache.rustic_allow_discount_change && !$('#rustic-hide-discount-styles').length) {
+        $('head').append(`
+            <style id="rustic-hide-discount-styles">
+                .point-of-sale-app .add-discount-wrapper,
+                .point-of-sale-app .discount_percentage-control {
+                    display: none !important;
+                }
+            </style>
+        `);
+    }
+};
+
+/**
+ * Initialize Rustic POS - patches prototypes before components are created
+ */
+rustic_pos.init = function() {
+    // Patch prototypes ONCE - must happen before POS components are instantiated
+    if (!rustic_pos.prototypesPatched) {
+        rustic_pos.patchItemSelector();
+        rustic_pos.patchItemDetails();
+        rustic_pos.patchItemCart();
+        rustic_pos.patchCustomerDialog();
+        rustic_pos.prototypesPatched = true;
+    }
+
+    rustic_pos.initialized = true;
+};
+
+/**
+ * Apply customizations after POS is ready
+ */
+rustic_pos.onPOSReady = function() {
+    if (!window.cur_pos) return;
+
+    // Apply view mode
+    if (window.cur_pos.item_selector) {
+        rustic_pos.applyViewMode(window.cur_pos.item_selector);
+        if (rustic_pos.hide_item_group) {
+            rustic_pos.hideItemGroupFilter(window.cur_pos.item_selector);
+        }
+    }
+
+    // Apply cart customizations
+    if (window.cur_pos.cart) {
+        rustic_pos.applyCartCustomizations(window.cur_pos.cart);
+    }
+
+    // Hide form view button
     if (rustic_pos.hide_form_view) {
         rustic_pos.hideFormViewButton();
     }
+
+    // Start observing for dynamic changes
+    rustic_pos.observePOSChanges();
+};
+
+/**
+ * Initialize view mode for ItemSelector (settings should already be loaded)
+ */
+rustic_pos.initViewMode = function() {
+    if (!window.cur_pos || !window.cur_pos.item_selector) return;
+
+    const component = window.cur_pos.item_selector;
 
     // Apply view mode
     rustic_pos.applyViewMode(component);
@@ -605,16 +613,16 @@ rustic_pos.hideFormViewButton = function(component) {
 };
 
 /**
- * Get Rustic POS settings from POS Profile
+ * Get Rustic POS settings (from cache or fetch if needed)
  */
 rustic_pos.getRusticSettings = function(component, callback) {
-    // Check cache first
+    // Return cached settings if available
     if (rustic_pos.settings_cache) {
         callback(rustic_pos.settings_cache);
         return;
     }
 
-    // Get POS Profile name from component or global
+    // Fallback: fetch settings if not pre-loaded
     let posProfile = null;
     if (component && component.settings && component.settings.name) {
         posProfile = component.settings.name;
@@ -623,8 +631,7 @@ rustic_pos.getRusticSettings = function(component, callback) {
     }
 
     if (!posProfile) {
-        console.warn('Rustic POS: No POS Profile found, using defaults');
-        // Return safe defaults
+        // Return defaults if no profile
         callback({
             rustic_allow_discount_change: 1,
             rustic_allow_uom_change: 1,
@@ -637,44 +644,9 @@ rustic_pos.getRusticSettings = function(component, callback) {
         return;
     }
 
-    try {
-        frappe.call({
-            method: 'frappe.client.get_value',
-            args: {
-                doctype: 'POS Profile',
-                filters: { name: posProfile },
-                fieldname: [
-                    'rustic_allow_discount_change',
-                    'rustic_allow_uom_change',
-                    'rustic_item_view_mode',
-                    'rustic_hide_loyalty',
-                    'rustic_hide_item_group',
-                    'rustic_hide_warehouse',
-                    'rustic_hide_form_view'
-                ]
-            },
-            async: false,
-            callback: function(r) {
-                if (r.message) {
-                    rustic_pos.settings_cache = {
-                        rustic_allow_discount_change: cint(r.message.rustic_allow_discount_change),
-                        rustic_allow_uom_change: cint(r.message.rustic_allow_uom_change),
-                        rustic_item_view_mode: r.message.rustic_item_view_mode || 'Grid',
-                        rustic_hide_loyalty: cint(r.message.rustic_hide_loyalty),
-                        rustic_hide_item_group: cint(r.message.rustic_hide_item_group),
-                        rustic_hide_warehouse: cint(r.message.rustic_hide_warehouse),
-                        rustic_hide_form_view: cint(r.message.rustic_hide_form_view)
-                    };
-                    callback(rustic_pos.settings_cache);
-                } else {
-                    callback({});
-                }
-            }
-        });
-    } catch (e) {
-        console.error('Rustic POS: Error fetching settings', e);
-        callback({});
-    }
+    // Fetch and cache
+    rustic_pos.preloadSettings(posProfile);
+    callback(rustic_pos.settings_cache || {});
 };
 
 /**
@@ -952,10 +924,9 @@ rustic_pos.renderUomToggleButtons = function(component, item, uoms) {
 };
 
 /**
- * Observe POS DOM changes to reapply customizations
+ * Observe POS DOM changes to reapply customizations (minimal, CSS handles most)
  */
 rustic_pos.observePOSChanges = function() {
-    // Disconnect existing observer if any
     if (rustic_pos.observer) {
         rustic_pos.observer.disconnect();
     }
@@ -964,38 +935,15 @@ rustic_pos.observePOSChanges = function() {
     if (!posApp) return;
 
     rustic_pos.observer = new MutationObserver(function(mutations) {
-        // Debounce to avoid excessive calls
         if (rustic_pos.observerTimeout) {
             clearTimeout(rustic_pos.observerTimeout);
         }
         rustic_pos.observerTimeout = setTimeout(function() {
-            if (!window.cur_pos) return;
-
-            // Check if form view button appeared and needs hiding
-            if (rustic_pos.hide_form_view) {
-                rustic_pos.hideFormViewButton();
-            }
-
-            // Check if item group filter appeared and needs hiding
-            if (rustic_pos.hide_item_group && window.cur_pos.item_selector) {
-                rustic_pos.hideItemGroupFilter(window.cur_pos.item_selector);
-            }
-
-            // Re-apply loyalty hiding
-            if (rustic_pos.hide_loyalty && window.cur_pos.cart) {
-                rustic_pos.hideLoyaltyFields(window.cur_pos.cart);
-            }
-
-            // Re-apply cart customizations (discount button)
-            if (window.cur_pos.cart) {
-                rustic_pos.applyCartCustomizations(window.cur_pos.cart);
-            }
-
-            // Re-apply view mode if items container exists
-            if (window.cur_pos.item_selector) {
+            // Only handle things CSS can't handle (like view mode toggle)
+            if (window.cur_pos && window.cur_pos.item_selector) {
                 rustic_pos.applyViewMode(window.cur_pos.item_selector);
             }
-        }, 50);
+        }, 100);
     });
 
     rustic_pos.observer.observe(posApp, {
@@ -1005,73 +953,142 @@ rustic_pos.observePOSChanges = function() {
 };
 
 /**
- * Wait for POS to load and initialize
+ * Reset state when leaving POS
+ */
+rustic_pos.cleanup = function() {
+    if (rustic_pos.observer) {
+        rustic_pos.observer.disconnect();
+        rustic_pos.observer = null;
+    }
+    rustic_pos.cleanupStyles();
+    $('#rustic-hide-discount-styles').remove();
+    rustic_pos.settings_cache = null;
+    rustic_pos.settingsLoaded = false;
+    rustic_pos.initialized = false;
+};
+
+/**
+ * Main entry point - hooks into POS page lifecycle
  */
 $(document).on('page-change', function() {
     if (frappe.get_route_str() === 'point-of-sale') {
-        // Reset initialized flag to allow re-initialization
-        rustic_pos.initialized = false;
-        rustic_pos.waitAndInit();
+        rustic_pos.cleanup();
+        rustic_pos.startInitialization();
     } else {
-        // Clean up when leaving POS
-        if (rustic_pos.observer) {
-            rustic_pos.observer.disconnect();
-            rustic_pos.observer = null;
-        }
-        // Clean up styles when leaving POS page
-        rustic_pos.cleanupStyles();
-        // Clear settings cache so fresh settings are loaded on return
-        rustic_pos.settings_cache = null;
+        rustic_pos.cleanup();
     }
 });
 
-// Also handle direct page load
+// Handle direct page load
 $(document).ready(function() {
-    setTimeout(function() {
-        if (frappe.get_route_str() === 'point-of-sale') {
-            rustic_pos.waitAndInit();
-        }
-    }, 100);
+    if (frappe.get_route_str() === 'point-of-sale') {
+        rustic_pos.startInitialization();
+    }
 });
 
-rustic_pos.waitAndInit = function() {
-    // Clear any existing interval
-    if (rustic_pos.initInterval) {
-        clearInterval(rustic_pos.initInterval);
+/**
+ * Start initialization process
+ */
+rustic_pos.startInitialization = function() {
+    // Step 1: Wait for POS classes to be defined, then patch prototypes
+    rustic_pos.waitForPOSClasses(function() {
+        // Patch prototypes BEFORE components are created
+        rustic_pos.init();
+
+        // Step 2: Wait for POS profile to be available, then preload settings
+        rustic_pos.waitForPOSProfile(function(posProfile) {
+            rustic_pos.preloadSettings(posProfile);
+
+            // Step 3: Wait for cur_pos to be ready, then apply customizations
+            rustic_pos.waitForCurPOS(function() {
+                rustic_pos.onPOSReady();
+            });
+        });
+    });
+};
+
+/**
+ * Wait for POS classes to be defined
+ */
+rustic_pos.waitForPOSClasses = function(callback) {
+    if (erpnext.PointOfSale && erpnext.PointOfSale.ItemDetails && erpnext.PointOfSale.ItemCart) {
+        callback();
+        return;
     }
 
     let attempts = 0;
-    const maxAttempts = 150;
-
-    rustic_pos.initInterval = setInterval(function() {
+    const interval = setInterval(function() {
         attempts++;
-
-        // Check if POS classes exist
         if (erpnext.PointOfSale && erpnext.PointOfSale.ItemDetails && erpnext.PointOfSale.ItemCart) {
-            clearInterval(rustic_pos.initInterval);
-            rustic_pos.initInterval = null;
-
-            // Initialize immediately
-            rustic_pos.init();
-
-            // Re-init after delays to catch late-loading components
-            setTimeout(function() { rustic_pos.init(); }, 300);
-            setTimeout(function() { rustic_pos.init(); }, 700);
-            setTimeout(function() { rustic_pos.init(); }, 1500);
+            clearInterval(interval);
+            callback();
         }
-
-        if (attempts >= maxAttempts) {
-            clearInterval(rustic_pos.initInterval);
-            rustic_pos.initInterval = null;
-            console.warn('Rustic POS: Timeout waiting for POS components');
+        if (attempts >= 100) {
+            clearInterval(interval);
+            console.warn('Rustic POS: Timeout waiting for POS classes');
         }
     }, 50);
 };
 
 /**
- * Force re-apply all customizations (can be called manually if needed)
+ * Wait for POS profile to be available
+ */
+rustic_pos.waitForPOSProfile = function(callback) {
+    // Check if already available
+    if (window.cur_pos && window.cur_pos.pos_profile) {
+        callback(window.cur_pos.pos_profile);
+        return;
+    }
+
+    // Try to get from page data or URL
+    let attempts = 0;
+    const interval = setInterval(function() {
+        attempts++;
+        if (window.cur_pos && window.cur_pos.pos_profile) {
+            clearInterval(interval);
+            callback(window.cur_pos.pos_profile);
+        }
+        if (attempts >= 100) {
+            clearInterval(interval);
+            // Fallback: try to get from localStorage or default
+            const lastProfile = localStorage.getItem('lastPOSProfile');
+            if (lastProfile) {
+                callback(lastProfile);
+            }
+        }
+    }, 50);
+};
+
+/**
+ * Wait for cur_pos to be fully initialized
+ */
+rustic_pos.waitForCurPOS = function(callback) {
+    if (window.cur_pos && window.cur_pos.item_selector && window.cur_pos.cart) {
+        callback();
+        return;
+    }
+
+    let attempts = 0;
+    const interval = setInterval(function() {
+        attempts++;
+        if (window.cur_pos && window.cur_pos.item_selector && window.cur_pos.cart) {
+            clearInterval(interval);
+            callback();
+        }
+        if (attempts >= 100) {
+            clearInterval(interval);
+        }
+    }, 50);
+};
+
+/**
+ * Force refresh all customizations (can be called manually)
  */
 rustic_pos.refresh = function() {
     rustic_pos.settings_cache = null;
-    rustic_pos.applyToExistingInstances();
+    rustic_pos.settingsLoaded = false;
+    if (window.cur_pos && window.cur_pos.pos_profile) {
+        rustic_pos.preloadSettings(window.cur_pos.pos_profile);
+        rustic_pos.onPOSReady();
+    }
 };
