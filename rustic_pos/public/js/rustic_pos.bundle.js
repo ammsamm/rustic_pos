@@ -298,11 +298,17 @@ rustic_pos.addListHeader = function(component) {
             <style id="rustic-list-styles">
                 /* Fixed minimum width for item selector when list view is active */
                 .point-of-sale-app .item-selector-wrapper.rustic-list-active {
-                    min-width: 320px !important;
+                    min-width: 380px !important;
                     flex-shrink: 0 !important;
+                    flex-basis: 380px !important;
                 }
                 .point-of-sale-app .rustic-list-active .items-container {
-                    min-width: 300px !important;
+                    min-width: 360px !important;
+                    overflow-x: auto !important;
+                }
+                /* Ensure item selector doesn't shrink when item details opens */
+                .point-of-sale-app .item-selector-wrapper {
+                    flex-shrink: 0 !important;
                 }
                 .rustic-list-view .rustic-list-item {
                     display: flex;
@@ -312,29 +318,32 @@ rustic_pos.addListHeader = function(component) {
                     cursor: pointer;
                     background: var(--bg-color);
                     width: 100%;
-                    min-width: 280px;
+                    min-width: 340px;
                 }
                 .rustic-list-view .rustic-list-item:hover {
                     background: var(--subtle-fg) !important;
                 }
                 .rustic-list-view .rustic-item-name {
                     flex: 1;
-                    min-width: 80px;
+                    min-width: 120px;
                     font-weight: 500;
                     white-space: nowrap;
                     overflow: hidden;
                     text-overflow: ellipsis;
+                    padding-right: 10px;
                 }
                 .rustic-list-view .rustic-item-stock {
-                    width: 70px;
-                    min-width: 70px;
+                    width: 80px;
+                    min-width: 80px;
+                    flex-shrink: 0;
                     text-align: right;
                     margin-right: 10px;
                     font-size: 0.9em;
                 }
                 .rustic-list-view .rustic-item-price {
-                    width: 70px;
-                    min-width: 70px;
+                    width: 80px;
+                    min-width: 80px;
+                    flex-shrink: 0;
                     text-align: right;
                     font-weight: 600;
                     font-size: 0.9em;
@@ -350,21 +359,23 @@ rustic_pos.addListHeader = function(component) {
                     position: sticky;
                     top: 0;
                     z-index: 1;
-                    min-width: 280px;
+                    min-width: 340px;
                 }
                 .rustic-list-header > div:first-child {
                     flex: 1;
-                    min-width: 80px;
+                    min-width: 120px;
                 }
                 .rustic-list-header > div:nth-child(2) {
-                    width: 70px;
-                    min-width: 70px;
+                    width: 80px;
+                    min-width: 80px;
+                    flex-shrink: 0;
                     text-align: right;
                     margin-right: 10px;
                 }
                 .rustic-list-header > div:last-child {
-                    width: 70px;
-                    min-width: 70px;
+                    width: 80px;
+                    min-width: 80px;
+                    flex-shrink: 0;
                     text-align: right;
                 }
             </style>
