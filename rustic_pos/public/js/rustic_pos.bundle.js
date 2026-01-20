@@ -803,11 +803,9 @@ rustic_pos.fetchAndShowUomButtons = function(component, item) {
         },
         async: false,
         callback: function(r) {
-            if (r.message && r.message.uoms && r.message.uoms.length > 1) {
+            if (r.message && r.message.uoms && r.message.uoms.length >= 1) {
+                // Always show toggle buttons for items with UOMs configured
                 rustic_pos.renderUomToggleButtons(component, item, r.message.uoms);
-            } else {
-                // Only one UOM - show as readonly text
-                rustic_pos.showUomReadonly(component, item);
             }
         }
     });
