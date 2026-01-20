@@ -794,7 +794,6 @@ rustic_pos.showUomReadonly = function(component, item) {
 rustic_pos.fetchAndShowUomButtons = function(component, item) {
     if (!item || !item.item_code) return;
 
-    
     // Fetch UOMs from Item doctype
     frappe.call({
         method: 'frappe.client.get',
@@ -806,6 +805,9 @@ rustic_pos.fetchAndShowUomButtons = function(component, item) {
         callback: function(r) {
             if (r.message && r.message.uoms && r.message.uoms.length > 1) {
                 rustic_pos.renderUomToggleButtons(component, item, r.message.uoms);
+            } else {
+                // Only one UOM - show as readonly text
+                rustic_pos.showUomReadonly(component, item);
             }
         }
     });
