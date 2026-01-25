@@ -22,6 +22,7 @@ rustic_pos.cleanupStyles = function() {
     $('#rustic-hide-item-group-styles').remove();
     $('#rustic-hide-loyalty-styles').remove();
     $('#rustic-hide-form-view-styles').remove();
+    $('#rustic-hide-open-form-menu-styles').remove();
     $('#rustic-list-styles').remove();
 };
 
@@ -596,31 +597,53 @@ rustic_pos.hideFormViewButton = function(component) {
  * Hide "Open Invoice Form" (فتح نموذج الفاتورة) menu item from POS dropdown
  */
 rustic_pos.hideOpenInvoiceMenuItem = function() {
-    // Target the dropdown menu in POS options
-    // Hide by shortcut key (Ctrl+F is the shortcut for Open Invoice Form)
-    $('.point-of-sale-app .dropdown-menu .dropdown-item').each(function() {
+    // Target the exact structure: li.user-action > a.dropdown-item > span.menu-item-label
+    $('.point-of-sale-app .user-action').each(function() {
+        const $item = $(this);
+        const labelText = $item.find('.menu-item-label').text().trim();
+        const kbdText = $item.find('kbd').text().trim();
+
+        // Match by label text or keyboard shortcut
+        if (labelText === 'Open Form View' ||
+            labelText === 'فتح نموذج الفاتورة' ||
+            labelText.includes('Open Form') ||
+            labelText.includes('Form View') ||
+            kbdText.includes('Ctrl+F')) {
+            $item.hide();
+        }
+    });
+
+    // Also target dropdown-item directly
+    $('.point-of-sale-app .dropdown-item').each(function() {
         const $item = $(this);
         const text = $item.text();
-        // Match English or Arabic text for "Open Invoice Form"
-        if (text.includes('فتح نموذج الفاتورة') ||
-            text.includes('Open Invoice Form') ||
-            text.includes('Ctrl+F') ||
-            text.includes('Open Form')) {
+        if (text.includes('Open Form View') ||
+            text.includes('فتح نموذج الفاتورة') ||
+            text.includes('Ctrl+F')) {
+            $item.closest('li').hide();
             $item.hide();
         }
     });
 
-    // Also target menu structure used in ERPNext POS
-    $('.point-of-sale-app [data-action="open-invoice-form"]').hide();
-    $('.point-of-sale-app [data-action="open_invoice_form"]').hide();
-
-    // Target by keyboard shortcut display
-    $('.point-of-sale-app .menu-btn-group .dropdown-item').each(function() {
+    // Mark hidden items with a class for CSS persistence
+    $('.point-of-sale-app .user-action').each(function() {
         const $item = $(this);
-        if ($item.find('.text-muted').text().includes('Ctrl+F')) {
-            $item.hide();
+        const labelText = $item.find('.menu-item-label').text().trim();
+        if (labelText === 'Open Form View' || labelText === 'فتح نموذج الفاتورة') {
+            $item.addClass('rustic-hidden-menu-item');
         }
     });
+
+    // Inject CSS to ensure marked items stay hidden
+    if (!$('#rustic-hide-open-form-menu-styles').length) {
+        $('head').append(`
+            <style id="rustic-hide-open-form-menu-styles">
+                .point-of-sale-app .rustic-hidden-menu-item {
+                    display: none !important;
+                }
+            </style>
+        `);
+    }
 };
 
 /**
