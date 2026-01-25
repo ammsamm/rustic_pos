@@ -23,6 +23,7 @@ rustic_pos.cleanupStyles = function() {
     $('#rustic-hide-loyalty-styles').remove();
     $('#rustic-hide-form-view-styles').remove();
     $('#rustic-hide-open-form-menu-styles').remove();
+    $('#rustic-button-styles').remove();
     $('#rustic-list-styles').remove();
 };
 
@@ -129,6 +130,151 @@ rustic_pos.injectPersistentStyles = function() {
                 .point-of-sale-app .add-discount-wrapper,
                 .point-of-sale-app .discount_percentage-control {
                     display: none !important;
+                }
+            </style>
+        `);
+    }
+
+    // Inject button styles using Frappe CSS variables
+    if (!$('#rustic-button-styles').length) {
+        $('head').append(`
+            <style id="rustic-button-styles">
+                /* Primary button (checkout, pay, etc.) */
+                .point-of-sale-app .btn-primary,
+                .point-of-sale-app .checkout-btn,
+                .point-of-sale-app .pay-btn,
+                .point-of-sale-app .submit-order-btn,
+                .point-of-sale-app .complete-btn,
+                .point-of-sale-app [data-action="checkout"],
+                .point-of-sale-app .cart-container .checkout-btn,
+                .point-of-sale-app .payment-container .submit-btn {
+                    background-color: var(--primary) !important;
+                    border-color: var(--primary) !important;
+                    color: var(--text-on-primary, #fff) !important;
+                    transition: background-color 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
+                }
+
+                .point-of-sale-app .btn-primary:hover,
+                .point-of-sale-app .checkout-btn:hover,
+                .point-of-sale-app .pay-btn:hover,
+                .point-of-sale-app .submit-order-btn:hover,
+                .point-of-sale-app .complete-btn:hover {
+                    background-color: var(--primary-dark, var(--primary)) !important;
+                    border-color: var(--primary-dark, var(--primary)) !important;
+                    color: var(--text-on-primary, #fff) !important;
+                }
+
+                .point-of-sale-app .btn-primary:focus,
+                .point-of-sale-app .checkout-btn:focus,
+                .point-of-sale-app .pay-btn:focus {
+                    box-shadow: 0 0 0 0.2rem var(--primary-light, rgba(var(--primary-rgb), 0.25)) !important;
+                }
+
+                /* Disabled state for primary buttons */
+                .point-of-sale-app .btn-primary:disabled,
+                .point-of-sale-app .btn-primary.disabled,
+                .point-of-sale-app .checkout-btn:disabled,
+                .point-of-sale-app .checkout-btn.disabled,
+                .point-of-sale-app .pay-btn:disabled,
+                .point-of-sale-app .pay-btn.disabled,
+                .point-of-sale-app [disabled] {
+                    background-color: var(--disabled-control-bg, var(--gray-300)) !important;
+                    border-color: var(--disabled-control-bg, var(--gray-300)) !important;
+                    color: var(--disabled-text-color, var(--gray-600)) !important;
+                    opacity: 0.65 !important;
+                    cursor: not-allowed !important;
+                    pointer-events: none;
+                }
+
+                /* Secondary/default buttons */
+                .point-of-sale-app .btn-default,
+                .point-of-sale-app .btn-secondary {
+                    background-color: var(--btn-default-bg, var(--gray-100)) !important;
+                    border-color: var(--border-color, var(--gray-300)) !important;
+                    color: var(--text-color) !important;
+                }
+
+                .point-of-sale-app .btn-default:hover,
+                .point-of-sale-app .btn-secondary:hover {
+                    background-color: var(--gray-200) !important;
+                    border-color: var(--gray-400) !important;
+                }
+
+                .point-of-sale-app .btn-default:disabled,
+                .point-of-sale-app .btn-secondary:disabled {
+                    background-color: var(--disabled-control-bg, var(--gray-100)) !important;
+                    color: var(--disabled-text-color, var(--gray-500)) !important;
+                    opacity: 0.65 !important;
+                    cursor: not-allowed !important;
+                }
+
+                /* Numpad and action buttons */
+                .point-of-sale-app .numpad-btn,
+                .point-of-sale-app .mode-btn,
+                .point-of-sale-app .action-btn {
+                    background-color: var(--control-bg) !important;
+                    border-color: var(--border-color) !important;
+                    color: var(--text-color) !important;
+                }
+
+                .point-of-sale-app .numpad-btn:hover,
+                .point-of-sale-app .mode-btn:hover,
+                .point-of-sale-app .action-btn:hover {
+                    background-color: var(--gray-200) !important;
+                }
+
+                .point-of-sale-app .numpad-btn.active,
+                .point-of-sale-app .mode-btn.active,
+                .point-of-sale-app .action-btn.active {
+                    background-color: var(--primary) !important;
+                    border-color: var(--primary) !important;
+                    color: var(--text-on-primary, #fff) !important;
+                }
+
+                /* Payment mode buttons */
+                .point-of-sale-app .payment-mode-btn {
+                    background-color: var(--control-bg) !important;
+                    border-color: var(--border-color) !important;
+                    color: var(--text-color) !important;
+                }
+
+                .point-of-sale-app .payment-mode-btn.active,
+                .point-of-sale-app .payment-mode-btn.selected {
+                    background-color: var(--primary) !important;
+                    border-color: var(--primary) !important;
+                    color: var(--text-on-primary, #fff) !important;
+                }
+
+                /* UOM toggle buttons */
+                .point-of-sale-app .rustic-uom-btn {
+                    background-color: var(--btn-default-bg, var(--gray-100)) !important;
+                    border-color: var(--border-color) !important;
+                    color: var(--text-color) !important;
+                }
+
+                .point-of-sale-app .rustic-uom-btn.btn-primary {
+                    background-color: var(--primary) !important;
+                    border-color: var(--primary) !important;
+                    color: var(--text-on-primary, #fff) !important;
+                }
+
+                /* Danger buttons (delete, remove, etc.) */
+                .point-of-sale-app .btn-danger {
+                    background-color: var(--red-500, #e53e3e) !important;
+                    border-color: var(--red-500, #e53e3e) !important;
+                    color: #fff !important;
+                }
+
+                .point-of-sale-app .btn-danger:hover {
+                    background-color: var(--red-600, #c53030) !important;
+                    border-color: var(--red-600, #c53030) !important;
+                }
+
+                .point-of-sale-app .btn-danger:disabled {
+                    background-color: var(--disabled-control-bg) !important;
+                    border-color: var(--disabled-control-bg) !important;
+                    color: var(--disabled-text-color) !important;
+                    opacity: 0.65 !important;
                 }
             </style>
         `);
