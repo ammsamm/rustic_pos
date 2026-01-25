@@ -26,6 +26,7 @@ rustic_pos.cleanupStyles = function() {
     $('#rustic-hide-pos-invoice-link').remove();
     $('#rustic-button-styles').remove();
     $('#rustic-list-styles').remove();
+    $('#rustic-mobile-styles').remove();
 };
 
 /**
@@ -222,6 +223,179 @@ rustic_pos.injectPersistentStyles = function() {
                 .rustic-list-header > div:last-child {
                     min-width: 80px;
                     padding-inline-start: 8px;
+                }
+            </style>
+        `);
+    }
+
+    // Inject mobile responsive styles
+    if (!$('#rustic-mobile-styles').length) {
+        $('head').append(`
+            <style id="rustic-mobile-styles">
+                /* Mobile responsive styles for POS */
+                @media screen and (max-width: 768px) {
+                    /* Base font size adjustments */
+                    .point-of-sale-app {
+                        font-size: 14px;
+                    }
+
+                    .point-of-sale-app .frappe-control input,
+                    .point-of-sale-app .frappe-control select {
+                        font-size: 16px; /* Prevents zoom on iOS */
+                    }
+
+                    /* Item selector - compact cards */
+                    .point-of-sale-app .items-container {
+                        display: flex !important;
+                        flex-direction: column !important;
+                        gap: 8px !important;
+                        padding: 8px !important;
+                        grid-template-columns: unset !important;
+                    }
+
+                    /* Mobile compact card style */
+                    .point-of-sale-app .item-wrapper {
+                        display: flex !important;
+                        flex-direction: column !important;
+                        padding: 10px 12px !important;
+                        margin: 0 !important;
+                        border: 1px solid var(--border-color) !important;
+                        border-radius: var(--border-radius) !important;
+                        background: var(--card-bg, var(--bg-color)) !important;
+                        min-height: unset !important;
+                        height: auto !important;
+                        width: 100% !important;
+                    }
+
+                    /* Hide item image on mobile for compact view */
+                    .point-of-sale-app .item-wrapper .item-image,
+                    .point-of-sale-app .item-wrapper img {
+                        display: none !important;
+                    }
+
+                    /* Item name - first row */
+                    .point-of-sale-app .item-wrapper .item-name,
+                    .point-of-sale-app .item-wrapper .item-code {
+                        font-size: 14px !important;
+                        font-weight: 600 !important;
+                        margin-bottom: 6px !important;
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        order: 1;
+                    }
+
+                    /* Stock and price row */
+                    .point-of-sale-app .item-wrapper .item-qty,
+                    .point-of-sale-app .item-wrapper .item-stock {
+                        font-size: 12px !important;
+                        color: var(--text-muted) !important;
+                        order: 2;
+                        display: inline-block !important;
+                    }
+
+                    .point-of-sale-app .item-wrapper .item-price,
+                    .point-of-sale-app .item-wrapper .item-rate {
+                        font-size: 13px !important;
+                        font-weight: 600 !important;
+                        color: var(--text-color) !important;
+                        order: 3;
+                        display: inline-block !important;
+                        margin-inline-start: auto;
+                    }
+
+                    /* Rustic list view mobile adjustments */
+                    .rustic-list-view .rustic-list-item {
+                        flex-wrap: wrap !important;
+                        padding: 10px 12px !important;
+                        gap: 4px;
+                    }
+
+                    .rustic-list-view .rustic-item-name {
+                        flex: 0 0 100% !important;
+                        font-size: 14px !important;
+                        margin-bottom: 4px;
+                        padding: 0 !important;
+                    }
+
+                    .rustic-list-view .rustic-item-stock {
+                        min-width: unset !important;
+                        font-size: 12px !important;
+                        padding: 0 !important;
+                        text-align: start !important;
+                    }
+
+                    .rustic-list-view .rustic-item-price {
+                        min-width: unset !important;
+                        font-size: 13px !important;
+                        padding: 0 !important;
+                        margin-inline-start: auto;
+                    }
+
+                    /* Hide list header on mobile - not needed with card layout */
+                    .rustic-list-header {
+                        display: none !important;
+                    }
+
+                    /* Cart section adjustments */
+                    .point-of-sale-app .cart-container .cart-items-section {
+                        font-size: 13px;
+                    }
+
+                    .point-of-sale-app .cart-container .cart-item-wrapper {
+                        padding: 8px;
+                    }
+
+                    /* Checkout button */
+                    .point-of-sale-app .checkout-btn {
+                        font-size: 16px !important;
+                        padding: 12px !important;
+                    }
+
+                    /* Number pad adjustments */
+                    .point-of-sale-app .numpad-container button {
+                        font-size: 18px !important;
+                        min-height: 44px;
+                    }
+
+                    /* Payment section */
+                    .point-of-sale-app .payment-container {
+                        font-size: 14px;
+                    }
+
+                    /* Search field */
+                    .point-of-sale-app .search-field input {
+                        font-size: 16px !important;
+                        padding: 10px 12px !important;
+                    }
+                }
+
+                /* Extra small screens */
+                @media screen and (max-width: 480px) {
+                    .point-of-sale-app {
+                        font-size: 13px;
+                    }
+
+                    .point-of-sale-app .item-wrapper {
+                        padding: 8px 10px !important;
+                    }
+
+                    .point-of-sale-app .item-wrapper .item-name,
+                    .point-of-sale-app .item-wrapper .item-code {
+                        font-size: 13px !important;
+                    }
+
+                    .rustic-list-view .rustic-item-name {
+                        font-size: 13px !important;
+                    }
+
+                    .rustic-list-view .rustic-item-stock {
+                        font-size: 11px !important;
+                    }
+
+                    .rustic-list-view .rustic-item-price {
+                        font-size: 12px !important;
+                    }
                 }
             </style>
         `);
