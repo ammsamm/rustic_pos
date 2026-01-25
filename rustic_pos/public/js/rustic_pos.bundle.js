@@ -135,19 +135,26 @@ rustic_pos.injectPersistentStyles = function() {
         `);
     }
 
-    // Inject button styles matching Frappe POS conventions
+    // Inject Frappe color variable fallbacks for POS buttons
     if (!$('#rustic-button-styles').length) {
         $('head').append(`
             <style id="rustic-button-styles">
-                /* UOM toggle buttons - follow Frappe button conventions */
+                /* Frappe blue color fallbacks - ensures buttons work in all themes */
+                .point-of-sale-app {
+                    --blue-200: #bfdbfe;
+                    --blue-300: #93c5fd;
+                    --blue-500: #3b82f6;
+                }
+
+                /* UOM toggle buttons */
                 .point-of-sale-app .rustic-uom-btn.btn-primary {
-                    background-color: var(--blue-500) !important;
+                    background-color: var(--blue-500, #3b82f6) !important;
                     color: white !important;
                 }
 
                 .point-of-sale-app .rustic-uom-btn.btn-default {
-                    background-color: var(--control-bg) !important;
-                    color: var(--text-color) !important;
+                    background-color: var(--control-bg, #f4f5f6) !important;
+                    color: var(--text-color, #1f272e) !important;
                 }
             </style>
         `);
