@@ -368,8 +368,80 @@ rustic_pos.injectPersistentStyles = function() {
                         min-width: 60px !important;
                     }
 
-                    /* Hide list header on mobile - labels are in cards now */
+                    /* Show fixed column header on mobile */
                     .rustic-list-header {
+                        display: flex !important;
+                        flex-direction: row !important;
+                        align-items: center !important;
+                        padding: 8px 12px !important;
+                        gap: 12px !important;
+                        background: var(--subtle-fg) !important;
+                        border-bottom: 1px solid var(--border-color) !important;
+                        font-size: 12px !important;
+                        font-weight: 600 !important;
+                        color: var(--text-muted) !important;
+                        position: sticky !important;
+                        top: 0 !important;
+                        z-index: 1 !important;
+                    }
+
+                    .rustic-list-header > div:first-child {
+                        flex: 1 !important;
+                        min-width: unset !important;
+                        padding: 0 !important;
+                    }
+
+                    .rustic-list-header > div:nth-child(2) {
+                        min-width: 40px !important;
+                        text-align: center !important;
+                        padding: 0 !important;
+                    }
+
+                    .rustic-list-header > div:last-child {
+                        min-width: 60px !important;
+                        text-align: end !important;
+                        padding: 0 !important;
+                    }
+
+                    /* Cart table - same design as items table */
+                    .point-of-sale-app .cart-items-section {
+                        display: flex !important;
+                        flex-direction: column !important;
+                    }
+
+                    .point-of-sale-app .cart-items-section .cart-item-wrapper {
+                        display: flex !important;
+                        flex-direction: row !important;
+                        align-items: center !important;
+                        padding: 10px 12px !important;
+                        gap: 12px !important;
+                        border-bottom: 1px solid var(--border-color) !important;
+                    }
+
+                    .point-of-sale-app .cart-items-section .item-name-desc {
+                        flex: 1 !important;
+                        font-size: 14px !important;
+                        font-weight: 500 !important;
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                    }
+
+                    .point-of-sale-app .cart-items-section .item-qty {
+                        font-size: 13px !important;
+                        text-align: center !important;
+                        min-width: 40px !important;
+                    }
+
+                    .point-of-sale-app .cart-items-section .item-rate-amount {
+                        font-size: 13px !important;
+                        font-weight: 600 !important;
+                        text-align: end !important;
+                        min-width: 60px !important;
+                    }
+
+                    /* Hide unnecessary cart elements on mobile */
+                    .point-of-sale-app .cart-items-section .item-image {
                         display: none !important;
                     }
 
