@@ -698,6 +698,9 @@ rustic_pos.hidePOSInvoiceLink = function() {
         }
     });
 
+    // Also hide the divider that appears with the POS Invoice link
+    $('.dropdown-divider.documentation-links').hide();
+
     // Inject CSS to keep it hidden
     if (!$('#rustic-hide-pos-invoice-link').length) {
         $('head').append(`
@@ -705,7 +708,8 @@ rustic_pos.hidePOSInvoiceLink = function() {
                 .dropdown-menu a[href*="pos-invoice"],
                 .dropdown-menu a[href*="point-of-sale-invoice"],
                 .awesomebar-result[data-doctype="POS Invoice"],
-                .modal a[href*="pos-invoice"] {
+                .modal a[href*="pos-invoice"],
+                .dropdown-divider.documentation-links {
                     display: none !important;
                 }
             </style>
