@@ -181,16 +181,17 @@ rustic_pos.injectPersistentStyles = function() {
                     white-space: nowrap;
                     overflow: hidden;
                     text-overflow: ellipsis;
+                    text-align: right;
                     padding-inline-end: 12px;
                 }
                 .rustic-list-view .rustic-item-stock {
                     min-width: 70px;
-                    text-align: center;
+                    text-align: right;
                     padding-inline: 8px;
                 }
                 .rustic-list-view .rustic-item-price {
                     min-width: 80px;
-                    text-align: end;
+                    text-align: right;
                     font-weight: 600;
                     padding-inline-start: 8px;
                 }
@@ -205,18 +206,19 @@ rustic_pos.injectPersistentStyles = function() {
                     top: 0;
                     z-index: 1;
                 }
+                .rustic-list-header > div {
+                    text-align: right;
+                }
                 .rustic-list-header > div:first-child {
                     flex: 1;
                     padding-inline-end: 12px;
                 }
                 .rustic-list-header > div:nth-child(2) {
                     min-width: 70px;
-                    text-align: center;
                     padding-inline: 8px;
                 }
                 .rustic-list-header > div:last-child {
                     min-width: 80px;
-                    text-align: end;
                     padding-inline-start: 8px;
                 }
             </style>
