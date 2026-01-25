@@ -118,6 +118,8 @@ rustic_pos.injectPersistentStyles = function() {
                 }
             </style>
         `);
+        // Hide the "Open Invoice Form" dropdown menu item
+        rustic_pos.hideOpenInvoiceMenuItem();
     }
 
     if (!rustic_pos.settings_cache.rustic_allow_discount_change && !$('#rustic-hide-discount-styles').length) {
@@ -227,9 +229,12 @@ rustic_pos.onPOSReady = function() {
         rustic_pos.applyCartCustomizations(window.cur_pos.cart);
     }
 
-    // Hide form view button
+    // Hide form view button and menu item
     if (rustic_pos.hide_form_view) {
         rustic_pos.hideFormViewButton();
+        rustic_pos.hideOpenInvoiceMenuItem();
+        // Also observe dropdown opening to hide menu item dynamically
+        rustic_pos.observeDropdownMenu();
     }
 
     // Start observing for dynamic changes
@@ -570,6 +575,9 @@ rustic_pos.hideFormViewButton = function(component) {
     $('.point-of-sale-app .dropdown-item:contains("Edit Full")').hide();
     $('.point-of-sale-app a:contains("Open Form View")').hide();
 
+    // Hide the "Open Invoice Form" dropdown menu item
+    rustic_pos.hideOpenInvoiceMenuItem();
+
     // Add CSS to ensure it stays hidden
     if (!$('#rustic-hide-form-view-styles').length) {
         $('head').append(`
@@ -582,6 +590,37 @@ rustic_pos.hideFormViewButton = function(component) {
             </style>
         `);
     }
+};
+
+/**
+ * Hide "Open Invoice Form" (فتح نموذج الفاتورة) menu item from POS dropdown
+ */
+rustic_pos.hideOpenInvoiceMenuItem = function() {
+    // Target the dropdown menu in POS options
+    // Hide by shortcut key (Ctrl+F is the shortcut for Open Invoice Form)
+    $('.point-of-sale-app .dropdown-menu .dropdown-item').each(function() {
+        const $item = $(this);
+        const text = $item.text();
+        // Match English or Arabic text for "Open Invoice Form"
+        if (text.includes('فتح نموذج الفاتورة') ||
+            text.includes('Open Invoice Form') ||
+            text.includes('Ctrl+F') ||
+            text.includes('Open Form')) {
+            $item.hide();
+        }
+    });
+
+    // Also target menu structure used in ERPNext POS
+    $('.point-of-sale-app [data-action="open-invoice-form"]').hide();
+    $('.point-of-sale-app [data-action="open_invoice_form"]').hide();
+
+    // Target by keyboard shortcut display
+    $('.point-of-sale-app .menu-btn-group .dropdown-item').each(function() {
+        const $item = $(this);
+        if ($item.find('.text-muted').text().includes('Ctrl+F')) {
+            $item.hide();
+        }
+    });
 };
 
 /**
@@ -896,6 +935,48 @@ rustic_pos.renderUomToggleButtons = function(component, item, uoms) {
 };
 
 /**
+ * Observe dropdown menu to hide "Open Invoice Form" when it opens
+ */
+rustic_pos.observeDropdownMenu = function() {
+    if (rustic_pos.dropdownObserver) {
+        rustic_pos.dropdownObserver.disconnect();
+    }
+
+    const posApp = document.querySelector('.point-of-sale-app');
+    if (!posApp) return;
+
+    rustic_pos.dropdownObserver = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.addedNodes.length) {
+                // Check if a dropdown menu was added
+                mutation.addedNodes.forEach(function(node) {
+                    if (node.nodeType === 1) {
+                        if ($(node).hasClass('dropdown-menu') || $(node).find('.dropdown-menu').length) {
+                            // Dropdown opened, hide the menu item
+                            setTimeout(function() {
+                                rustic_pos.hideOpenInvoiceMenuItem();
+                            }, 10);
+                        }
+                    }
+                });
+            }
+        });
+    });
+
+    rustic_pos.dropdownObserver.observe(posApp, {
+        childList: true,
+        subtree: true
+    });
+
+    // Also listen for Bootstrap dropdown events
+    $(document).on('shown.bs.dropdown', '.point-of-sale-app', function() {
+        if (rustic_pos.hide_form_view) {
+            rustic_pos.hideOpenInvoiceMenuItem();
+        }
+    });
+};
+
+/**
  * Observe POS DOM changes to reapply customizations (minimal, CSS handles most)
  */
 rustic_pos.observePOSChanges = function() {
@@ -932,6 +1013,11 @@ rustic_pos.cleanup = function() {
         rustic_pos.observer.disconnect();
         rustic_pos.observer = null;
     }
+    if (rustic_pos.dropdownObserver) {
+        rustic_pos.dropdownObserver.disconnect();
+        rustic_pos.dropdownObserver = null;
+    }
+    $(document).off('shown.bs.dropdown', '.point-of-sale-app');
     rustic_pos.cleanupStyles();
     $('#rustic-hide-discount-styles').remove();
     rustic_pos.settings_cache = null;
