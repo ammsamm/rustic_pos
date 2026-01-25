@@ -181,17 +181,18 @@ rustic_pos.injectPersistentStyles = function() {
                     white-space: nowrap;
                     overflow: hidden;
                     text-overflow: ellipsis;
-                    padding-right: 8px;
+                    padding-inline-end: 12px;
                 }
                 .rustic-list-view .rustic-item-stock {
-                    width: 50px;
-                    text-align: right;
-                    padding-right: 8px;
+                    min-width: 70px;
+                    text-align: center;
+                    padding-inline: 8px;
                 }
                 .rustic-list-view .rustic-item-price {
-                    width: 65px;
-                    text-align: right;
+                    min-width: 80px;
+                    text-align: end;
                     font-weight: 600;
+                    padding-inline-start: 8px;
                 }
                 .rustic-list-header {
                     display: flex !important;
@@ -206,15 +207,17 @@ rustic_pos.injectPersistentStyles = function() {
                 }
                 .rustic-list-header > div:first-child {
                     flex: 1;
+                    padding-inline-end: 12px;
                 }
                 .rustic-list-header > div:nth-child(2) {
-                    width: 50px;
-                    text-align: right;
-                    padding-right: 8px;
+                    min-width: 70px;
+                    text-align: center;
+                    padding-inline: 8px;
                 }
                 .rustic-list-header > div:last-child {
-                    width: 65px;
-                    text-align: right;
+                    min-width: 80px;
+                    text-align: end;
+                    padding-inline-start: 8px;
                 }
             </style>
         `);
