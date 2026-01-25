@@ -186,7 +186,7 @@ rustic_pos.injectPersistentStyles = function() {
                 }
                 .rustic-list-view .rustic-item-stock {
                     min-width: 70px;
-                    text-align: start;
+                    text-align: center;
                     padding-inline: 8px;
                 }
                 .rustic-list-view .rustic-item-price {
@@ -215,6 +215,7 @@ rustic_pos.injectPersistentStyles = function() {
                 }
                 .rustic-list-header > div:nth-child(2) {
                     min-width: 70px;
+                    text-align: center;
                     padding-inline: 8px;
                 }
                 .rustic-list-header > div:last-child {
