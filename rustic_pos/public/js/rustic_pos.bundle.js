@@ -205,10 +205,54 @@ rustic_pos.init = function() {
         rustic_pos.patchItemDetails();
         rustic_pos.patchItemCart();
         rustic_pos.patchCustomerDialog();
+        rustic_pos.patchPOSController();
         rustic_pos.prototypesPatched = true;
     }
 
     rustic_pos.initialized = true;
+};
+
+/**
+ * Patch POSController to hide "Open Form View" menu item
+ */
+rustic_pos.patchPOSController = function() {
+    if (!erpnext.PointOfSale || !erpnext.PointOfSale.Controller) {
+        return;
+    }
+
+    const POSController = erpnext.PointOfSale.Controller.prototype;
+    const originalPrepareMenu = POSController.prepare_menu;
+
+    POSController.prepare_menu = function() {
+        // Check if we should hide the Open Form View menu item
+        const shouldHideFormView = rustic_pos.settings_cache &&
+                                    rustic_pos.settings_cache.rustic_hide_form_view;
+
+        if (shouldHideFormView) {
+            // Temporarily override add_menu_item to skip "Open Form View"
+            const originalAddMenuItem = this.page.add_menu_item.bind(this.page);
+
+            this.page.add_menu_item = function(label, action, show_parent, shortcut) {
+                // Skip the Open Form View item (identified by Ctrl+F shortcut)
+                if (shortcut === 'Ctrl+F') {
+                    return;
+                }
+                return originalAddMenuItem(label, action, show_parent, shortcut);
+            };
+
+            // Call original prepare_menu with patched add_menu_item
+            originalPrepareMenu.call(this);
+
+            // Restore original add_menu_item
+            this.page.add_menu_item = originalAddMenuItem;
+
+            // Also unbind the Ctrl+F keyboard shortcut
+            frappe.ui.keys.off('ctrl+f', this.page.page_container);
+        } else {
+            // Call original without modification
+            originalPrepareMenu.call(this);
+        }
+    };
 };
 
 /**
@@ -594,56 +638,11 @@ rustic_pos.hideFormViewButton = function(component) {
 };
 
 /**
- * Hide "Open Invoice Form" (فتح نموذج الفاتورة) menu item from POS dropdown
+ * Hide "Open Form View" menu item by patching the page.add_menu_item method
  */
 rustic_pos.hideOpenInvoiceMenuItem = function() {
-    // Target the exact structure: li.user-action > a.dropdown-item > span.menu-item-label
-    $('.point-of-sale-app .user-action').each(function() {
-        const $item = $(this);
-        const labelText = $item.find('.menu-item-label').text().trim();
-        const kbdText = $item.find('kbd').text().trim();
-
-        // Match by label text or keyboard shortcut
-        if (labelText === 'Open Form View' ||
-            labelText === 'فتح نموذج الفاتورة' ||
-            labelText.includes('Open Form') ||
-            labelText.includes('Form View') ||
-            kbdText.includes('Ctrl+F')) {
-            $item.hide();
-        }
-    });
-
-    // Also target dropdown-item directly
-    $('.point-of-sale-app .dropdown-item').each(function() {
-        const $item = $(this);
-        const text = $item.text();
-        if (text.includes('Open Form View') ||
-            text.includes('فتح نموذج الفاتورة') ||
-            text.includes('Ctrl+F')) {
-            $item.closest('li').hide();
-            $item.hide();
-        }
-    });
-
-    // Mark hidden items with a class for CSS persistence
-    $('.point-of-sale-app .user-action').each(function() {
-        const $item = $(this);
-        const labelText = $item.find('.menu-item-label').text().trim();
-        if (labelText === 'Open Form View' || labelText === 'فتح نموذج الفاتورة') {
-            $item.addClass('rustic-hidden-menu-item');
-        }
-    });
-
-    // Inject CSS to ensure marked items stay hidden
-    if (!$('#rustic-hide-open-form-menu-styles').length) {
-        $('head').append(`
-            <style id="rustic-hide-open-form-menu-styles">
-                .point-of-sale-app .rustic-hidden-menu-item {
-                    display: none !important;
-                }
-            </style>
-        `);
-    }
+    // This function is now handled by patchPOSController
+    // Keeping for backward compatibility but main logic is in the patch
 };
 
 /**
