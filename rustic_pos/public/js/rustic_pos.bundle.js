@@ -23,6 +23,7 @@ rustic_pos.cleanupStyles = function() {
     $('#rustic-hide-loyalty-styles').remove();
     $('#rustic-hide-form-view-styles').remove();
     $('#rustic-hide-open-form-menu-styles').remove();
+    $('#rustic-hide-pos-invoice-link').remove();
     $('#rustic-button-styles').remove();
     $('#rustic-list-styles').remove();
 };
@@ -306,11 +307,12 @@ rustic_pos.onPOSReady = function() {
         rustic_pos.applyCartCustomizations(window.cur_pos.cart);
     }
 
-    // Hide form view button and menu item
+    // Hide form view button and menu items
     if (rustic_pos.hide_form_view) {
         rustic_pos.hideFormViewButton();
         rustic_pos.hideOpenInvoiceMenuItem();
-        // Also observe dropdown opening to hide menu item dynamically
+        rustic_pos.hidePOSInvoiceLink();
+        // Also observe dropdown opening to hide menu items dynamically
         rustic_pos.observeDropdownMenu();
     }
 
@@ -678,6 +680,40 @@ rustic_pos.hideOpenInvoiceMenuItem = function() {
 };
 
 /**
+ * Hide "Point of Sale Invoice" from help/awesomebar menu
+ */
+rustic_pos.hidePOSInvoiceLink = function() {
+    // Hide from dropdown menus
+    $('.dropdown-menu a, .dropdown-item').each(function() {
+        const $item = $(this);
+        const text = $item.text().trim();
+        const href = $item.attr('href') || '';
+
+        if (text === 'Point of Sale Invoice' ||
+            text === 'فاتورة نقطة البيع' ||
+            href.includes('pos-invoice') ||
+            href.includes('point-of-sale-invoice')) {
+            $item.closest('li').hide();
+            $item.hide();
+        }
+    });
+
+    // Inject CSS to keep it hidden
+    if (!$('#rustic-hide-pos-invoice-link').length) {
+        $('head').append(`
+            <style id="rustic-hide-pos-invoice-link">
+                .dropdown-menu a[href*="pos-invoice"],
+                .dropdown-menu a[href*="point-of-sale-invoice"],
+                .awesomebar-result[data-doctype="POS Invoice"],
+                .modal a[href*="pos-invoice"] {
+                    display: none !important;
+                }
+            </style>
+        `);
+    }
+};
+
+/**
  * Get Rustic POS settings (from cache or fetch if needed)
  */
 rustic_pos.getRusticSettings = function(component, callback) {
@@ -1006,9 +1042,10 @@ rustic_pos.observeDropdownMenu = function() {
                 mutation.addedNodes.forEach(function(node) {
                     if (node.nodeType === 1) {
                         if ($(node).hasClass('dropdown-menu') || $(node).find('.dropdown-menu').length) {
-                            // Dropdown opened, hide the menu item
+                            // Dropdown opened, hide menu items
                             setTimeout(function() {
                                 rustic_pos.hideOpenInvoiceMenuItem();
+                                rustic_pos.hidePOSInvoiceLink();
                             }, 10);
                         }
                     }
@@ -1026,6 +1063,14 @@ rustic_pos.observeDropdownMenu = function() {
     $(document).on('shown.bs.dropdown', '.point-of-sale-app', function() {
         if (rustic_pos.hide_form_view) {
             rustic_pos.hideOpenInvoiceMenuItem();
+            rustic_pos.hidePOSInvoiceLink();
+        }
+    });
+
+    // Also listen globally for help menu dropdowns
+    $(document).on('shown.bs.dropdown', function() {
+        if (rustic_pos.hide_form_view) {
+            rustic_pos.hidePOSInvoiceLink();
         }
     });
 };
