@@ -292,8 +292,7 @@ rustic_pos.injectPersistentStyles = function() {
                         display: flex !important;
                         flex-direction: row !important;
                         align-items: center !important;
-                        padding-block: 10px !important;
-                        padding-inline: 12px !important;
+                        padding: 10px 12px !important;
                         margin: 0 !important;
                         border: 1px solid var(--border-color) !important;
                         border-radius: var(--border-radius) !important;
@@ -302,6 +301,10 @@ rustic_pos.injectPersistentStyles = function() {
                         height: auto !important;
                         width: 100% !important;
                         gap: 12px !important;
+                        font-size: 14px !important;
+                        font-weight: 500 !important;
+                        color: var(--text-color) !important;
+                        line-height: 1.4 !important;
                     }
 
                     /* Hide item image on mobile for compact view */
@@ -310,22 +313,24 @@ rustic_pos.injectPersistentStyles = function() {
                         display: none !important;
                     }
 
-                    /* Item name - clear and readable */
+                    /* Item name - BOLD */
                     .point-of-sale-app .item-wrapper .item-name,
                     .point-of-sale-app .item-wrapper .item-code {
                         flex: 1 !important;
                         font-size: 14px !important;
-                        font-weight: 600 !important;
+                        font-weight: bold !important;
                         white-space: normal !important;
                         word-wrap: break-word !important;
-                        line-height: 1.3 !important;
+                        line-height: 1.4 !important;
                         text-align: start !important;
                     }
 
-                    /* Stock */
+                    /* Stock - keep colors for availability */
                     .point-of-sale-app .item-wrapper .item-qty,
                     .point-of-sale-app .item-wrapper .item-stock {
                         font-size: 14px !important;
+                        font-weight: 500 !important;
+                        line-height: 1.4 !important;
                         text-align: center !important;
                         min-width: 40px !important;
                     }
@@ -334,7 +339,8 @@ rustic_pos.injectPersistentStyles = function() {
                     .point-of-sale-app .item-wrapper .item-price,
                     .point-of-sale-app .item-wrapper .item-rate {
                         font-size: 14px !important;
-                        font-weight: 600 !important;
+                        font-weight: 500 !important;
+                        line-height: 1.4 !important;
                         text-align: end !important;
                         min-width: 60px !important;
                     }
@@ -344,36 +350,56 @@ rustic_pos.injectPersistentStyles = function() {
                         display: flex !important;
                         flex-direction: row !important;
                         align-items: center !important;
-                        padding-block: 10px !important;
-                        padding-inline: 12px !important;
+                        padding: 10px 12px !important;
+                        margin: 0 !important;
                         gap: 12px !important;
+                        font-size: 14px !important;
+                        font-weight: 500 !important;
+                        color: var(--text-color) !important;
+                        line-height: 1.4 !important;
                     }
 
+                    /* Item name - BOLD */
                     .rustic-list-view .rustic-item-name {
                         flex: 1 !important;
                         font-size: 14px !important;
-                        font-weight: 600 !important;
+                        font-weight: bold !important;
                         color: var(--text-color) !important;
                         padding: 0 !important;
                         min-width: unset !important;
                         white-space: normal !important;
                         word-wrap: break-word !important;
-                        line-height: 1.3 !important;
+                        line-height: 1.4 !important;
                         text-align: start !important;
                         overflow: hidden !important;
                         text-overflow: ellipsis !important;
                     }
 
+                    /* Stock - keep colors for availability */
                     .rustic-list-view .rustic-item-stock {
                         font-size: 14px !important;
+                        font-weight: 500 !important;
+                        line-height: 1.4 !important;
                         padding: 0 !important;
                         text-align: center !important;
                         min-width: 40px !important;
                     }
 
+                    /* Stock colors - preserve availability colors */
+                    .rustic-list-view .rustic-item-stock.text-success {
+                        color: var(--green-500, #22c55e) !important;
+                    }
+                    .rustic-list-view .rustic-item-stock.text-warning {
+                        color: var(--yellow-500, #eab308) !important;
+                    }
+                    .rustic-list-view .rustic-item-stock.text-danger {
+                        color: var(--red-500, #ef4444) !important;
+                    }
+
                     .rustic-list-view .rustic-item-price {
                         font-size: 14px !important;
-                        font-weight: 600 !important;
+                        font-weight: 500 !important;
+                        line-height: 1.4 !important;
                         padding: 0 !important;
                         text-align: end !important;
                         min-width: 60px !important;
