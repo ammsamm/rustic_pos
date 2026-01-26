@@ -9,6 +9,8 @@
  * - Simplified customer form (name, mobile, email only)
  */
 
+console.log('Rustic POS bundle.js LOADED');
+
 frappe.provide('rustic_pos');
 
 rustic_pos.initialized = false;
@@ -808,10 +810,12 @@ rustic_pos.patchItemSelector = function() {
 
     // Patch make() to add view toggle button and item group toggle
     ItemSelector.make = function() {
+        console.log('ItemSelector.make() called - PATCHED');
         originalMake.call(this);
         rustic_pos.addViewToggle(this);
         rustic_pos.setupItemGroupToggle(this);
     };
+    console.log('ItemSelector patched successfully');
 
     // Patch get_item_html() to fix qty and support list view
     ItemSelector.get_item_html = function(item) {
