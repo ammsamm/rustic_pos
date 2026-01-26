@@ -297,6 +297,13 @@ rustic_pos.injectPersistentStyles = function() {
                         font-size: 16px; /* Prevents zoom on iOS */
                     }
 
+                    /* "All Items" header - align based on lang direction */
+                    .point-of-sale-app .section-label,
+                    .point-of-sale-app .item-selector-wrapper .section-label,
+                    .point-of-sale-app .items-selector .label {
+                        text-align: start !important;
+                    }
+
                     /* Move search fields under "All Items" header */
                     .point-of-sale-app .item-selector-wrapper {
                         display: flex !important;
