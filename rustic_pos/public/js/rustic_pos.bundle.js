@@ -468,17 +468,22 @@ rustic_pos.injectPersistentStyles = function() {
                         border-bottom: 1px solid var(--border-color) !important;
                     }
 
-                    /* Item name - EXACT copy of .rustic-item-name */
+                    /* Cart row - same font for all elements */
+                    .point-of-sale-app .cart-items-section .cart-item-wrapper,
+                    .point-of-sale-app .cart-items-section .cart-item-wrapper * {
+                        font-size: 14px !important;
+                        font-weight: 500 !important;
+                        color: var(--text-color) !important;
+                        line-height: 1.4 !important;
+                    }
+
+                    /* Item name */
                     .point-of-sale-app .cart-items-section .item-name-desc {
                         flex: 1 !important;
-                        font-size: 14px !important;
-                        font-weight: 600 !important;
-                        color: var(--text-color) !important;
                         padding: 0 !important;
                         min-width: unset !important;
                         white-space: normal !important;
                         word-wrap: break-word !important;
-                        line-height: 1.3 !important;
                         text-align: start !important;
                         overflow: hidden !important;
                         text-overflow: ellipsis !important;
@@ -490,18 +495,15 @@ rustic_pos.injectPersistentStyles = function() {
                         display: none !important;
                     }
 
-                    /* Qty - EXACT copy of .rustic-item-stock */
+                    /* Qty */
                     .point-of-sale-app .cart-items-section .item-qty {
-                        font-size: 13px !important;
                         padding: 0 !important;
                         text-align: center !important;
                         min-width: 40px !important;
                     }
 
-                    /* Amount - EXACT copy of .rustic-item-price */
+                    /* Amount */
                     .point-of-sale-app .cart-items-section .item-rate-amount {
-                        font-size: 13px !important;
-                        font-weight: 600 !important;
                         padding: 0 !important;
                         text-align: end !important;
                         min-width: 60px !important;
