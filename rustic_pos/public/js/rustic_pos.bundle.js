@@ -158,6 +158,27 @@ rustic_pos.injectPersistentStyles = function() {
                     background-color: var(--control-bg, #f4f5f6) !important;
                     color: var(--text-color, #1f272e) !important;
                 }
+
+                /* Item group toggle buttons (same style as UOM) */
+                .point-of-sale-app .rustic-item-group-btn.btn-primary {
+                    background-color: var(--blue-500, #3b82f6) !important;
+                    color: white !important;
+                }
+
+                .point-of-sale-app .rustic-item-group-btn.btn-default {
+                    background-color: var(--control-bg, #f4f5f6) !important;
+                    color: var(--text-color, #1f272e) !important;
+                }
+
+                .rustic-item-group-container {
+                    width: 100%;
+                }
+
+                .rustic-item-group-buttons {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 5px;
+                }
             </style>
         `);
     }
@@ -785,10 +806,11 @@ rustic_pos.patchItemSelector = function() {
     const originalMake = ItemSelector.make;
     const originalRenderItemList = ItemSelector.render_item_list;
 
-    // Patch make() to add view toggle button
+    // Patch make() to add view toggle button and item group toggle
     ItemSelector.make = function() {
         originalMake.call(this);
         rustic_pos.addViewToggle(this);
+        rustic_pos.setupItemGroupToggle(this);
     };
 
     // Patch get_item_html() to fix qty and support list view
@@ -848,6 +870,131 @@ rustic_pos.hideItemGroupFilter = function(component) {
             </style>
         `);
     }
+};
+
+/**
+ * Setup item group toggle buttons (like UOM toggle)
+ * - If 1 group: hide the field
+ * - If 2+ groups: show toggle buttons
+ */
+rustic_pos.setupItemGroupToggle = function(component) {
+    if (!component || !component.$component) return;
+    if (rustic_pos.hide_item_group) return; // Already hidden by setting
+
+    // Get item groups from POS Profile
+    const posProfile = window.cur_pos?.pos_profile;
+    if (!posProfile) return;
+
+    frappe.call({
+        method: 'frappe.client.get',
+        args: {
+            doctype: 'POS Profile',
+            name: posProfile
+        },
+        async: false,
+        callback: function(r) {
+            if (!r.message) return;
+
+            let itemGroups = r.message.item_groups || [];
+
+            // If no item groups defined in POS Profile, get all item groups
+            if (itemGroups.length === 0) {
+                // Don't modify - use default behavior
+                return;
+            }
+
+            // Extract group names
+            const groups = itemGroups.map(g => g.item_group);
+
+            if (groups.length === 1) {
+                // Only 1 group - hide the field completely
+                rustic_pos.hideItemGroupFilter(component);
+            } else if (groups.length >= 2) {
+                // 2+ groups - show toggle buttons
+                rustic_pos.renderItemGroupToggle(component, groups);
+            }
+        }
+    });
+};
+
+/**
+ * Render item group toggle buttons (like UOM toggle)
+ */
+rustic_pos.renderItemGroupToggle = function(component, groups) {
+    if (!component || !component.$component) return;
+
+    // Hide original item group control
+    const $itemGroupControl = component.$component.find('[data-fieldname="item_group"]').closest('.frappe-control');
+    $itemGroupControl.hide();
+    component.$component.find('.item-group-field').hide();
+
+    // Remove existing toggle container
+    component.$component.find('.rustic-item-group-container').remove();
+
+    // Get current selected group (default to first or "All")
+    let currentGroup = component.item_group_field?.get_value() || groups[0];
+
+    // Build toggle buttons
+    let buttonsHtml = '';
+
+    // Add "All Items" button first
+    const allActive = !currentGroup || currentGroup === '';
+    buttonsHtml += `
+        <button type="button"
+            class="btn btn-${allActive ? 'primary' : 'default'} btn-sm rustic-item-group-btn"
+            data-group=""
+            style="margin-inline-end:5px;margin-bottom:5px;">
+            ${__('All Items')}
+        </button>
+    `;
+
+    // Add buttons for each group
+    groups.forEach(function(groupName) {
+        const isActive = groupName === currentGroup && !allActive;
+        buttonsHtml += `
+            <button type="button"
+                class="btn btn-${isActive ? 'primary' : 'default'} btn-sm rustic-item-group-btn"
+                data-group="${frappe.utils.escape_html(groupName)}"
+                style="margin-inline-end:5px;margin-bottom:5px;">
+                ${frappe.utils.escape_html(groupName)}
+            </button>
+        `;
+    });
+
+    const containerHtml = `
+        <div class="rustic-item-group-container" style="padding:8px 0;">
+            <div class="rustic-item-group-buttons" style="display:flex;flex-wrap:wrap;">${buttonsHtml}</div>
+        </div>
+    `;
+
+    // Insert before items container or after search field
+    const $filterSection = component.$component.find('.filter-section');
+    if ($filterSection.length) {
+        $filterSection.append(containerHtml);
+    } else {
+        component.$component.prepend(containerHtml);
+    }
+
+    // Bind click events
+    component.$component.find('.rustic-item-group-btn').on('click', function() {
+        const $btn = $(this);
+        const newGroup = $btn.data('group');
+
+        // Update button styles
+        component.$component.find('.rustic-item-group-btn')
+            .removeClass('btn-primary').addClass('btn-default');
+        $btn.removeClass('btn-default').addClass('btn-primary');
+
+        // Update item group filter
+        if (component.item_group_field) {
+            component.item_group_field.set_value(newGroup);
+        }
+
+        // Trigger item list refresh
+        if (component.get_items) {
+            component.get_items({ item_group: newGroup });
+        }
+    });
 };
 
 /**
