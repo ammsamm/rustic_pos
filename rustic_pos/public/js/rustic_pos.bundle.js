@@ -167,7 +167,7 @@ rustic_pos.injectPersistentStyles = function() {
 
                 .title-area .indicator-pill {
                     margin-block-start: 8px !important;
-                    margin-block-end: 10px !important;
+                    margin-block-end: 16px !important;
                     margin-inline-start: 0 !important;
                 }
 
