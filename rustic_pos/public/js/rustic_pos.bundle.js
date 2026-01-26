@@ -9,7 +9,7 @@
  * - Simplified customer form (name, mobile, email only)
  */
 
-console.log('Rustic POS bundle.js LOADED');
+// Rustic POS bundle.js initialized
 
 frappe.provide('rustic_pos');
 
@@ -148,6 +148,23 @@ rustic_pos.injectPersistentStyles = function() {
                     --blue-200: #bfdbfe;
                     --blue-300: #93c5fd;
                     --blue-500: #3b82f6;
+                }
+
+/* POS header - title and profile name stacked (all screen sizes) */
+                .title-area .flex {
+                    flex-direction: column !important;
+                    align-items: flex-start !important;
+                }
+
+                .title-area h3.title-text {
+                    white-space: normal !important;
+                    overflow: visible !important;
+                    text-overflow: unset !important;
+                }
+
+                .title-area .indicator-pill {
+                    margin-top: 4px !important;
+                    margin-inline-start: 0 !important;
                 }
 
                 /* UOM toggle buttons */
@@ -295,24 +312,6 @@ rustic_pos.injectPersistentStyles = function() {
                     .point-of-sale-app .frappe-control input,
                     .point-of-sale-app .frappe-control select {
                         font-size: 16px; /* Prevents zoom on iOS */
-                    }
-
-                    /* POS header - title and profile name stacked */
-                    .page-container[data-page-container="point-of-sale"] .page-head .flex,
-                    .point-of-sale .page-head .flex,
-                    .pos-profile-selector,
-                    .point-of-sale-app .pos-header,
-                    .point-of-sale-app .app-header {
-                        flex-wrap: wrap !important;
-                    }
-
-                    .page-container[data-page-container="point-of-sale"] .page-head .title-text,
-                    .point-of-sale .title-text,
-                    .point-of-sale-app .title-text {
-                        white-space: normal !important;
-                        overflow: visible !important;
-                        text-overflow: unset !important;
-                        max-width: 100% !important;
                     }
 
                     /* "All Items" header - align based on lang direction */
@@ -838,12 +837,10 @@ rustic_pos.patchItemSelector = function() {
 
     // Patch make() to add view toggle button and item group toggle
     ItemSelector.make = function() {
-        console.log('ItemSelector.make() called - PATCHED');
         originalMake.call(this);
         rustic_pos.addViewToggle(this);
         rustic_pos.setupItemGroupToggle(this);
     };
-    console.log('ItemSelector patched successfully');
 
     // Patch get_item_html() to fix qty and support list view
     ItemSelector.get_item_html = function(item) {
@@ -910,16 +907,8 @@ rustic_pos.hideItemGroupFilter = function(component) {
  * - If 2+ groups: show toggle buttons
  */
 rustic_pos.setupItemGroupToggle = function(component) {
-    console.log('setupItemGroupToggle called', component);
-
-    if (!component || !component.$component) {
-        console.log('No component');
-        return;
-    }
-    if (rustic_pos.hide_item_group) {
-        console.log('Item group hidden by setting');
-        return;
-    }
+    if (!component || !component.$component) return;
+    if (rustic_pos.hide_item_group) return;
 
     // Get item groups from POS Profile - try multiple sources
     let posProfile = null;
@@ -931,11 +920,8 @@ rustic_pos.setupItemGroupToggle = function(component) {
         posProfile = component.settings.name;
     }
 
-    console.log('POS Profile:', posProfile);
-
     if (!posProfile) {
         // Defer until POS is ready
-        console.log('No POS Profile, deferring...');
         setTimeout(function() {
             rustic_pos.setupItemGroupToggle(component);
         }, 500);
@@ -950,30 +936,21 @@ rustic_pos.setupItemGroupToggle = function(component) {
         },
         async: false,
         callback: function(r) {
-            console.log('POS Profile data:', r.message);
-
             if (!r.message) return;
 
             let itemGroups = r.message.item_groups || [];
-            console.log('Item groups:', itemGroups);
 
             // If no item groups defined in POS Profile, use default behavior
-            if (itemGroups.length === 0) {
-                console.log('No item groups defined');
-                return;
-            }
+            if (itemGroups.length === 0) return;
 
             // Extract group names
             const groups = itemGroups.map(g => g.item_group);
-            console.log('Groups:', groups);
 
             if (groups.length === 1) {
                 // Only 1 group - hide the field completely
-                console.log('1 group - hiding');
                 rustic_pos.hideItemGroupFilter(component);
             } else if (groups.length >= 2) {
                 // 2+ groups - show toggle buttons
-                console.log('2+ groups - showing toggle');
                 rustic_pos.renderItemGroupToggle(component, groups);
             }
         }
