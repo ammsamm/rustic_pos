@@ -161,11 +161,13 @@ rustic_pos.injectPersistentStyles = function() {
                     overflow: hidden !important;
                     text-overflow: ellipsis !important;
                     max-width: 100% !important;
+                    line-height: 1.5 !important;
+                    padding-block: 2px !important;
                 }
 
                 .title-area .indicator-pill {
-                    margin-block-start: 4px !important;
-                    margin-block-end: 8px !important;
+                    margin-block-start: 8px !important;
+                    margin-block-end: 10px !important;
                     margin-inline-start: 0 !important;
                 }
 
