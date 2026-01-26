@@ -151,35 +151,26 @@ rustic_pos.injectPersistentStyles = function() {
                 }
 
 /* POS header - title and profile name stacked (all screen sizes) */
-                .title-area .flex {
+                .title-area > div > .flex {
                     flex-direction: column !important;
-                    align-items: start !important;
+                    align-items: flex-start !important;
+                    gap: 6px !important;
                 }
 
-                .title-area h3.title-text {
+                .title-area h3.ellipsis.title-text {
                     white-space: nowrap !important;
                     overflow: hidden !important;
                     text-overflow: ellipsis !important;
                     max-width: 100% !important;
                     line-height: 1.5 !important;
-                    padding-block: 2px !important;
                 }
 
                 .title-area .indicator-pill {
-                    margin-block-start: 6px !important;
                     margin-inline-start: 0 !important;
                 }
 
-                /* Items section - spacing from header */
-                .point-of-sale-app .item-selector,
-                .point-of-sale-app .item-selector-wrapper,
-                .point-of-sale-app .pos-items-section {
-                    padding-block-start: 16px !important;
-                }
-
-                .point-of-sale-app .label,
-                .point-of-sale-app .section-label {
-                    display: block !important;
+                .title-area > div {
+                    padding-block-end: 12px !important;
                 }
 
                 /* UOM toggle buttons */
