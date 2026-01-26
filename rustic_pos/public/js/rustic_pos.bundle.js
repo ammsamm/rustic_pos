@@ -153,17 +153,19 @@ rustic_pos.injectPersistentStyles = function() {
 /* POS header - title and profile name stacked (all screen sizes) */
                 .title-area .flex {
                     flex-direction: column !important;
-                    align-items: flex-start !important;
+                    align-items: start !important;
                 }
 
                 .title-area h3.title-text {
-                    white-space: normal !important;
-                    overflow: visible !important;
-                    text-overflow: unset !important;
+                    white-space: nowrap !important;
+                    overflow: hidden !important;
+                    text-overflow: ellipsis !important;
+                    max-width: 100% !important;
                 }
 
                 .title-area .indicator-pill {
-                    margin-top: 4px !important;
+                    margin-block-start: 4px !important;
+                    margin-block-end: 8px !important;
                     margin-inline-start: 0 !important;
                 }
 
