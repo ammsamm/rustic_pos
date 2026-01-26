@@ -183,46 +183,36 @@ rustic_pos.injectPersistentStyles = function() {
                     gap: 5px;
                 }
 
-                /* Desktop layout: search box and toggle buttons on same row under title */
+                /* Desktop layout: title on top, search + toggles on same row below */
                 @media screen and (min-width: 769px) {
-                    /* Ensure item selector uses column layout: title -> filter -> items */
-                    .point-of-sale-app .item-selector {
-                        display: flex !important;
-                        flex-direction: column !important;
-                    }
-
-                    /* Title "All Items" stays on top */
-                    .point-of-sale-app .item-selector > .label {
-                        order: 1 !important;
-                        width: 100% !important;
-                        margin-bottom: 8px !important;
-                    }
-
-                    /* Filter section (search + toggles) comes after title */
+                    /* Filter section: column layout with title on top, controls below */
                     .point-of-sale-app .filter-section {
-                        order: 2 !important;
                         display: flex !important;
-                        flex-direction: row !important;
+                        flex-wrap: wrap !important;
                         align-items: center !important;
-                        gap: 12px !important;
-                        flex-wrap: nowrap !important;
+                        gap: 8px 12px !important;
                         width: 100% !important;
                         margin-bottom: 12px !important;
                     }
 
-                    /* Items container last */
-                    .point-of-sale-app .items-container {
-                        order: 3 !important;
+                    /* Title "All Items" takes full width (forces new row below) */
+                    .point-of-sale-app .filter-section > .label {
+                        width: 100% !important;
+                        flex-basis: 100% !important;
+                        margin-bottom: 4px !important;
                     }
 
+                    /* Search field takes remaining space */
                     .point-of-sale-app .filter-section .search-field {
                         flex: 1 !important;
                         min-width: 200px !important;
                     }
 
+                    /* Toggle buttons beside search */
                     .point-of-sale-app .filter-section .rustic-item-group-container {
                         padding: 0 !important;
                         margin: 0 !important;
+                        flex-shrink: 0 !important;
                     }
 
                     .point-of-sale-app .filter-section .rustic-item-group-buttons {
