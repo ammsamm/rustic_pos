@@ -325,7 +325,7 @@ rustic_pos.injectPersistentStyles = function() {
                     /* Stock */
                     .point-of-sale-app .item-wrapper .item-qty,
                     .point-of-sale-app .item-wrapper .item-stock {
-                        font-size: 13px !important;
+                        font-size: 14px !important;
                         text-align: center !important;
                         min-width: 40px !important;
                     }
@@ -333,7 +333,7 @@ rustic_pos.injectPersistentStyles = function() {
                     /* Price */
                     .point-of-sale-app .item-wrapper .item-price,
                     .point-of-sale-app .item-wrapper .item-rate {
-                        font-size: 13px !important;
+                        font-size: 14px !important;
                         font-weight: 600 !important;
                         text-align: end !important;
                         min-width: 60px !important;
