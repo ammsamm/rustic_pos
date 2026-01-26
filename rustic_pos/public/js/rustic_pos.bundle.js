@@ -300,8 +300,16 @@ rustic_pos.injectPersistentStyles = function() {
                     /* "All Items" header - align based on lang direction */
                     .point-of-sale-app .section-label,
                     .point-of-sale-app .item-selector-wrapper .section-label,
-                    .point-of-sale-app .items-selector .label {
+                    .point-of-sale-app .items-selector .label,
+                    .point-of-sale-app .label,
+                    .point-of-sale-app .item-group-label,
+                    .point-of-sale-app .pos-item-selector-label,
+                    .point-of-sale-app [class*="label"],
+                    .point-of-sale-app .item-selector .label,
+                    .point-of-sale-app .item-selector > .label {
                         text-align: start !important;
+                        width: 100% !important;
+                        display: block !important;
                     }
 
                     /* Move search fields under "All Items" header */
