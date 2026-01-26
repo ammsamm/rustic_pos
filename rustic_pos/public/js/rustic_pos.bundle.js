@@ -184,6 +184,7 @@ rustic_pos.injectPersistentStyles = function() {
                 }
 
                 /* Desktop layout: title on top, search + toggles on same row below */
+                /* RTL-friendly: uses logical properties and flexbox auto-direction */
                 @media screen and (min-width: 769px) {
                     /* Filter section: column layout with title on top, controls below */
                     .point-of-sale-app .filter-section {
@@ -201,12 +202,14 @@ rustic_pos.injectPersistentStyles = function() {
                         flex-basis: 100% !important;
                         margin-bottom: 4px !important;
                         align-self: flex-start !important;
+                        text-align: start !important;
                     }
 
-                    /* Search field takes remaining space */
+                    /* Search field takes remaining space - order ensures correct position in RTL */
                     .point-of-sale-app .filter-section .search-field {
                         flex: 1 !important;
                         min-width: 200px !important;
+                        order: 1 !important;
                     }
 
                     /* Remove extra margin from search field form-group */
@@ -220,6 +223,7 @@ rustic_pos.injectPersistentStyles = function() {
                         margin: 0 !important;
                         flex-shrink: 0 !important;
                         align-self: flex-end !important;
+                        order: 2 !important;
                     }
 
                     .point-of-sale-app .filter-section .rustic-item-group-buttons {
@@ -231,6 +235,12 @@ rustic_pos.injectPersistentStyles = function() {
                         margin-bottom: 0 !important;
                         white-space: nowrap !important;
                         height: 36px !important;
+                        margin-inline-end: 5px !important;
+                        margin-inline-start: 0 !important;
+                    }
+
+                    .point-of-sale-app .filter-section .rustic-item-group-btn:last-child {
+                        margin-inline-end: 0 !important;
                     }
                 }
             </style>
