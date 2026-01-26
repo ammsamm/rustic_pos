@@ -183,14 +183,36 @@ rustic_pos.injectPersistentStyles = function() {
                     gap: 5px;
                 }
 
-                /* Desktop layout: search box and toggle buttons on same row */
+                /* Desktop layout: search box and toggle buttons on same row under title */
                 @media screen and (min-width: 769px) {
+                    /* Ensure item selector uses column layout: title -> filter -> items */
+                    .point-of-sale-app .item-selector {
+                        display: flex !important;
+                        flex-direction: column !important;
+                    }
+
+                    /* Title "All Items" stays on top */
+                    .point-of-sale-app .item-selector > .label {
+                        order: 1 !important;
+                        width: 100% !important;
+                        margin-bottom: 8px !important;
+                    }
+
+                    /* Filter section (search + toggles) comes after title */
                     .point-of-sale-app .filter-section {
+                        order: 2 !important;
                         display: flex !important;
                         flex-direction: row !important;
                         align-items: center !important;
                         gap: 12px !important;
                         flex-wrap: nowrap !important;
+                        width: 100% !important;
+                        margin-bottom: 12px !important;
+                    }
+
+                    /* Items container last */
+                    .point-of-sale-app .items-container {
+                        order: 3 !important;
                     }
 
                     .point-of-sale-app .filter-section .search-field {
