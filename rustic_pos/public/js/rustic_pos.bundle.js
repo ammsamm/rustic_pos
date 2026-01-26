@@ -365,14 +365,14 @@ rustic_pos.injectPersistentStyles = function() {
                     }
 
                     .rustic-list-view .rustic-item-stock {
-                        font-size: 13px !important;
+                        font-size: 14px !important;
                         padding: 0 !important;
                         text-align: center !important;
                         min-width: 40px !important;
                     }
 
                     .rustic-list-view .rustic-item-price {
-                        font-size: 13px !important;
+                        font-size: 14px !important;
                         font-weight: 600 !important;
                         padding: 0 !important;
                         text-align: end !important;
@@ -478,8 +478,9 @@ rustic_pos.injectPersistentStyles = function() {
                         margin: 0 !important;
                     }
 
-                    /* Item name - bold */
-                    .point-of-sale-app .cart-items-section .item-name-desc {
+                    /* Item name - BOLD */
+                    .point-of-sale-app .cart-items-section .cart-item-wrapper .item-name-desc,
+                    .point-of-sale-app .cart-items-section .cart-item-wrapper .item-name-desc * {
                         flex: 1 !important;
                         padding: 0 !important;
                         min-width: unset !important;
@@ -488,7 +489,7 @@ rustic_pos.injectPersistentStyles = function() {
                         text-align: start !important;
                         overflow: hidden !important;
                         text-overflow: ellipsis !important;
-                        font-weight: 700 !important;
+                        font-weight: bold !important;
                     }
 
                     /* Hide duplicate/secondary item name elements */
