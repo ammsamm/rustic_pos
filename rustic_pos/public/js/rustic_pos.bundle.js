@@ -881,9 +881,23 @@ rustic_pos.setupItemGroupToggle = function(component) {
     if (!component || !component.$component) return;
     if (rustic_pos.hide_item_group) return; // Already hidden by setting
 
-    // Get item groups from POS Profile
-    const posProfile = window.cur_pos?.pos_profile;
-    if (!posProfile) return;
+    // Get item groups from POS Profile - try multiple sources
+    let posProfile = null;
+    if (component.pos_profile) {
+        posProfile = component.pos_profile;
+    } else if (window.cur_pos?.pos_profile) {
+        posProfile = window.cur_pos.pos_profile;
+    } else if (component.settings?.name) {
+        posProfile = component.settings.name;
+    }
+
+    if (!posProfile) {
+        // Defer until POS is ready
+        setTimeout(function() {
+            rustic_pos.setupItemGroupToggle(component);
+        }, 500);
+        return;
+    }
 
     frappe.call({
         method: 'frappe.client.get',
@@ -897,9 +911,8 @@ rustic_pos.setupItemGroupToggle = function(component) {
 
             let itemGroups = r.message.item_groups || [];
 
-            // If no item groups defined in POS Profile, get all item groups
+            // If no item groups defined in POS Profile, use default behavior
             if (itemGroups.length === 0) {
-                // Don't modify - use default behavior
                 return;
             }
 
