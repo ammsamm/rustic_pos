@@ -292,8 +292,7 @@ rustic_pos.injectPersistentStyles = function() {
                         display: flex !important;
                         flex-direction: row !important;
                         align-items: center !important;
-                        padding-block: 10px !important;
-                        padding-inline: 12px !important;
+                        padding: 10px 12px !important;
                         margin: 0 !important;
                         border: 1px solid var(--border-color) !important;
                         border-radius: var(--border-radius) !important;
@@ -304,28 +303,35 @@ rustic_pos.injectPersistentStyles = function() {
                         gap: 12px !important;
                     }
 
+                    /* Items row - same font as cart */
+                    .point-of-sale-app .item-wrapper,
+                    .point-of-sale-app .item-wrapper * {
+                        font-size: 14px !important;
+                        font-weight: 500 !important;
+                        color: var(--text-color) !important;
+                        line-height: 1.4 !important;
+                        margin: 0 !important;
+                    }
+
                     /* Hide item image on mobile for compact view */
                     .point-of-sale-app .item-wrapper .item-image,
                     .point-of-sale-app .item-wrapper img {
                         display: none !important;
                     }
 
-                    /* Item name - clear and readable */
+                    /* Item name - BOLD (same as cart) */
                     .point-of-sale-app .item-wrapper .item-name,
                     .point-of-sale-app .item-wrapper .item-code {
                         flex: 1 !important;
-                        font-size: 14px !important;
-                        font-weight: 600 !important;
                         white-space: normal !important;
                         word-wrap: break-word !important;
-                        line-height: 1.3 !important;
                         text-align: start !important;
+                        font-weight: bold !important;
                     }
 
                     /* Stock */
                     .point-of-sale-app .item-wrapper .item-qty,
                     .point-of-sale-app .item-wrapper .item-stock {
-                        font-size: 14px !important;
                         text-align: center !important;
                         min-width: 40px !important;
                     }
@@ -333,8 +339,6 @@ rustic_pos.injectPersistentStyles = function() {
                     /* Price */
                     .point-of-sale-app .item-wrapper .item-price,
                     .point-of-sale-app .item-wrapper .item-rate {
-                        font-size: 14px !important;
-                        font-weight: 600 !important;
                         text-align: end !important;
                         min-width: 60px !important;
                     }
@@ -344,36 +348,41 @@ rustic_pos.injectPersistentStyles = function() {
                         display: flex !important;
                         flex-direction: row !important;
                         align-items: center !important;
-                        padding-block: 10px !important;
-                        padding-inline: 12px !important;
+                        padding: 10px 12px !important;
+                        margin: 0 !important;
                         gap: 12px !important;
                     }
 
+                    /* Items table row - same font as cart */
+                    .rustic-list-view .rustic-list-item,
+                    .rustic-list-view .rustic-list-item * {
+                        font-size: 14px !important;
+                        font-weight: 500 !important;
+                        color: var(--text-color) !important;
+                        line-height: 1.4 !important;
+                        margin: 0 !important;
+                    }
+
+                    /* Item name - BOLD (same as cart) */
                     .rustic-list-view .rustic-item-name {
                         flex: 1 !important;
-                        font-size: 14px !important;
-                        font-weight: 600 !important;
-                        color: var(--text-color) !important;
                         padding: 0 !important;
                         min-width: unset !important;
                         white-space: normal !important;
                         word-wrap: break-word !important;
-                        line-height: 1.3 !important;
                         text-align: start !important;
                         overflow: hidden !important;
                         text-overflow: ellipsis !important;
+                        font-weight: bold !important;
                     }
 
                     .rustic-list-view .rustic-item-stock {
-                        font-size: 14px !important;
                         padding: 0 !important;
                         text-align: center !important;
                         min-width: 40px !important;
                     }
 
                     .rustic-list-view .rustic-item-price {
-                        font-size: 14px !important;
-                        font-weight: 600 !important;
                         padding: 0 !important;
                         text-align: end !important;
                         min-width: 60px !important;
