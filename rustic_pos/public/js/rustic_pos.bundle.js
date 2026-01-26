@@ -975,20 +975,9 @@ rustic_pos.renderItemGroupToggle = function(component, groups) {
     // Build toggle buttons
     let buttonsHtml = '';
 
-    // Add "All Items" button first
-    const allActive = !currentGroup || currentGroup === '';
-    buttonsHtml += `
-        <button type="button"
-            class="btn btn-${allActive ? 'primary' : 'default'} btn-sm rustic-item-group-btn"
-            data-group=""
-            style="margin-inline-end:5px;margin-bottom:5px;">
-            ${__('All Items')}
-        </button>
-    `;
-
     // Add buttons for each group
     groups.forEach(function(groupName) {
-        const isActive = groupName === currentGroup && !allActive;
+        const isActive = groupName === currentGroup;
         buttonsHtml += `
             <button type="button"
                 class="btn btn-${isActive ? 'primary' : 'default'} btn-sm rustic-item-group-btn"
