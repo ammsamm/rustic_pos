@@ -780,6 +780,9 @@ rustic_pos.patchPOSController = function() {
 rustic_pos.onPOSReady = function() {
     if (!window.cur_pos) return;
 
+    // Fix POS header layout
+    rustic_pos.fixPOSHeader();
+
     // Apply view mode and item group toggle
     if (window.cur_pos.item_selector) {
         rustic_pos.applyViewMode(window.cur_pos.item_selector);
@@ -808,6 +811,48 @@ rustic_pos.onPOSReady = function() {
 
     // Start observing for dynamic changes
     rustic_pos.observePOSChanges();
+};
+
+/**
+ * Fix POS header layout - stack title and profile name vertically
+ */
+rustic_pos.fixPOSHeader = function() {
+    const $titleArea = $('.title-area');
+    if (!$titleArea.length) return;
+
+    const $flexContainer = $titleArea.find('> div > .flex');
+    if ($flexContainer.length) {
+        $flexContainer.css({
+            'flex-direction': 'column',
+            'align-items': 'flex-start',
+            'gap': '6px'
+        });
+    }
+
+    const $title = $titleArea.find('h3.title-text');
+    if ($title.length) {
+        $title.css({
+            'white-space': 'nowrap',
+            'overflow': 'hidden',
+            'text-overflow': 'ellipsis',
+            'max-width': '100%',
+            'line-height': '1.5'
+        });
+    }
+
+    const $indicator = $titleArea.find('.indicator-pill');
+    if ($indicator.length) {
+        $indicator.css({
+            'margin-inline-start': '0'
+        });
+    }
+
+    const $innerDiv = $titleArea.find('> div').first();
+    if ($innerDiv.length) {
+        $innerDiv.css({
+            'padding-bottom': '12px'
+        });
+    }
 };
 
 /**
