@@ -300,6 +300,8 @@ rustic_pos.injectPersistentStyles = function() {
                     /* "All Items" header - align based on lang direction */
                     .point-of-sale-app .label {
                         text-align: start !important;
+                        width: 100% !important;
+                        display: block !important;
                     }
 
                     /* Move search fields under "All Items" header */
