@@ -333,14 +333,12 @@ rustic_pos.injectPersistentStyles = function() {
                         gap: 12px !important;
                     }
 
-                    /* Items row - EXACT same font as cart */
+                    /* Items row - base font */
                     .point-of-sale-app .items-container .item-wrapper,
-                    .point-of-sale-app .items-container .item-wrapper *,
                     .point-of-sale-app .items-container .item-wrapper span,
                     .point-of-sale-app .items-container .item-wrapper div,
                     .point-of-sale-app .items-container .item-wrapper p {
                         font-size: 14px !important;
-                        font-weight: 500 !important;
                         color: var(--text-color) !important;
                         line-height: 1.4 !important;
                         margin: 0 !important;
@@ -352,16 +350,27 @@ rustic_pos.injectPersistentStyles = function() {
                         display: none !important;
                     }
 
-                    /* Item name - BOLD */
+                    /* Item name - BOLD (must come after base font) */
                     .point-of-sale-app .items-container .item-wrapper .item-name,
                     .point-of-sale-app .items-container .item-wrapper .item-code,
                     .point-of-sale-app .items-container .item-wrapper .item-name *,
-                    .point-of-sale-app .items-container .item-wrapper .item-code * {
+                    .point-of-sale-app .items-container .item-wrapper .item-code *,
+                    .point-of-sale-app .items-container .item-wrapper > .item-name,
+                    .point-of-sale-app .items-container .item-wrapper > span:first-child,
+                    .point-of-sale-app .items-container .item-wrapper > div:first-child {
                         flex: 1 !important;
                         white-space: normal !important;
                         word-wrap: break-word !important;
                         text-align: start !important;
-                        font-weight: bold !important;
+                        font-weight: 700 !important;
+                    }
+
+                    /* Stock and Price - normal weight */
+                    .point-of-sale-app .items-container .item-wrapper .item-qty,
+                    .point-of-sale-app .items-container .item-wrapper .item-stock,
+                    .point-of-sale-app .items-container .item-wrapper .item-price,
+                    .point-of-sale-app .items-container .item-wrapper .item-rate {
+                        font-weight: 500 !important;
                     }
 
                     /* Stock */
@@ -400,13 +409,11 @@ rustic_pos.injectPersistentStyles = function() {
                         border-bottom: 1px solid var(--border-color) !important;
                     }
 
-                    /* Items row - EXACT same font as cart */
+                    /* Items row - base font */
                     .rustic-list-view .rustic-list-item,
-                    .rustic-list-view .rustic-list-item *,
                     .rustic-list-view .rustic-list-item span,
                     .rustic-list-view .rustic-list-item div {
                         font-size: 14px !important;
-                        font-weight: 500 !important;
                         color: var(--text-color) !important;
                         line-height: 1.4 !important;
                         margin: 0 !important;
@@ -423,7 +430,13 @@ rustic_pos.injectPersistentStyles = function() {
                         text-align: start !important;
                         overflow: hidden !important;
                         text-overflow: ellipsis !important;
-                        font-weight: bold !important;
+                        font-weight: 700 !important;
+                    }
+
+                    /* Stock and Price - normal weight */
+                    .rustic-list-view .rustic-item-stock,
+                    .rustic-list-view .rustic-item-price {
+                        font-weight: 500 !important;
                     }
 
                     /* Stock */
