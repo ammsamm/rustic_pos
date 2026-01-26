@@ -361,14 +361,25 @@ rustic_pos.injectPersistentStyles = function() {
                         white-space: normal !important;
                         word-wrap: break-word !important;
                         text-align: start !important;
-                        font-weight: 700 !important;
+                        font-weight: bold !important;
                     }
 
-                    /* Stock - keep colors */
+                    /* Stock */
                     .point-of-sale-app .items-container .item-wrapper .item-qty,
                     .point-of-sale-app .items-container .item-wrapper .item-stock {
                         text-align: center !important;
                         min-width: 40px !important;
+                    }
+
+                    /* Stock colors based on availability */
+                    .point-of-sale-app .items-container .item-wrapper .text-success {
+                        color: var(--green-500, #22c55e) !important;
+                    }
+                    .point-of-sale-app .items-container .item-wrapper .text-warning {
+                        color: var(--yellow-500, #eab308) !important;
+                    }
+                    .point-of-sale-app .items-container .item-wrapper .text-danger {
+                        color: var(--red-500, #ef4444) !important;
                     }
 
                     /* Price */
@@ -412,7 +423,7 @@ rustic_pos.injectPersistentStyles = function() {
                         text-align: start !important;
                         overflow: hidden !important;
                         text-overflow: ellipsis !important;
-                        font-weight: 700 !important;
+                        font-weight: bold !important;
                     }
 
                     /* Stock */
