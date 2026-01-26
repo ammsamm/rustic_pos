@@ -297,6 +297,19 @@ rustic_pos.injectPersistentStyles = function() {
                         font-size: 16px; /* Prevents zoom on iOS */
                     }
 
+                    /* POS header - title and profile name stacked */
+                    .point-of-sale-app .page-head,
+                    .point-of-sale-app .title-area {
+                        flex-direction: column !important;
+                        align-items: flex-start !important;
+                    }
+
+                    .point-of-sale-app .title-text {
+                        white-space: normal !important;
+                        overflow: visible !important;
+                        text-overflow: unset !important;
+                    }
+
                     /* "All Items" header - align based on lang direction */
                     .point-of-sale-app .label {
                         text-align: start !important;
