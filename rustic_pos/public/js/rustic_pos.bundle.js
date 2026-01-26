@@ -170,10 +170,16 @@ rustic_pos.injectPersistentStyles = function() {
                     margin-inline-start: 0 !important;
                 }
 
-                /* All Items section - spacing from header */
+                /* Items section - spacing from header */
+                .point-of-sale-app .item-selector,
+                .point-of-sale-app .item-selector-wrapper,
+                .point-of-sale-app .pos-items-section {
+                    padding-block-start: 16px !important;
+                }
+
                 .point-of-sale-app .label,
                 .point-of-sale-app .section-label {
-                    margin-block-start: 16px !important;
+                    display: block !important;
                 }
 
                 /* UOM toggle buttons */
