@@ -333,9 +333,12 @@ rustic_pos.injectPersistentStyles = function() {
                         gap: 12px !important;
                     }
 
-                    /* Items row - same font for all elements (like cart) */
-                    .point-of-sale-app .item-wrapper,
-                    .point-of-sale-app .item-wrapper * {
+                    /* Items row - EXACT same font as cart */
+                    .point-of-sale-app .items-container .item-wrapper,
+                    .point-of-sale-app .items-container .item-wrapper *,
+                    .point-of-sale-app .items-container .item-wrapper span,
+                    .point-of-sale-app .items-container .item-wrapper div,
+                    .point-of-sale-app .items-container .item-wrapper p {
                         font-size: 14px !important;
                         font-weight: 500 !important;
                         color: var(--text-color) !important;
@@ -350,25 +353,27 @@ rustic_pos.injectPersistentStyles = function() {
                     }
 
                     /* Item name - BOLD */
-                    .point-of-sale-app .item-wrapper .item-name,
-                    .point-of-sale-app .item-wrapper .item-code {
+                    .point-of-sale-app .items-container .item-wrapper .item-name,
+                    .point-of-sale-app .items-container .item-wrapper .item-code,
+                    .point-of-sale-app .items-container .item-wrapper .item-name *,
+                    .point-of-sale-app .items-container .item-wrapper .item-code * {
                         flex: 1 !important;
                         white-space: normal !important;
                         word-wrap: break-word !important;
                         text-align: start !important;
-                        font-weight: bold !important;
+                        font-weight: 700 !important;
                     }
 
-                    /* Stock */
-                    .point-of-sale-app .item-wrapper .item-qty,
-                    .point-of-sale-app .item-wrapper .item-stock {
+                    /* Stock - keep colors */
+                    .point-of-sale-app .items-container .item-wrapper .item-qty,
+                    .point-of-sale-app .items-container .item-wrapper .item-stock {
                         text-align: center !important;
                         min-width: 40px !important;
                     }
 
                     /* Price */
-                    .point-of-sale-app .item-wrapper .item-price,
-                    .point-of-sale-app .item-wrapper .item-rate {
+                    .point-of-sale-app .items-container .item-wrapper .item-price,
+                    .point-of-sale-app .items-container .item-wrapper .item-rate {
                         text-align: end !important;
                         min-width: 60px !important;
                     }
@@ -384,9 +389,11 @@ rustic_pos.injectPersistentStyles = function() {
                         border-bottom: 1px solid var(--border-color) !important;
                     }
 
-                    /* Items row - same font for all elements (like cart) */
+                    /* Items row - EXACT same font as cart */
                     .rustic-list-view .rustic-list-item,
-                    .rustic-list-view .rustic-list-item * {
+                    .rustic-list-view .rustic-list-item *,
+                    .rustic-list-view .rustic-list-item span,
+                    .rustic-list-view .rustic-list-item div {
                         font-size: 14px !important;
                         font-weight: 500 !important;
                         color: var(--text-color) !important;
@@ -405,7 +412,7 @@ rustic_pos.injectPersistentStyles = function() {
                         text-align: start !important;
                         overflow: hidden !important;
                         text-overflow: ellipsis !important;
-                        font-weight: bold !important;
+                        font-weight: 700 !important;
                     }
 
                     /* Stock */
