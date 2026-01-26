@@ -150,30 +150,7 @@ rustic_pos.injectPersistentStyles = function() {
                     --blue-500: #3b82f6;
                 }
 
-/* POS header - title and profile name stacked (all screen sizes) */
-                .title-area > div > .flex {
-                    flex-direction: column !important;
-                    align-items: flex-start !important;
-                    gap: 6px !important;
-                }
-
-                .title-area h3.ellipsis.title-text {
-                    white-space: nowrap !important;
-                    overflow: hidden !important;
-                    text-overflow: ellipsis !important;
-                    max-width: 100% !important;
-                    line-height: 1.5 !important;
-                }
-
-                .title-area .indicator-pill {
-                    margin-inline-start: 0 !important;
-                }
-
-                .title-area > div {
-                    padding-block-end: 12px !important;
-                }
-
-                /* UOM toggle buttons */
+/* UOM toggle buttons */
                 .point-of-sale-app .rustic-uom-btn.btn-primary {
                     background-color: var(--blue-500, #3b82f6) !important;
                     color: white !important;
@@ -780,9 +757,6 @@ rustic_pos.patchPOSController = function() {
 rustic_pos.onPOSReady = function() {
     if (!window.cur_pos) return;
 
-    // Fix POS header layout
-    rustic_pos.fixPOSHeader();
-
     // Apply view mode and item group toggle
     if (window.cur_pos.item_selector) {
         rustic_pos.applyViewMode(window.cur_pos.item_selector);
@@ -813,39 +787,6 @@ rustic_pos.onPOSReady = function() {
     rustic_pos.observePOSChanges();
 };
 
-/**
- * Fix POS header layout - stack title and profile name vertically
- */
-rustic_pos.fixPOSHeader = function() {
-    const $titleArea = $('.title-area');
-    if (!$titleArea.length) return;
-
-    const $flexContainer = $titleArea.find('> div > .flex');
-    if ($flexContainer.length) {
-        $flexContainer[0].style.setProperty('flex-direction', 'column', 'important');
-        $flexContainer[0].style.setProperty('align-items', 'flex-start', 'important');
-        $flexContainer[0].style.setProperty('gap', '6px', 'important');
-    }
-
-    const $title = $titleArea.find('h3.title-text');
-    if ($title.length) {
-        $title[0].style.setProperty('white-space', 'nowrap', 'important');
-        $title[0].style.setProperty('overflow', 'hidden', 'important');
-        $title[0].style.setProperty('text-overflow', 'ellipsis', 'important');
-        $title[0].style.setProperty('max-width', '100%', 'important');
-        $title[0].style.setProperty('line-height', '1.5', 'important');
-    }
-
-    const $indicator = $titleArea.find('.indicator-pill');
-    if ($indicator.length) {
-        $indicator[0].style.setProperty('margin-inline-start', '0', 'important');
-    }
-
-    const $innerDiv = $titleArea.find('> div').first();
-    if ($innerDiv.length) {
-        $innerDiv[0].style.setProperty('padding-bottom', '12px', 'important');
-    }
-};
 
 /**
  * Initialize view mode for ItemSelector (settings should already be loaded)
