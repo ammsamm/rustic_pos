@@ -878,8 +878,16 @@ rustic_pos.hideItemGroupFilter = function(component) {
  * - If 2+ groups: show toggle buttons
  */
 rustic_pos.setupItemGroupToggle = function(component) {
-    if (!component || !component.$component) return;
-    if (rustic_pos.hide_item_group) return; // Already hidden by setting
+    console.log('setupItemGroupToggle called', component);
+
+    if (!component || !component.$component) {
+        console.log('No component');
+        return;
+    }
+    if (rustic_pos.hide_item_group) {
+        console.log('Item group hidden by setting');
+        return;
+    }
 
     // Get item groups from POS Profile - try multiple sources
     let posProfile = null;
@@ -891,8 +899,11 @@ rustic_pos.setupItemGroupToggle = function(component) {
         posProfile = component.settings.name;
     }
 
+    console.log('POS Profile:', posProfile);
+
     if (!posProfile) {
         // Defer until POS is ready
+        console.log('No POS Profile, deferring...');
         setTimeout(function() {
             rustic_pos.setupItemGroupToggle(component);
         }, 500);
@@ -907,23 +918,30 @@ rustic_pos.setupItemGroupToggle = function(component) {
         },
         async: false,
         callback: function(r) {
+            console.log('POS Profile data:', r.message);
+
             if (!r.message) return;
 
             let itemGroups = r.message.item_groups || [];
+            console.log('Item groups:', itemGroups);
 
             // If no item groups defined in POS Profile, use default behavior
             if (itemGroups.length === 0) {
+                console.log('No item groups defined');
                 return;
             }
 
             // Extract group names
             const groups = itemGroups.map(g => g.item_group);
+            console.log('Groups:', groups);
 
             if (groups.length === 1) {
                 // Only 1 group - hide the field completely
+                console.log('1 group - hiding');
                 rustic_pos.hideItemGroupFilter(component);
             } else if (groups.length >= 2) {
                 // 2+ groups - show toggle buttons
+                console.log('2+ groups - showing toggle');
                 rustic_pos.renderItemGroupToggle(component, groups);
             }
         }
