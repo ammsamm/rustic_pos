@@ -298,16 +298,21 @@ rustic_pos.injectPersistentStyles = function() {
                     }
 
                     /* POS header - title and profile name stacked */
-                    .point-of-sale-app .page-head,
-                    .point-of-sale-app .title-area {
-                        flex-direction: column !important;
-                        align-items: flex-start !important;
+                    .page-container[data-page-container="point-of-sale"] .page-head .flex,
+                    .point-of-sale .page-head .flex,
+                    .pos-profile-selector,
+                    .point-of-sale-app .pos-header,
+                    .point-of-sale-app .app-header {
+                        flex-wrap: wrap !important;
                     }
 
+                    .page-container[data-page-container="point-of-sale"] .page-head .title-text,
+                    .point-of-sale .title-text,
                     .point-of-sale-app .title-text {
                         white-space: normal !important;
                         overflow: visible !important;
                         text-overflow: unset !important;
+                        max-width: 100% !important;
                     }
 
                     /* "All Items" header - align based on lang direction */
