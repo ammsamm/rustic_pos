@@ -978,12 +978,13 @@ rustic_pos.renderItemGroupToggle = function(component, groups) {
     // Add buttons for each group
     groups.forEach(function(groupName) {
         const isActive = groupName === currentGroup;
+        const translatedName = __(groupName);
         buttonsHtml += `
             <button type="button"
                 class="btn btn-${isActive ? 'primary' : 'default'} btn-sm rustic-item-group-btn"
                 data-group="${frappe.utils.escape_html(groupName)}"
                 style="margin-inline-end:5px;margin-bottom:5px;">
-                ${frappe.utils.escape_html(groupName)}
+                ${frappe.utils.escape_html(translatedName)}
             </button>
         `;
     });
