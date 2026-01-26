@@ -353,12 +353,15 @@ rustic_pos.injectPersistentStyles = function() {
                         flex: 1 !important;
                         font-size: 14px !important;
                         font-weight: 600 !important;
+                        color: var(--text-color) !important;
                         padding: 0 !important;
                         min-width: unset !important;
                         white-space: normal !important;
                         word-wrap: break-word !important;
                         line-height: 1.3 !important;
                         text-align: start !important;
+                        overflow: hidden !important;
+                        text-overflow: ellipsis !important;
                     }
 
                     .rustic-list-view .rustic-item-stock {
@@ -470,12 +473,15 @@ rustic_pos.injectPersistentStyles = function() {
                         flex: 1 !important;
                         font-size: 14px !important;
                         font-weight: 600 !important;
+                        color: var(--text-color) !important;
                         padding: 0 !important;
                         min-width: unset !important;
                         white-space: normal !important;
                         word-wrap: break-word !important;
                         line-height: 1.3 !important;
                         text-align: start !important;
+                        overflow: hidden !important;
+                        text-overflow: ellipsis !important;
                     }
 
                     /* Hide duplicate/secondary item name elements */
