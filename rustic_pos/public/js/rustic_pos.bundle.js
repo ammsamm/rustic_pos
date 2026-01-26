@@ -822,36 +822,28 @@ rustic_pos.fixPOSHeader = function() {
 
     const $flexContainer = $titleArea.find('> div > .flex');
     if ($flexContainer.length) {
-        $flexContainer.css({
-            'flex-direction': 'column',
-            'align-items': 'flex-start',
-            'gap': '6px'
-        });
+        $flexContainer[0].style.setProperty('flex-direction', 'column', 'important');
+        $flexContainer[0].style.setProperty('align-items', 'flex-start', 'important');
+        $flexContainer[0].style.setProperty('gap', '6px', 'important');
     }
 
     const $title = $titleArea.find('h3.title-text');
     if ($title.length) {
-        $title.css({
-            'white-space': 'nowrap',
-            'overflow': 'hidden',
-            'text-overflow': 'ellipsis',
-            'max-width': '100%',
-            'line-height': '1.5'
-        });
+        $title[0].style.setProperty('white-space', 'nowrap', 'important');
+        $title[0].style.setProperty('overflow', 'hidden', 'important');
+        $title[0].style.setProperty('text-overflow', 'ellipsis', 'important');
+        $title[0].style.setProperty('max-width', '100%', 'important');
+        $title[0].style.setProperty('line-height', '1.5', 'important');
     }
 
     const $indicator = $titleArea.find('.indicator-pill');
     if ($indicator.length) {
-        $indicator.css({
-            'margin-inline-start': '0'
-        });
+        $indicator[0].style.setProperty('margin-inline-start', '0', 'important');
     }
 
     const $innerDiv = $titleArea.find('> div').first();
     if ($innerDiv.length) {
-        $innerDiv.css({
-            'padding-bottom': '12px'
-        });
+        $innerDiv[0].style.setProperty('padding-bottom', '12px', 'important');
     }
 };
 
