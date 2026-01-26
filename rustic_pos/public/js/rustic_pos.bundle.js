@@ -425,9 +425,10 @@ rustic_pos.injectPersistentStyles = function() {
                         padding-inline: 12px !important;
                         gap: 6px !important;
                         border-bottom: 1px solid var(--border-color) !important;
+                        align-items: flex-end !important; /* Right in LTR, Left in RTL */
                     }
 
-                    /* First row: Item name only */
+                    /* First row: Item name - full width, start aligned */
                     .point-of-sale-app .cart-items-section .item-name-desc {
                         width: 100% !important;
                         font-size: 14px !important;
@@ -442,18 +443,19 @@ rustic_pos.injectPersistentStyles = function() {
                         display: none !important;
                     }
 
-                    /* Second row: Qty and Amount */
+                    /* Second row: Qty and Amount - end aligned (right in EN, left in AR) */
                     .point-of-sale-app .cart-items-section .item-qty {
+                        display: inline-block !important;
                         font-size: 13px !important;
                         color: var(--text-muted) !important;
-                        display: inline-block !important;
+                        margin-inline-end: 12px !important;
                     }
 
                     .point-of-sale-app .cart-items-section .item-rate-amount {
+                        display: inline-block !important;
                         font-size: 13px !important;
                         font-weight: 600 !important;
                         color: var(--text-color) !important;
-                        float: inline-end !important;
                     }
 
                     /* Hide unnecessary cart elements on mobile */
