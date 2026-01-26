@@ -412,7 +412,7 @@ rustic_pos.injectPersistentStyles = function() {
                         padding: 0 !important;
                     }
 
-                    /* Cart table - clean two row layout for RTL/LTR */
+                    /* Cart table - single row aligned with headers */
                     .point-of-sale-app .cart-items-section {
                         display: flex !important;
                         flex-direction: column !important;
@@ -420,37 +420,42 @@ rustic_pos.injectPersistentStyles = function() {
 
                     .point-of-sale-app .cart-items-section .cart-item-wrapper {
                         display: flex !important;
-                        flex-direction: column !important;
-                        padding-block: 12px !important;
+                        flex-direction: row !important;
+                        align-items: center !important;
+                        padding-block: 10px !important;
                         padding-inline: 12px !important;
-                        gap: 8px !important;
+                        gap: 12px !important;
                         border-bottom: 1px solid var(--border-color) !important;
                     }
 
-                    /* First row: Item name - clear and prominent */
+                    /* Item name - aligned with header */
                     .point-of-sale-app .cart-items-section .item-name-desc {
-                        width: 100% !important;
-                        font-size: 15px !important;
-                        font-weight: 600 !important;
-                        line-height: 1.4 !important;
-                        white-space: normal !important;
-                        word-wrap: break-word !important;
+                        flex: 1 !important;
+                        font-size: 14px !important;
+                        font-weight: 500 !important;
+                        line-height: 1.3 !important;
                         text-align: start !important;
                     }
 
-                    /* Second row: Qty and Amount in a flex row */
-                    .point-of-sale-app .cart-items-section .item-qty,
-                    .point-of-sale-app .cart-items-section .item-rate-amount {
+                    /* Hide duplicate item name inside item-name-desc */
+                    .point-of-sale-app .cart-items-section .item-name-desc .item-name,
+                    .point-of-sale-app .cart-items-section .item-name-desc .item-description {
+                        display: none !important;
+                    }
+
+                    /* Qty - aligned with header (center) */
+                    .point-of-sale-app .cart-items-section .item-qty {
+                        min-width: 50px !important;
+                        text-align: center !important;
                         font-size: 13px !important;
                     }
 
-                    .point-of-sale-app .cart-items-section .item-qty {
-                        color: var(--text-muted) !important;
-                    }
-
+                    /* Amount - aligned with header (end) */
                     .point-of-sale-app .cart-items-section .item-rate-amount {
+                        min-width: 70px !important;
+                        text-align: end !important;
+                        font-size: 13px !important;
                         font-weight: 600 !important;
-                        color: var(--text-color) !important;
                     }
 
                     /* Hide unnecessary cart elements on mobile */
