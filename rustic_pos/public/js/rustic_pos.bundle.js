@@ -194,7 +194,6 @@ rustic_pos.injectPersistentStyles = function() {
                         gap: 8px 12px !important;
                         width: 100% !important;
                         margin-bottom: 12px !important;
-                        padding-inline-start: 0 !important;
                     }
 
                     /* Title "All Items" takes full width (forces new row below) */
@@ -211,24 +210,11 @@ rustic_pos.injectPersistentStyles = function() {
                         flex: 1 !important;
                         min-width: 200px !important;
                         order: 1 !important;
-                        margin-inline-start: 0 !important;
-                        padding-inline-start: 0 !important;
                     }
 
-                    /* Remove extra margin/padding from search field controls */
+                    /* Remove extra margin from search field form-group */
                     .point-of-sale-app .filter-section .search-field .form-group {
                         margin-bottom: 0 !important;
-                        margin-inline-start: 0 !important;
-                    }
-
-                    .point-of-sale-app .filter-section .search-field .frappe-control {
-                        margin-inline-start: 0 !important;
-                        padding-inline-start: 0 !important;
-                    }
-
-                    /* Match input height for reference */
-                    .point-of-sale-app .filter-section .search-field input.form-control {
-                        height: 38px !important;
                     }
 
                     /* Toggle buttons beside search - align with input */
@@ -242,22 +228,15 @@ rustic_pos.injectPersistentStyles = function() {
 
                     .point-of-sale-app .filter-section .rustic-item-group-buttons {
                         flex-wrap: nowrap !important;
-                        align-items: stretch !important;
+                        align-items: center !important;
                     }
 
-                    /* Toggle buttons - same height as search input */
                     .point-of-sale-app .filter-section .rustic-item-group-btn {
                         margin-bottom: 0 !important;
                         white-space: nowrap !important;
-                        height: 38px !important;
-                        line-height: 38px !important;
-                        padding-block: 0 !important;
-                        padding-inline: 12px !important;
+                        height: 36px !important;
                         margin-inline-end: 5px !important;
                         margin-inline-start: 0 !important;
-                        display: inline-flex !important;
-                        align-items: center !important;
-                        justify-content: center !important;
                     }
 
                     .point-of-sale-app .filter-section .rustic-item-group-btn:last-child {
