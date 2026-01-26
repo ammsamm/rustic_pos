@@ -322,25 +322,13 @@ rustic_pos.injectPersistentStyles = function() {
                         margin: 0 !important;
                     }
 
-                    /* Search field styling - RTL compatible */
+                    /* Search field styling */
                     .point-of-sale-app .search-field input {
                         font-size: 16px !important;
                         padding-block: 10px !important;
                         padding-inline: 12px !important;
                         width: 100% !important;
                         text-align: start !important;
-                    }
-
-                    /* RTL support for search field */
-                    [dir="rtl"] .point-of-sale-app .search-field input,
-                    [lang="ar"] .point-of-sale-app .search-field input {
-                        direction: rtl !important;
-                        text-align: right !important;
-                    }
-
-                    [dir="rtl"] .point-of-sale-app .search-field input::placeholder,
-                    [lang="ar"] .point-of-sale-app .search-field input::placeholder {
-                        text-align: right !important;
                     }
 
                     /* Item selector - compact cards */
