@@ -166,63 +166,93 @@ rustic_pos.injectPersistentStyles = function() {
     if (!$('#rustic-list-styles').length) {
         $('head').append(`
             <style id="rustic-list-styles">
+                /* Items table - same font as cart */
                 .rustic-list-view .rustic-list-item {
                     display: flex !important;
                     align-items: center;
-                    padding: 8px;
+                    padding: 10px 12px;
+                    margin: 0;
+                    gap: 12px;
                     border-bottom: 1px solid var(--border-color);
                     cursor: pointer;
                     background: var(--bg-color);
+                    font-size: 14px !important;
+                    font-weight: 500 !important;
+                    color: var(--text-color) !important;
+                    line-height: 1.4 !important;
                 }
                 .rustic-list-view .rustic-list-item:hover {
                     background: var(--subtle-fg) !important;
                 }
+                /* Item name - BOLD */
                 .rustic-list-view .rustic-item-name {
                     flex: 1;
-                    font-weight: 500;
+                    font-size: 14px !important;
+                    font-weight: bold !important;
+                    color: var(--text-color) !important;
+                    line-height: 1.4 !important;
                     white-space: nowrap;
                     overflow: hidden;
                     text-overflow: ellipsis;
                     text-align: start;
-                    padding-inline-end: 12px;
+                    padding: 0;
                 }
+                /* Stock - keep colors */
                 .rustic-list-view .rustic-item-stock {
-                    min-width: 70px;
+                    min-width: 40px;
+                    font-size: 14px !important;
+                    font-weight: 500 !important;
+                    line-height: 1.4 !important;
                     text-align: center;
-                    padding-inline: 8px;
+                    padding: 0;
                 }
+                /* Stock colors */
+                .rustic-list-view .rustic-item-stock.text-success {
+                    color: var(--green-500, #22c55e) !important;
+                }
+                .rustic-list-view .rustic-item-stock.text-warning {
+                    color: var(--yellow-500, #eab308) !important;
+                }
+                .rustic-list-view .rustic-item-stock.text-danger {
+                    color: var(--red-500, #ef4444) !important;
+                }
+                /* Price */
                 .rustic-list-view .rustic-item-price {
-                    min-width: 80px;
-                    text-align: start;
-                    font-weight: 600;
-                    padding-inline-start: 8px;
+                    min-width: 60px;
+                    font-size: 14px !important;
+                    font-weight: 500 !important;
+                    line-height: 1.4 !important;
+                    text-align: end;
+                    padding: 0;
                 }
                 .rustic-list-header {
                     display: flex !important;
                     align-items: center;
-                    padding: 8px;
+                    padding: 8px 12px;
+                    gap: 12px;
                     background: var(--subtle-fg);
-                    border-bottom: 2px solid var(--border-color);
+                    border-bottom: 1px solid var(--border-color);
+                    font-size: 12px;
                     font-weight: 600;
+                    color: var(--text-muted);
                     position: sticky;
                     top: 0;
                     z-index: 1;
                 }
-                .rustic-list-header > div {
-                    text-align: start;
-                }
                 .rustic-list-header > div:first-child {
                     flex: 1;
-                    padding-inline-end: 12px;
+                    text-align: start;
+                    padding: 0;
                 }
                 .rustic-list-header > div:nth-child(2) {
-                    min-width: 70px;
+                    min-width: 40px;
                     text-align: center;
-                    padding-inline: 8px;
+                    padding: 0;
                 }
                 .rustic-list-header > div:last-child {
-                    min-width: 80px;
-                    padding-inline-start: 8px;
+                    min-width: 60px;
+                    text-align: end;
+                    padding: 0;
                 }
             </style>
         `);
