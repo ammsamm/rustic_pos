@@ -750,11 +750,14 @@ rustic_pos.patchPOSController = function() {
 rustic_pos.onPOSReady = function() {
     if (!window.cur_pos) return;
 
-    // Apply view mode
+    // Apply view mode and item group toggle
     if (window.cur_pos.item_selector) {
         rustic_pos.applyViewMode(window.cur_pos.item_selector);
         if (rustic_pos.hide_item_group) {
             rustic_pos.hideItemGroupFilter(window.cur_pos.item_selector);
+        } else {
+            // Setup item group toggle buttons
+            rustic_pos.setupItemGroupToggle(window.cur_pos.item_selector);
         }
     }
 
