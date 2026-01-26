@@ -151,6 +151,10 @@ rustic_pos.injectPersistentStyles = function() {
                 }
 
 /* POS header - title and profile name stacked (all screen sizes) */
+                .title-area {
+                    padding-block-end: 12px !important;
+                }
+
                 .title-area .flex {
                     flex-direction: column !important;
                     align-items: start !important;
@@ -166,8 +170,7 @@ rustic_pos.injectPersistentStyles = function() {
                 }
 
                 .title-area .indicator-pill {
-                    margin-block-start: 8px !important;
-                    margin-block-end: 16px !important;
+                    margin-block-start: 6px !important;
                     margin-inline-start: 0 !important;
                 }
 
