@@ -412,29 +412,32 @@ rustic_pos.injectPersistentStyles = function() {
                         padding: 0 !important;
                     }
 
-                    /* Cart table - two row layout (name first, details second) */
+                    /* Cart table - same design as items table */
                     .point-of-sale-app .cart-items-section {
                         display: flex !important;
                         flex-direction: column !important;
                     }
 
+                    /* Cart item row - single row like items table */
                     .point-of-sale-app .cart-items-section .cart-item-wrapper {
                         display: flex !important;
-                        flex-direction: column !important;
+                        flex-direction: row !important;
+                        align-items: center !important;
                         padding-block: 10px !important;
                         padding-inline: 12px !important;
-                        gap: 6px !important;
+                        gap: 12px !important;
                         border-bottom: 1px solid var(--border-color) !important;
-                        align-items: flex-end !important; /* Right in LTR, Left in RTL */
                     }
 
-                    /* First row: Item name - full width, start aligned */
+                    /* Item name - flex grow, start aligned */
                     .point-of-sale-app .cart-items-section .item-name-desc {
-                        width: 100% !important;
+                        flex: 1 !important;
                         font-size: 14px !important;
-                        font-weight: 600 !important;
+                        font-weight: 500 !important;
                         line-height: 1.3 !important;
                         text-align: start !important;
+                        white-space: normal !important;
+                        word-wrap: break-word !important;
                     }
 
                     /* Hide duplicate/secondary item name elements */
@@ -443,19 +446,52 @@ rustic_pos.injectPersistentStyles = function() {
                         display: none !important;
                     }
 
-                    /* Second row: Qty and Amount - end aligned (right in EN, left in AR) */
+                    /* Qty - center aligned, fixed width */
                     .point-of-sale-app .cart-items-section .item-qty {
-                        display: inline-block !important;
+                        min-width: 50px !important;
                         font-size: 13px !important;
-                        color: var(--text-muted) !important;
-                        margin-inline-end: 12px !important;
+                        text-align: center !important;
                     }
 
+                    /* Amount - end aligned, fixed width */
                     .point-of-sale-app .cart-items-section .item-rate-amount {
-                        display: inline-block !important;
+                        min-width: 70px !important;
                         font-size: 13px !important;
                         font-weight: 600 !important;
-                        color: var(--text-color) !important;
+                        text-align: end !important;
+                    }
+
+                    /* Cart header - same style as items table header */
+                    .rustic-cart-header {
+                        display: flex !important;
+                        flex-direction: row !important;
+                        align-items: center !important;
+                        padding-block: 8px !important;
+                        padding-inline: 12px !important;
+                        gap: 12px !important;
+                        background: var(--subtle-fg) !important;
+                        border-bottom: 1px solid var(--border-color) !important;
+                        font-size: 12px !important;
+                        font-weight: 600 !important;
+                        color: var(--text-muted) !important;
+                        position: sticky !important;
+                        top: 0 !important;
+                        z-index: 1 !important;
+                    }
+
+                    .rustic-cart-header > div:first-child {
+                        flex: 1 !important;
+                        text-align: start !important;
+                    }
+
+                    .rustic-cart-header > div:nth-child(2) {
+                        min-width: 50px !important;
+                        text-align: center !important;
+                    }
+
+                    .rustic-cart-header > div:last-child {
+                        min-width: 70px !important;
+                        text-align: end !important;
                     }
 
                     /* Hide unnecessary cart elements on mobile */
@@ -599,6 +635,7 @@ rustic_pos.onPOSReady = function() {
     // Apply cart customizations
     if (window.cur_pos.cart) {
         rustic_pos.applyCartCustomizations(window.cur_pos.cart);
+        rustic_pos.addCartHeader(window.cur_pos.cart);
     }
 
     // Hide form view button and menu items
@@ -771,6 +808,29 @@ rustic_pos.addListHeader = function(component) {
     `;
 
     $itemsContainer.prepend(headerHtml);
+};
+
+/**
+ * Add fixed header for cart (same design as items table)
+ */
+rustic_pos.addCartHeader = function(component) {
+    if (!component || !component.$component) return;
+
+    const $cartItemsSection = component.$component.find('.cart-items-section');
+    if (!$cartItemsSection.length) return;
+
+    // Remove existing header if any
+    $cartItemsSection.find('.rustic-cart-header').remove();
+
+    const headerHtml = `
+        <div class="rustic-cart-header">
+            <div>${__('Item')}</div>
+            <div>${__('Qty')}</div>
+            <div>${__('Amount')}</div>
+        </div>
+    `;
+
+    $cartItemsSection.prepend(headerHtml);
 };
 
 /**
