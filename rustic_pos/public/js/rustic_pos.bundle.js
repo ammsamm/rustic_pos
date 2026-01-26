@@ -328,7 +328,6 @@ rustic_pos.injectPersistentStyles = function() {
                         padding-block: 10px !important;
                         padding-inline: 12px !important;
                         width: 100% !important;
-                        text-align: start !important;
                     }
 
                     /* Item selector - compact cards */
