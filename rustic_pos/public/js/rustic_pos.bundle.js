@@ -189,7 +189,7 @@ rustic_pos.injectPersistentStyles = function() {
                     .point-of-sale-app .filter-section {
                         display: flex !important;
                         flex-wrap: wrap !important;
-                        align-items: center !important;
+                        align-items: flex-end !important;
                         gap: 8px 12px !important;
                         width: 100% !important;
                         margin-bottom: 12px !important;
@@ -200,6 +200,7 @@ rustic_pos.injectPersistentStyles = function() {
                         width: 100% !important;
                         flex-basis: 100% !important;
                         margin-bottom: 4px !important;
+                        align-self: flex-start !important;
                     }
 
                     /* Search field takes remaining space */
@@ -208,20 +209,28 @@ rustic_pos.injectPersistentStyles = function() {
                         min-width: 200px !important;
                     }
 
-                    /* Toggle buttons beside search */
+                    /* Remove extra margin from search field form-group */
+                    .point-of-sale-app .filter-section .search-field .form-group {
+                        margin-bottom: 0 !important;
+                    }
+
+                    /* Toggle buttons beside search - align with input */
                     .point-of-sale-app .filter-section .rustic-item-group-container {
                         padding: 0 !important;
                         margin: 0 !important;
                         flex-shrink: 0 !important;
+                        align-self: flex-end !important;
                     }
 
                     .point-of-sale-app .filter-section .rustic-item-group-buttons {
                         flex-wrap: nowrap !important;
+                        align-items: center !important;
                     }
 
                     .point-of-sale-app .filter-section .rustic-item-group-btn {
                         margin-bottom: 0 !important;
                         white-space: nowrap !important;
+                        height: 36px !important;
                     }
                 }
             </style>
