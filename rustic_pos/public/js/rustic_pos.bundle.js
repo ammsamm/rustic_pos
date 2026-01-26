@@ -272,7 +272,8 @@ rustic_pos.injectPersistentStyles = function() {
                     /* Search field styling */
                     .point-of-sale-app .search-field input {
                         font-size: 16px !important;
-                        padding: 10px 12px !important;
+                        padding-block: 10px !important;
+                        padding-inline: 12px !important;
                         width: 100% !important;
                     }
 
@@ -291,7 +292,8 @@ rustic_pos.injectPersistentStyles = function() {
                         display: flex !important;
                         flex-direction: row !important;
                         align-items: center !important;
-                        padding: 10px 12px !important;
+                        padding-block: 10px !important;
+                        padding-inline: 12px !important;
                         margin: 0 !important;
                         border: 1px solid var(--border-color) !important;
                         border-radius: var(--border-radius) !important;
@@ -341,7 +343,8 @@ rustic_pos.injectPersistentStyles = function() {
                         display: flex !important;
                         flex-direction: row !important;
                         align-items: center !important;
-                        padding: 10px 12px !important;
+                        padding-block: 10px !important;
+                        padding-inline: 12px !important;
                         gap: 12px !important;
                     }
 
@@ -373,7 +376,8 @@ rustic_pos.injectPersistentStyles = function() {
                         display: flex !important;
                         flex-direction: row !important;
                         align-items: center !important;
-                        padding: 8px 12px !important;
+                        padding-block: 8px !important;
+                        padding-inline: 12px !important;
                         gap: 12px !important;
                         background: var(--subtle-fg) !important;
                         border-bottom: 1px solid var(--border-color) !important;
@@ -413,7 +417,8 @@ rustic_pos.injectPersistentStyles = function() {
                         display: grid !important;
                         grid-template-columns: 1fr !important;
                         grid-template-rows: auto auto !important;
-                        padding: 10px 12px !important;
+                        padding-block: 10px !important;
+                        padding-inline: 12px !important;
                         gap: 4px !important;
                         border-bottom: 1px solid var(--border-color) !important;
                     }
@@ -451,7 +456,7 @@ rustic_pos.injectPersistentStyles = function() {
 
                     .point-of-sale-app .cart-items-section .item-rate-amount {
                         position: absolute !important;
-                        right: 12px !important;
+                        inset-inline-end: 12px !important;
                         font-weight: 600 !important;
                         color: var(--text-color) !important;
                     }
