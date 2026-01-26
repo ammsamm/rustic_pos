@@ -412,56 +412,13 @@ rustic_pos.injectPersistentStyles = function() {
                         padding: 0 !important;
                     }
 
-                    /* Cart table - same design as items table */
+                    /* Cart table - EXACT copy of items table design */
                     .point-of-sale-app .cart-items-section {
                         display: flex !important;
                         flex-direction: column !important;
                     }
 
-                    /* Cart item row - single row like items table */
-                    .point-of-sale-app .cart-items-section .cart-item-wrapper {
-                        display: flex !important;
-                        flex-direction: row !important;
-                        align-items: center !important;
-                        padding-block: 10px !important;
-                        padding-inline: 12px !important;
-                        gap: 12px !important;
-                        border-bottom: 1px solid var(--border-color) !important;
-                    }
-
-                    /* Item name - flex grow, start aligned */
-                    .point-of-sale-app .cart-items-section .item-name-desc {
-                        flex: 1 !important;
-                        font-size: 14px !important;
-                        font-weight: 500 !important;
-                        line-height: 1.3 !important;
-                        text-align: start !important;
-                        white-space: normal !important;
-                        word-wrap: break-word !important;
-                    }
-
-                    /* Hide duplicate/secondary item name elements */
-                    .point-of-sale-app .cart-items-section .item-name-desc .item-name,
-                    .point-of-sale-app .cart-items-section .item-name-desc .item-description {
-                        display: none !important;
-                    }
-
-                    /* Qty - center aligned, fixed width */
-                    .point-of-sale-app .cart-items-section .item-qty {
-                        min-width: 50px !important;
-                        font-size: 13px !important;
-                        text-align: center !important;
-                    }
-
-                    /* Amount - end aligned, fixed width */
-                    .point-of-sale-app .cart-items-section .item-rate-amount {
-                        min-width: 70px !important;
-                        font-size: 13px !important;
-                        font-weight: 600 !important;
-                        text-align: end !important;
-                    }
-
-                    /* Cart header - same style as items table header */
+                    /* Cart header - EXACT copy of .rustic-list-header */
                     .rustic-cart-header {
                         display: flex !important;
                         flex-direction: row !important;
@@ -481,17 +438,67 @@ rustic_pos.injectPersistentStyles = function() {
 
                     .rustic-cart-header > div:first-child {
                         flex: 1 !important;
-                        text-align: start !important;
+                        min-width: unset !important;
+                        padding: 0 !important;
                     }
 
                     .rustic-cart-header > div:nth-child(2) {
-                        min-width: 50px !important;
+                        min-width: 40px !important;
                         text-align: center !important;
+                        padding: 0 !important;
                     }
 
                     .rustic-cart-header > div:last-child {
-                        min-width: 70px !important;
+                        min-width: 60px !important;
                         text-align: end !important;
+                        padding: 0 !important;
+                    }
+
+                    /* Cart item row - EXACT copy of .rustic-list-item */
+                    .point-of-sale-app .cart-items-section .cart-item-wrapper {
+                        display: flex !important;
+                        flex-direction: row !important;
+                        align-items: center !important;
+                        padding-block: 10px !important;
+                        padding-inline: 12px !important;
+                        gap: 12px !important;
+                        border-bottom: 1px solid var(--border-color) !important;
+                    }
+
+                    /* Item name - EXACT copy of .rustic-item-name */
+                    .point-of-sale-app .cart-items-section .item-name-desc {
+                        flex: 1 !important;
+                        font-size: 14px !important;
+                        font-weight: 600 !important;
+                        padding: 0 !important;
+                        min-width: unset !important;
+                        white-space: normal !important;
+                        word-wrap: break-word !important;
+                        line-height: 1.3 !important;
+                        text-align: start !important;
+                    }
+
+                    /* Hide duplicate/secondary item name elements */
+                    .point-of-sale-app .cart-items-section .item-name-desc .item-name,
+                    .point-of-sale-app .cart-items-section .item-name-desc .item-description {
+                        display: none !important;
+                    }
+
+                    /* Qty - EXACT copy of .rustic-item-stock */
+                    .point-of-sale-app .cart-items-section .item-qty {
+                        font-size: 13px !important;
+                        padding: 0 !important;
+                        text-align: center !important;
+                        min-width: 40px !important;
+                    }
+
+                    /* Amount - EXACT copy of .rustic-item-price */
+                    .point-of-sale-app .cart-items-section .item-rate-amount {
+                        font-size: 13px !important;
+                        font-weight: 600 !important;
+                        padding: 0 !important;
+                        text-align: end !important;
+                        min-width: 60px !important;
                     }
 
                     /* Hide unnecessary cart elements on mobile */
