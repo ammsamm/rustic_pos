@@ -1044,7 +1044,7 @@ rustic_pos.renderItemGroupToggle = function(component, groups) {
     });
 
     const containerHtml = `
-        <div class="rustic-item-group-container" style="width:100%;padding:0 var(--padding-md);margin-bottom:8px;">
+        <div class="rustic-item-group-container" style="width:100%;margin-bottom:8px;">
             <div class="rustic-item-group-buttons" style="display:flex;flex-wrap:wrap;gap:5px;">${buttonsHtml}</div>
         </div>
     `;
@@ -1063,10 +1063,22 @@ rustic_pos.renderItemGroupToggle = function(component, groups) {
         component.$component.prepend(containerHtml);
     }
 
-    // Apply inline styles to match search box alignment with items table
+    // Get search input height to match toggle buttons
+    const $searchInput = component.$component.find('.search-field input.form-control');
+    const searchHeight = $searchInput.length ? $searchInput.outerHeight() : 36;
+
+    // Get filter-section padding to align toggle container
+    const $filterPadding = $filterSection.css('padding-left') || $filterSection.css('padding-inline-start') || '0';
+
+    // Apply alignment and height styles
     const $toggleContainer = component.$component.find('.rustic-item-group-container');
+    $toggleContainer.css({
+        'padding-inline-start': $filterPadding,
+        'padding-inline-end': $filterPadding
+    });
+
     $toggleContainer.find('.rustic-item-group-btn').css({
-        'height': '38px',
+        'height': searchHeight + 'px',
         'display': 'inline-flex',
         'align-items': 'center',
         'justify-content': 'center',
