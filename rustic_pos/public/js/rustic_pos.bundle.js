@@ -1074,30 +1074,9 @@ rustic_pos.renderItemGroupToggle = function(component, groups) {
     // Get search input height to match toggle buttons
     const $searchInput = component.$component.find('.search-field input.form-control');
     const searchHeight = $searchInput.length ? $searchInput.outerHeight() : 36;
-
-    // Get items container padding to align everything
-    const $itemsContainerPadding = $itemsContainer.css('padding-left') || $itemsContainer.css('padding-inline-start') || '12px';
-
-    // Apply alignment to toggle container (match items table)
     const $toggleContainer = component.$component.find('.rustic-item-group-container');
-    $toggleContainer.css({
-        'padding-inline-start': $itemsContainerPadding,
-        'padding-inline-end': $itemsContainerPadding
-    });
 
-    // Align search field with items table
-    const $searchField = component.$component.find('.search-field');
-    $searchField.css({
-        'padding-inline-start': '0',
-        'margin-inline-start': '0'
-    });
-
-    // Align filter section with items table
-    $filterSection.css({
-        'padding-inline-start': $itemsContainerPadding,
-        'padding-inline-end': $itemsContainerPadding
-    });
-
+    // Apply button height (works for both mobile and desktop)
     $toggleContainer.find('.rustic-item-group-btn').css({
         'height': searchHeight + 'px',
         'display': 'inline-flex',
@@ -1106,6 +1085,31 @@ rustic_pos.renderItemGroupToggle = function(component, groups) {
         'padding-inline': '12px',
         'margin': '0'
     });
+
+    // Desktop only: align with items table (skip on mobile to avoid conflicts)
+    if (window.innerWidth > 768) {
+        // Get items container padding to align everything
+        const $itemsContainerPadding = $itemsContainer.css('padding-left') || $itemsContainer.css('padding-inline-start') || '12px';
+
+        // Apply alignment to toggle container (match items table)
+        $toggleContainer.css({
+            'padding-inline-start': $itemsContainerPadding,
+            'padding-inline-end': $itemsContainerPadding
+        });
+
+        // Align search field with items table
+        const $searchField = component.$component.find('.search-field');
+        $searchField.css({
+            'padding-inline-start': '0',
+            'margin-inline-start': '0'
+        });
+
+        // Align filter section with items table
+        $filterSection.css({
+            'padding-inline-start': $itemsContainerPadding,
+            'padding-inline-end': $itemsContainerPadding
+        });
+    }
 
     // Bind click events
     component.$component.find('.rustic-item-group-btn').on('click', function() {
