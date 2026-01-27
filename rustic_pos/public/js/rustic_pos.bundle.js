@@ -891,8 +891,16 @@ rustic_pos.onPOSReady = function() {
 
 /**
  * Replace rate and discount numpad buttons with empty buttons if not allowed
+ * Also reorder buttons: qty before remove
  */
 rustic_pos.replaceDisabledNumpadButtons = function() {
+    // Reorder numpad buttons: move qty button before remove button
+    const $qtyBtn = $('.point-of-sale-app .numpad-btn[data-button-value="qty"]');
+    const $removeBtn = $('.point-of-sale-app .numpad-btn[data-button-value="remove"]');
+    if ($qtyBtn.length && $removeBtn.length) {
+        $qtyBtn.insertBefore($removeBtn);
+    }
+
     if (!rustic_pos.settings_cache) return;
 
     // Replace discount button with empty button if not allowed
