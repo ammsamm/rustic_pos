@@ -882,8 +882,46 @@ rustic_pos.onPOSReady = function() {
         rustic_pos.observeDropdownMenu();
     }
 
+    // Replace rate/discount numpad buttons with empty buttons if not allowed
+    rustic_pos.replaceDisabledNumpadButtons();
+
     // Start observing for dynamic changes
     rustic_pos.observePOSChanges();
+};
+
+/**
+ * Replace rate and discount numpad buttons with empty buttons if not allowed
+ */
+rustic_pos.replaceDisabledNumpadButtons = function() {
+    if (!rustic_pos.settings_cache) return;
+
+    // Replace discount button with empty button if not allowed
+    if (!rustic_pos.settings_cache.allow_discount_change) {
+        const $discountBtn = $('.point-of-sale-app .numpad-btn[data-button-value="discount_percentage"]');
+        if ($discountBtn.length) {
+            $discountBtn.text('');
+            $discountBtn.removeAttr('data-button-value');
+            $discountBtn.removeAttr('title');
+            $discountBtn.css({
+                'pointer-events': 'none',
+                'cursor': 'default'
+            });
+        }
+    }
+
+    // Replace rate button with empty button if not allowed
+    if (!rustic_pos.settings_cache.allow_rate_change) {
+        const $rateBtn = $('.point-of-sale-app .numpad-btn[data-button-value="rate"]');
+        if ($rateBtn.length) {
+            $rateBtn.text('');
+            $rateBtn.removeAttr('data-button-value');
+            $rateBtn.removeAttr('title');
+            $rateBtn.css({
+                'pointer-events': 'none',
+                'cursor': 'default'
+            });
+        }
+    }
 };
 
 
