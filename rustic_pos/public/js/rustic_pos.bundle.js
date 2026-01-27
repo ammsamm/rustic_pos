@@ -364,7 +364,8 @@ rustic_pos.injectPersistentStyles = function() {
                     }
 
                     /* Move search fields under "All Items" header */
-                    .point-of-sale-app .item-selector-wrapper {
+                    .point-of-sale-app .item-selector-wrapper,
+                    .point-of-sale-app .item-selector {
                         display: flex !important;
                         flex-direction: column !important;
                     }
@@ -388,14 +389,21 @@ rustic_pos.injectPersistentStyles = function() {
                         margin: 0 !important;
                     }
 
-                    /* Mobile: stack item group toggle buttons */
-                    .point-of-sale-app .filter-section .rustic-item-group-container {
+                    /* Mobile: toggle container as sibling - order after filter-section */
+                    .point-of-sale-app .rustic-item-group-container {
+                        order: 3 !important;
                         width: 100% !important;
-                        padding: 0 !important;
+                        padding: 0 8px !important;
+                        margin-bottom: 8px !important;
                     }
 
-                    .point-of-sale-app .filter-section .rustic-item-group-buttons {
+                    .point-of-sale-app .rustic-item-group-buttons {
                         flex-wrap: wrap !important;
+                    }
+
+                    /* Items container after toggle buttons */
+                    .point-of-sale-app .items-container {
+                        order: 4 !important;
                     }
 
                     /* Search field styling */
