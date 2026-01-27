@@ -882,20 +882,27 @@ rustic_pos.onPOSReady = function() {
         rustic_pos.observeDropdownMenu();
     }
 
-    // Replace rate/discount numpad buttons with empty buttons if not allowed
-    rustic_pos.replaceDisabledNumpadButtons();
+    // Reorder and customize numpad buttons
+    rustic_pos.customizeNumpad();
 
     // Start observing for dynamic changes
     rustic_pos.observePOSChanges();
 };
 
 /**
- * Replace rate and discount numpad buttons with empty buttons if not allowed
+ * Customize numpad: reorder buttons and replace disabled ones with empty placeholders
  */
-rustic_pos.replaceDisabledNumpadButtons = function() {
+rustic_pos.customizeNumpad = function() {
+    // Reorder: move qty button before remove button
+    const $qtyBtn = $('.point-of-sale-app .numpad-btn[data-button-value="qty"]');
+    const $removeBtn = $('.point-of-sale-app .numpad-btn[data-button-value="remove"]');
+    if ($qtyBtn.length && $removeBtn.length) {
+        $qtyBtn.insertBefore($removeBtn);
+    }
+
     if (!rustic_pos.settings_cache) return;
 
-    // Replace discount button with empty button if not allowed
+    // Replace discount button with empty placeholder if not allowed
     if (!rustic_pos.settings_cache.allow_discount_change) {
         const $discountBtn = $('.point-of-sale-app .numpad-btn[data-button-value="discount_percentage"]');
         if ($discountBtn.length) {
@@ -909,7 +916,7 @@ rustic_pos.replaceDisabledNumpadButtons = function() {
         }
     }
 
-    // Replace rate button with empty button if not allowed
+    // Replace rate button with empty placeholder if not allowed
     if (!rustic_pos.settings_cache.allow_rate_change) {
         const $rateBtn = $('.point-of-sale-app .numpad-btn[data-button-value="rate"]');
         if ($rateBtn.length) {
