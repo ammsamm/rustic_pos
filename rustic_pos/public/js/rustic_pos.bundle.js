@@ -1052,7 +1052,7 @@ rustic_pos.renderItemGroupToggle = function(component, groups) {
     });
 
     const containerHtml = `
-        <div class="rustic-item-group-container" style="width:100%;margin-top:8px;margin-bottom:8px;">
+        <div class="rustic-item-group-container" style="width:100%;margin-bottom:8px;">
             <div class="rustic-item-group-buttons" style="display:flex;flex-wrap:wrap;gap:5px;">${buttonsHtml}</div>
         </div>
     `;
@@ -1104,11 +1104,10 @@ rustic_pos.renderItemGroupToggle = function(component, groups) {
             'margin-inline-start': '0'
         });
 
-        // Align filter section with items table and set consistent spacing
+        // Align filter section with items table
         $filterSection.css({
             'padding-inline-start': $itemsContainerPadding,
-            'padding-inline-end': $itemsContainerPadding,
-            'margin-bottom': '0'
+            'padding-inline-end': $itemsContainerPadding
         });
     }
 
