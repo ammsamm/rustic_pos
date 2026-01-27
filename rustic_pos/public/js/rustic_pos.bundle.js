@@ -1104,11 +1104,16 @@ rustic_pos.renderItemGroupToggle = function(component, groups) {
             'margin-inline-start': '0'
         });
 
-        // Align filter section with items table
+        // Align filter section with items table and reduce bottom margin
         $filterSection.css({
             'padding-inline-start': $itemsContainerPadding,
-            'padding-inline-end': $itemsContainerPadding
+            'padding-inline-end': $itemsContainerPadding,
+            'margin-bottom': '8px',
+            'padding-bottom': '0'
         });
+
+        // Match toggle container bottom margin to filter section
+        $toggleContainer.css('margin-bottom', '8px');
     }
 
     // Bind click events
