@@ -1037,26 +1037,42 @@ rustic_pos.renderItemGroupToggle = function(component, groups) {
         buttonsHtml += `
             <button type="button"
                 class="btn btn-${isActive ? 'primary' : 'default'} btn-sm rustic-item-group-btn"
-                data-group="${frappe.utils.escape_html(groupName)}"
-                style="margin-inline-end:5px;margin-bottom:5px;">
+                data-group="${frappe.utils.escape_html(groupName)}">
                 ${frappe.utils.escape_html(translatedName)}
             </button>
         `;
     });
 
     const containerHtml = `
-        <div class="rustic-item-group-container">
-            <div class="rustic-item-group-buttons" style="display:flex;flex-wrap:wrap;">${buttonsHtml}</div>
+        <div class="rustic-item-group-container" style="width:100%;padding:0 var(--padding-md);margin-bottom:8px;">
+            <div class="rustic-item-group-buttons" style="display:flex;flex-wrap:wrap;gap:5px;">${buttonsHtml}</div>
         </div>
     `;
 
-    // Insert before items container or after search field
+    // Insert AFTER filter-section (as sibling), so it stacks below search
     const $filterSection = component.$component.find('.filter-section');
-    if ($filterSection.length) {
-        $filterSection.append(containerHtml);
+    const $itemsContainer = component.$component.find('.items-container');
+
+    if ($itemsContainer.length) {
+        // Insert before items container
+        $(containerHtml).insertBefore($itemsContainer);
+    } else if ($filterSection.length) {
+        // Insert after filter section
+        $(containerHtml).insertAfter($filterSection);
     } else {
         component.$component.prepend(containerHtml);
     }
+
+    // Apply inline styles to match search box alignment with items table
+    const $toggleContainer = component.$component.find('.rustic-item-group-container');
+    $toggleContainer.find('.rustic-item-group-btn').css({
+        'height': '38px',
+        'display': 'inline-flex',
+        'align-items': 'center',
+        'justify-content': 'center',
+        'padding-inline': '12px',
+        'margin': '0'
+    });
 
     // Bind click events
     component.$component.find('.rustic-item-group-btn').on('click', function() {
