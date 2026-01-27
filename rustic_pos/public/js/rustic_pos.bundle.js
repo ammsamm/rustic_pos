@@ -882,11 +882,25 @@ rustic_pos.onPOSReady = function() {
         rustic_pos.observeDropdownMenu();
     }
 
+    // Reorder numpad buttons: qty before remove
+    rustic_pos.reorderNumpadButtons();
+
     // Replace rate/discount numpad buttons with empty buttons if not allowed
     rustic_pos.replaceDisabledNumpadButtons();
 
     // Start observing for dynamic changes
     rustic_pos.observePOSChanges();
+};
+
+/**
+ * Reorder numpad buttons: qty before remove
+ */
+rustic_pos.reorderNumpadButtons = function() {
+    const $qtyBtn = $('.point-of-sale-app .numpad-btn[data-button-value="qty"]');
+    const $removeBtn = $('.point-of-sale-app .numpad-btn[data-button-value="remove"]');
+    if ($qtyBtn.length && $removeBtn.length) {
+        $qtyBtn.insertBefore($removeBtn);
+    }
 };
 
 /**
