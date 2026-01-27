@@ -140,7 +140,8 @@ rustic_pos.injectPersistentStyles = function() {
             <style id="rustic-hide-discount-styles">
                 .point-of-sale-app .add-discount-wrapper,
                 .point-of-sale-app .discount_percentage-control,
-                .point-of-sale-app [data-fieldname="discount_percentage"] {
+                .point-of-sale-app [data-fieldname="discount_percentage"],
+                .point-of-sale-app .numpad-btn[data-button-value="discount_percentage"] {
                     display: none !important;
                 }
             </style>
@@ -154,7 +155,8 @@ rustic_pos.injectPersistentStyles = function() {
                 .point-of-sale-app .rate-control,
                 .point-of-sale-app [data-fieldname="rate"],
                 .point-of-sale-app .price_list_rate-control,
-                .point-of-sale-app [data-fieldname="price_list_rate"] {
+                .point-of-sale-app [data-fieldname="price_list_rate"],
+                .point-of-sale-app .numpad-btn[data-button-value="rate"] {
                     display: none !important;
                 }
             </style>
