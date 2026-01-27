@@ -26,6 +26,8 @@ rustic_pos.cleanupStyles = function() {
     $('#rustic-hide-form-view-styles').remove();
     $('#rustic-hide-open-form-menu-styles').remove();
     $('#rustic-hide-pos-invoice-link').remove();
+    $('#rustic-hide-discount-styles').remove();
+    $('#rustic-hide-rate-styles').remove();
     $('#rustic-button-styles').remove();
     $('#rustic-list-styles').remove();
     $('#rustic-mobile-styles').remove();
@@ -43,6 +45,8 @@ rustic_pos.preloadSettings = function(posProfile) {
             doctype: 'POS Profile',
             filters: { name: posProfile },
             fieldname: [
+                'allow_rate_change',
+                'allow_discount_change',
                 'rustic_allow_discount_change',
                 'rustic_allow_uom_change',
                 'rustic_item_view_mode',
@@ -56,6 +60,8 @@ rustic_pos.preloadSettings = function(posProfile) {
         callback: function(r) {
             if (r.message) {
                 rustic_pos.settings_cache = {
+                    allow_rate_change: cint(r.message.allow_rate_change),
+                    allow_discount_change: cint(r.message.allow_discount_change),
                     rustic_allow_discount_change: cint(r.message.rustic_allow_discount_change),
                     rustic_allow_uom_change: cint(r.message.rustic_allow_uom_change),
                     rustic_item_view_mode: r.message.rustic_item_view_mode || 'Grid',
@@ -128,11 +134,27 @@ rustic_pos.injectPersistentStyles = function() {
         rustic_pos.hideOpenInvoiceMenuItem();
     }
 
-    if (!rustic_pos.settings_cache.rustic_allow_discount_change && !$('#rustic-hide-discount-styles').length) {
+    // Hide discount if not allowed in POS Profile (ERPNext setting)
+    if (!rustic_pos.settings_cache.allow_discount_change && !$('#rustic-hide-discount-styles').length) {
         $('head').append(`
             <style id="rustic-hide-discount-styles">
                 .point-of-sale-app .add-discount-wrapper,
-                .point-of-sale-app .discount_percentage-control {
+                .point-of-sale-app .discount_percentage-control,
+                .point-of-sale-app [data-fieldname="discount_percentage"] {
+                    display: none !important;
+                }
+            </style>
+        `);
+    }
+
+    // Hide rate if not allowed in POS Profile (ERPNext setting)
+    if (!rustic_pos.settings_cache.allow_rate_change && !$('#rustic-hide-rate-styles').length) {
+        $('head').append(`
+            <style id="rustic-hide-rate-styles">
+                .point-of-sale-app .rate-control,
+                .point-of-sale-app [data-fieldname="rate"],
+                .point-of-sale-app .price_list_rate-control,
+                .point-of-sale-app [data-fieldname="price_list_rate"] {
                     display: none !important;
                 }
             </style>
