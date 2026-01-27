@@ -890,14 +890,34 @@ rustic_pos.onPOSReady = function() {
 };
 
 /**
- * Replace rate and discount numpad buttons with empty buttons if not allowed
+ * Customize numpad: reorder buttons and replace disabled ones with empty placeholders
+ * Order: 1,2,3,[empty] | 4,5,6,[empty] | 7,8,9,qty | .,0,delete,remove
  */
 rustic_pos.replaceDisabledNumpadButtons = function() {
+    const $numpadContainer = $('.point-of-sale-app .numpad-container');
+    if (!$numpadContainer.length) return;
+
+    // Define the exact button order
+    const buttonOrder = [
+        '1', '2', '3', 'rate',
+        '4', '5', '6', 'discount_percentage',
+        '7', '8', '9', 'qty',
+        '.', '0', 'delete', 'remove'
+    ];
+
+    // Reorder buttons
+    buttonOrder.forEach(function(value) {
+        const $btn = $numpadContainer.find('.numpad-btn[data-button-value="' + value + '"]');
+        if ($btn.length) {
+            $numpadContainer.append($btn);
+        }
+    });
+
     if (!rustic_pos.settings_cache) return;
 
-    // Replace discount button with empty button if not allowed
+    // Replace discount button with empty placeholder if not allowed
     if (!rustic_pos.settings_cache.allow_discount_change) {
-        const $discountBtn = $('.point-of-sale-app .numpad-btn[data-button-value="discount_percentage"]');
+        const $discountBtn = $numpadContainer.find('.numpad-btn[data-button-value="discount_percentage"]');
         if ($discountBtn.length) {
             $discountBtn.text('');
             $discountBtn.removeAttr('data-button-value');
@@ -909,9 +929,9 @@ rustic_pos.replaceDisabledNumpadButtons = function() {
         }
     }
 
-    // Replace rate button with empty button if not allowed
+    // Replace rate button with empty placeholder if not allowed
     if (!rustic_pos.settings_cache.allow_rate_change) {
-        const $rateBtn = $('.point-of-sale-app .numpad-btn[data-button-value="rate"]');
+        const $rateBtn = $numpadContainer.find('.numpad-btn[data-button-value="rate"]');
         if ($rateBtn.length) {
             $rateBtn.text('');
             $rateBtn.removeAttr('data-button-value');
