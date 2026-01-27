@@ -183,32 +183,28 @@ rustic_pos.injectPersistentStyles = function() {
                     gap: 5px;
                 }
 
-                /* Desktop layout: title on top, search + toggles on same row below */
-                /* RTL-friendly: uses logical properties and flexbox auto-direction */
+                /* Desktop layout: title -> search -> toggles -> items (all vertically aligned) */
+                /* RTL-friendly: uses logical properties */
                 @media screen and (min-width: 769px) {
-                    /* Filter section: column layout with title on top, controls below */
+                    /* Filter section: column layout, all items stacked */
                     .point-of-sale-app .filter-section {
                         display: flex !important;
-                        flex-wrap: wrap !important;
-                        align-items: flex-end !important;
-                        gap: 8px 12px !important;
+                        flex-direction: column !important;
+                        align-items: stretch !important;
+                        gap: 8px !important;
                         width: 100% !important;
                         margin-bottom: 12px !important;
                     }
 
-                    /* Title "All Items" takes full width (forces new row below) */
+                    /* Title "All Items" */
                     .point-of-sale-app .filter-section > .label {
                         width: 100% !important;
-                        flex-basis: 100% !important;
-                        margin-bottom: 4px !important;
-                        align-self: flex-start !important;
                         text-align: start !important;
                     }
 
-                    /* Search field takes remaining space - order ensures correct position in RTL */
+                    /* Search field - full width */
                     .point-of-sale-app .filter-section .search-field {
-                        flex: 1 !important;
-                        min-width: 200px !important;
+                        width: 100% !important;
                         order: 1 !important;
                     }
 
@@ -217,30 +213,31 @@ rustic_pos.injectPersistentStyles = function() {
                         margin-bottom: 0 !important;
                     }
 
-                    /* Toggle buttons beside search - align with input */
+                    /* Toggle buttons container - under search, aligned to start */
                     .point-of-sale-app .filter-section .rustic-item-group-container {
                         padding: 0 !important;
                         margin: 0 !important;
-                        flex-shrink: 0 !important;
-                        align-self: flex-end !important;
+                        width: 100% !important;
                         order: 2 !important;
                     }
 
                     .point-of-sale-app .filter-section .rustic-item-group-buttons {
-                        flex-wrap: nowrap !important;
+                        display: flex !important;
+                        flex-wrap: wrap !important;
                         align-items: center !important;
+                        justify-content: flex-start !important;
+                        gap: 5px !important;
                     }
 
+                    /* Toggle buttons - match search input height (38px) */
                     .point-of-sale-app .filter-section .rustic-item-group-btn {
-                        margin-bottom: 0 !important;
+                        margin: 0 !important;
                         white-space: nowrap !important;
-                        height: 36px !important;
-                        margin-inline-end: 5px !important;
-                        margin-inline-start: 0 !important;
-                    }
-
-                    .point-of-sale-app .filter-section .rustic-item-group-btn:last-child {
-                        margin-inline-end: 0 !important;
+                        height: 38px !important;
+                        display: inline-flex !important;
+                        align-items: center !important;
+                        justify-content: center !important;
+                        padding-inline: 12px !important;
                     }
                 }
             </style>
