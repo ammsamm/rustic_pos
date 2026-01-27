@@ -29,7 +29,6 @@ rustic_pos.cleanupStyles = function() {
     $('#rustic-button-styles').remove();
     $('#rustic-list-styles').remove();
     $('#rustic-mobile-styles').remove();
-    $('#rustic-desktop-filter-styles').remove();
 };
 
 /**
@@ -174,7 +173,8 @@ rustic_pos.injectPersistentStyles = function() {
                 }
 
                 .rustic-item-group-container {
-                    width: 100%;
+                    width: auto;
+                    flex-shrink: 0;
                 }
 
                 .rustic-item-group-buttons {
@@ -182,66 +182,62 @@ rustic_pos.injectPersistentStyles = function() {
                     flex-wrap: wrap;
                     gap: 5px;
                 }
-            </style>
-        `);
-    }
 
-    // Inject desktop filter layout styles (search above toggles, all aligned)
-    if (!$('#rustic-desktop-filter-styles').length) {
-        $('head').append(`
-            <style id="rustic-desktop-filter-styles">
-                /* Desktop layout: title -> search -> toggles (stacked vertically) */
+                /* Desktop layout: title -> search -> toggles -> items (all vertically aligned) */
+                /* RTL-friendly: uses logical properties */
                 @media screen and (min-width: 769px) {
-                    /* Filter section: force column layout */
-                    .point-of-sale-app .item-selector .filter-section {
+                    /* Filter section: column layout, all items stacked */
+                    .point-of-sale-app .filter-section {
                         display: flex !important;
                         flex-direction: column !important;
                         align-items: stretch !important;
                         gap: 8px !important;
                         width: 100% !important;
+                        margin-bottom: 12px !important;
                     }
 
-                    /* Title "All Items" - full width */
-                    .point-of-sale-app .item-selector .filter-section > .label {
+                    /* Title "All Items" */
+                    .point-of-sale-app .filter-section > .label {
                         width: 100% !important;
-                        flex-shrink: 0 !important;
                         text-align: start !important;
                     }
 
-                    /* Search field - full width, under title */
-                    .point-of-sale-app .item-selector .filter-section > .search-field {
+                    /* Search field - full width */
+                    .point-of-sale-app .filter-section .search-field {
                         width: 100% !important;
-                        flex-shrink: 0 !important;
+                        order: 1 !important;
                     }
 
-                    .point-of-sale-app .item-selector .filter-section .search-field .form-group {
+                    /* Remove extra margin from search field form-group */
+                    .point-of-sale-app .filter-section .search-field .form-group {
                         margin-bottom: 0 !important;
                     }
 
-                    /* Toggle container - full width, under search */
-                    .point-of-sale-app .item-selector .filter-section > .rustic-item-group-container {
-                        width: 100% !important;
-                        flex-shrink: 0 !important;
+                    /* Toggle buttons container - under search, aligned to start */
+                    .point-of-sale-app .filter-section .rustic-item-group-container {
                         padding: 0 !important;
                         margin: 0 !important;
+                        width: 100% !important;
+                        order: 2 !important;
                     }
 
-                    .point-of-sale-app .item-selector .filter-section .rustic-item-group-buttons {
+                    .point-of-sale-app .filter-section .rustic-item-group-buttons {
                         display: flex !important;
                         flex-wrap: wrap !important;
+                        align-items: center !important;
                         justify-content: flex-start !important;
                         gap: 5px !important;
                     }
 
-                    /* Toggle buttons - same height as search input */
-                    .point-of-sale-app .item-selector .filter-section .rustic-item-group-btn {
-                        height: 38px !important;
+                    /* Toggle buttons - match search input height (38px) */
+                    .point-of-sale-app .filter-section .rustic-item-group-btn {
                         margin: 0 !important;
+                        white-space: nowrap !important;
+                        height: 38px !important;
                         display: inline-flex !important;
                         align-items: center !important;
                         justify-content: center !important;
                         padding-inline: 12px !important;
-                        white-space: nowrap !important;
                     }
                 }
             </style>
