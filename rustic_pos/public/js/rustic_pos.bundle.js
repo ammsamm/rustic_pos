@@ -885,8 +885,8 @@ rustic_pos.onPOSReady = function() {
     // Replace rate/discount numpad buttons with empty buttons if not allowed
     rustic_pos.replaceDisabledNumpadButtons();
 
-    // Observe for invoice summary screen to add payment reference field
-    rustic_pos.observeInvoiceSummary();
+    // Observe for payment screen to add payment reference field
+    rustic_pos.observePaymentScreen();
 
     // Start observing for dynamic changes
     rustic_pos.observePOSChanges();
@@ -928,107 +928,90 @@ rustic_pos.replaceDisabledNumpadButtons = function() {
 };
 
 /**
- * Observe for invoice summary screen and add payment reference field
+ * Observe for payment screen and add payment reference field
  */
-rustic_pos.observeInvoiceSummary = function() {
-    // Track current invoice to detect changes
-    rustic_pos.currentInvoiceName = null;
-
+rustic_pos.observePaymentScreen = function() {
     const observer = new MutationObserver(function(mutations) {
-        // Check if invoice summary is visible (abs-container with payments-container)
-        const $summary = $('.point-of-sale-app .abs-container');
-        if ($summary.length && $summary.find('.payments-container').length) {
-            const invoiceName = $summary.find('.invoice-name').text().trim();
-
-            // Check if invoice changed or field doesn't exist
-            if (invoiceName && invoiceName !== rustic_pos.currentInvoiceName) {
-                rustic_pos.currentInvoiceName = invoiceName;
-                rustic_pos.updatePaymentReferenceField($summary, invoiceName);
-            }
+        // Check if payment screen is visible
+        const $paymentContainer = $('.point-of-sale-app .payment-container:visible');
+        if ($paymentContainer.length) {
+            rustic_pos.addPaymentReferenceToPaymentScreen($paymentContainer);
         }
     });
 
     const posApp = document.querySelector('.point-of-sale-app');
     if (posApp) {
-        observer.observe(posApp, { childList: true, subtree: true });
+        observer.observe(posApp, { childList: true, subtree: true, attributes: true });
     }
 };
 
 /**
- * Update or add payment reference textbox to invoice summary screen
+ * Add payment reference field to payment screen (above Complete Order button)
  */
-rustic_pos.updatePaymentReferenceField = function($summary, invoiceName) {
-    // Find the payments container and summary buttons
-    const $paymentsContainer = $summary.find('.payments-container');
-    const $summaryBtns = $summary.find('.summary-btns');
-    if (!$paymentsContainer.length) return;
+rustic_pos.addPaymentReferenceToPaymentScreen = function($paymentContainer) {
+    // Don't add if already exists
+    if ($paymentContainer.find('.rustic-payment-reference').length) return;
 
-    let $refField = $summary.find('.rustic-payment-reference');
+    const $submitBtn = $paymentContainer.find('.submit-order-btn');
+    if (!$submitBtn.length) return;
 
-    // Create field if doesn't exist
-    if (!$refField.length) {
-        const fieldHtml = `
-            <div class="rustic-payment-reference" style="margin-top: 12px;">
-                <div class="label">Payment Reference</div>
-                <div class="summary-container" style="padding: 8px 12px;">
-                    <input type="text"
-                        class="form-control rustic-payment-ref-input"
-                        data-invoice=""
-                        placeholder="${__('Enter payment reference')}"
-                        style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid var(--border-color); background: var(--control-bg);">
+    // Create the payment reference field (matching page design)
+    const fieldHtml = `
+        <div class="rustic-payment-reference fields-section" style="padding: 0 24px 12px 24px;">
+            <div class="section-label">${__('Payment Reference')}</div>
+            <div class="invoice-fields">
+                <div class="frappe-control input-max-width" data-fieldtype="Data">
+                    <div class="form-group">
+                        <div class="control-input-wrapper">
+                            <div class="control-input">
+                                <input type="text"
+                                    autocomplete="off"
+                                    class="input-with-feedback form-control rustic-payment-ref-input"
+                                    data-fieldtype="Data"
+                                    placeholder="${__('Enter payment reference')}">
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        `;
+        </div>
+    `;
 
-        // Insert before summary buttons
-        if ($summaryBtns.length) {
-            $summaryBtns.before(fieldHtml);
-        } else {
-            $paymentsContainer.after(fieldHtml);
+    // Insert before submit button
+    $submitBtn.before(fieldHtml);
+
+    // Intercept the submit order to save remarks
+    rustic_pos.interceptSubmitOrder();
+};
+
+/**
+ * Intercept submit order to save payment reference to remarks
+ */
+rustic_pos.interceptSubmitOrder = function() {
+    if (rustic_pos.submitIntercepted) return;
+    rustic_pos.submitIntercepted = true;
+
+    // Patch the payment controller's submit order method
+    if (window.cur_pos && window.cur_pos.payment) {
+        const payment = window.cur_pos.payment;
+        const originalSubmit = payment.submit_invoice ? payment.submit_invoice.bind(payment) : null;
+
+        if (originalSubmit) {
+            payment.submit_invoice = function() {
+                // Get the payment reference value
+                const $input = $('.point-of-sale-app .rustic-payment-ref-input');
+                const refValue = $input.val();
+
+                // Set remarks on the current invoice before submitting
+                if (refValue && window.cur_pos.frm && window.cur_pos.frm.doc) {
+                    window.cur_pos.frm.doc.remarks = refValue;
+                }
+
+                // Call original submit
+                return originalSubmit();
+            };
         }
-
-        $refField = $summary.find('.rustic-payment-reference');
-
-        // Bind save on change event (only once)
-        $refField.find('.rustic-payment-ref-input').on('change blur', function() {
-            const $input = $(this);
-            const value = $input.val();
-            const invName = $input.attr('data-invoice');
-            if (!invName) return;
-
-            frappe.call({
-                method: 'frappe.client.set_value',
-                args: {
-                    doctype: 'POS Invoice',
-                    name: invName,
-                    fieldname: 'remarks',
-                    value: value
-                },
-                async: true
-            });
-        });
     }
-
-    // Update invoice reference and clear field
-    const $input = $refField.find('.rustic-payment-ref-input');
-    $input.attr('data-invoice', invoiceName);
-    $input.val('');
-
-    // Load existing remarks value for this invoice
-    frappe.call({
-        method: 'frappe.client.get_value',
-        args: {
-            doctype: 'POS Invoice',
-            filters: { name: invoiceName },
-            fieldname: 'remarks'
-        },
-        async: true,
-        callback: function(r) {
-            if (r.message && r.message.remarks) {
-                $input.val(r.message.remarks);
-            }
-        }
-    });
 };
 
 /**
