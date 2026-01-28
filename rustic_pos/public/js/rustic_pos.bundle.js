@@ -965,7 +965,6 @@ rustic_pos.addPaymentReferenceToPaymentScreen = function($paymentContainer) {
     if ($paymentContainer.find('.rustic-payment-reference').length) return;
 
     const $submitBtn = $paymentContainer.find('.submit-order-btn');
-    const $fieldsSection = $paymentContainer.find('.fields-numpad-container .fields-section');
     if (!$submitBtn.length) return;
 
     // Create the payment reference field (matching page design)
@@ -990,12 +989,8 @@ rustic_pos.addPaymentReferenceToPaymentScreen = function($paymentContainer) {
         </div>
     `;
 
-    // Insert after existing fields-section or before submit button
-    if ($fieldsSection.length) {
-        $fieldsSection.after(fieldHtml);
-    } else {
-        $submitBtn.before(fieldHtml);
-    }
+    // Insert before submit button
+    $submitBtn.before(fieldHtml);
 
     // Add click handler to save remarks before submit
     $submitBtn.off('click.rustic').on('click.rustic', function() {
