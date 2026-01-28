@@ -992,38 +992,16 @@ rustic_pos.addPaymentReferenceToPaymentScreen = function($paymentContainer) {
     // Insert before submit button
     $submitBtn.before(fieldHtml);
 
-    // Intercept the submit order to save remarks
-    rustic_pos.interceptSubmitOrder();
-};
+    // Add click handler to save remarks before submit
+    $submitBtn.off('click.rustic').on('click.rustic', function() {
+        const $input = $('.point-of-sale-app .rustic-payment-ref-input');
+        const refValue = $input.val();
 
-/**
- * Intercept submit order to save payment reference to remarks
- */
-rustic_pos.interceptSubmitOrder = function() {
-    if (rustic_pos.submitIntercepted) return;
-    rustic_pos.submitIntercepted = true;
-
-    // Patch the payment controller's submit order method
-    if (window.cur_pos && window.cur_pos.payment) {
-        const payment = window.cur_pos.payment;
-        const originalSubmit = payment.submit_invoice ? payment.submit_invoice.bind(payment) : null;
-
-        if (originalSubmit) {
-            payment.submit_invoice = function() {
-                // Get the payment reference value
-                const $input = $('.point-of-sale-app .rustic-payment-ref-input');
-                const refValue = $input.val();
-
-                // Set remarks on the current invoice before submitting
-                if (refValue && window.cur_pos.frm && window.cur_pos.frm.doc) {
-                    window.cur_pos.frm.doc.remarks = refValue;
-                }
-
-                // Call original submit
-                return originalSubmit();
-            };
+        // Set remarks on the current invoice before submitting
+        if (refValue && window.cur_pos && window.cur_pos.frm && window.cur_pos.frm.doc) {
+            window.cur_pos.frm.doc.remarks = refValue;
         }
-    }
+    });
 };
 
 /**
@@ -1043,7 +1021,9 @@ rustic_pos.showPaymentReferenceOnSummary = function($summary, invoiceName) {
         },
         async: true,
         callback: function(r) {
-            if (r.message && r.message.remarks) {
+            // Only show if remarks has actual value (not empty, not "No Remarks")
+            const remarks = r.message && r.message.remarks;
+            if (remarks && remarks.trim() && remarks !== 'No Remarks') {
                 const $paymentsContainer = $summary.find('.payments-container');
                 const $summaryBtns = $summary.find('.summary-btns');
 
@@ -1052,7 +1032,7 @@ rustic_pos.showPaymentReferenceOnSummary = function($summary, invoiceName) {
                         <div class="label">${__('Payment Reference')}</div>
                         <div class="summary-container" style="padding: 8px 12px;">
                             <div class="summary-row-wrapper">
-                                <div>${r.message.remarks}</div>
+                                <div>${frappe.utils.escape_html(remarks)}</div>
                             </div>
                         </div>
                     </div>
