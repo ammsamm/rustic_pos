@@ -969,11 +969,11 @@ rustic_pos.addPaymentReferenceToPaymentScreen = function($paymentContainer) {
 
     // Create the payment reference field (matching page design)
     const fieldHtml = `
-        <div class="rustic-payment-reference fields-section">
-            <div class="section-label">${__('Payment Reference')}</div>
+        <div class="rustic-payment-reference fields-section" style="margin-bottom: 16px;">
+            <div class="section-label" style="margin-bottom: 8px;">${__('Payment Reference')}</div>
             <div class="invoice-fields">
                 <div class="frappe-control" data-fieldtype="Data">
-                    <div class="form-group">
+                    <div class="form-group" style="margin-bottom: 0;">
                         <div class="control-input-wrapper">
                             <div class="control-input">
                                 <input type="text"
