@@ -932,9 +932,9 @@ rustic_pos.replaceDisabledNumpadButtons = function() {
  */
 rustic_pos.observeInvoiceSummary = function() {
     const observer = new MutationObserver(function(mutations) {
-        // Check if invoice summary is visible
-        const $summary = $('.point-of-sale-app .invoice-details');
-        if ($summary.length && $summary.is(':visible')) {
+        // Check if invoice summary is visible (abs-container with payments-container)
+        const $summary = $('.point-of-sale-app .abs-container');
+        if ($summary.length && $summary.find('.payments-container').length) {
             rustic_pos.addPaymentReferenceField($summary);
         }
     });
@@ -952,32 +952,34 @@ rustic_pos.addPaymentReferenceField = function($summary) {
     // Don't add if already exists
     if ($summary.find('.rustic-payment-reference').length) return;
 
-    // Find the payments section
-    const $paymentsSection = $summary.find('.payments').last();
-    if (!$paymentsSection.length) return;
+    // Find the payments container and summary buttons
+    const $paymentsContainer = $summary.find('.payments-container');
+    const $summaryBtns = $summary.find('.summary-btns');
+    if (!$paymentsContainer.length) return;
 
     // Get current invoice name
-    const invoiceName = $summary.find('.invoice-name').text().trim() ||
-                        $summary.attr('data-invoice-name') ||
-                        (window.cur_pos && window.cur_pos.frm && window.cur_pos.frm.doc.name);
-
+    const invoiceName = $summary.find('.invoice-name').text().trim();
     if (!invoiceName) return;
 
     // Create the payment reference field
     const fieldHtml = `
-        <div class="rustic-payment-reference" style="margin-top: 12px; padding: 0 12px;">
-            <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px;">
-                ${__('Payment Reference')}
-            </label>
-            <input type="text"
-                class="form-control rustic-payment-ref-input"
-                placeholder="${__('Enter payment reference')}"
-                style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid var(--border-color); background: var(--control-bg);">
+        <div class="rustic-payment-reference" style="margin-top: 12px;">
+            <div class="label">Payment Reference</div>
+            <div class="summary-container" style="padding: 8px 12px;">
+                <input type="text"
+                    class="form-control rustic-payment-ref-input"
+                    placeholder="${__('Enter payment reference')}"
+                    style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid var(--border-color); background: var(--control-bg);">
+            </div>
         </div>
     `;
 
-    // Insert after payments section
-    $paymentsSection.after(fieldHtml);
+    // Insert before summary buttons
+    if ($summaryBtns.length) {
+        $summaryBtns.before(fieldHtml);
+    } else {
+        $paymentsContainer.after(fieldHtml);
+    }
 
     // Load existing remarks value
     frappe.call({
