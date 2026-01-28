@@ -928,14 +928,26 @@ rustic_pos.replaceDisabledNumpadButtons = function() {
 };
 
 /**
- * Observe for payment screen and add payment reference field
+ * Observe for payment screen and invoice summary to handle payment reference
  */
 rustic_pos.observePaymentScreen = function() {
+    rustic_pos.currentSummaryInvoice = null;
+
     const observer = new MutationObserver(function(mutations) {
         // Check if payment screen is visible
         const $paymentContainer = $('.point-of-sale-app .payment-container:visible');
         if ($paymentContainer.length) {
             rustic_pos.addPaymentReferenceToPaymentScreen($paymentContainer);
+        }
+
+        // Check if invoice summary is visible (for view-only display)
+        const $summary = $('.point-of-sale-app .abs-container');
+        if ($summary.length && $summary.find('.payments-container').length) {
+            const invoiceName = $summary.find('.invoice-name').text().trim();
+            if (invoiceName && invoiceName !== rustic_pos.currentSummaryInvoice) {
+                rustic_pos.currentSummaryInvoice = invoiceName;
+                rustic_pos.showPaymentReferenceOnSummary($summary, invoiceName);
+            }
         }
     });
 
@@ -1012,6 +1024,48 @@ rustic_pos.interceptSubmitOrder = function() {
             };
         }
     }
+};
+
+/**
+ * Show payment reference (view-only) on invoice summary screen
+ */
+rustic_pos.showPaymentReferenceOnSummary = function($summary, invoiceName) {
+    // Remove existing reference display
+    $summary.find('.rustic-payment-reference-display').remove();
+
+    // Fetch remarks from database
+    frappe.call({
+        method: 'frappe.client.get_value',
+        args: {
+            doctype: 'POS Invoice',
+            filters: { name: invoiceName },
+            fieldname: 'remarks'
+        },
+        async: true,
+        callback: function(r) {
+            if (r.message && r.message.remarks) {
+                const $paymentsContainer = $summary.find('.payments-container');
+                const $summaryBtns = $summary.find('.summary-btns');
+
+                const displayHtml = `
+                    <div class="rustic-payment-reference-display" style="margin-top: 12px;">
+                        <div class="label">${__('Payment Reference')}</div>
+                        <div class="summary-container" style="padding: 8px 12px;">
+                            <div class="summary-row-wrapper">
+                                <div>${r.message.remarks}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                if ($summaryBtns.length) {
+                    $summaryBtns.before(displayHtml);
+                } else {
+                    $paymentsContainer.after(displayHtml);
+                }
+            }
+        }
+    });
 };
 
 /**
