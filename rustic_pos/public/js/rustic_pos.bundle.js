@@ -2073,6 +2073,10 @@ $(document).on('page-change', function() {
  * Start initialization process
  */
 rustic_pos.startInitialization = function() {
+    // Prevent double initialization
+    if (rustic_pos.isInitializing || rustic_pos.initialized) return;
+    rustic_pos.isInitializing = true;
+
     // Step 1: Wait for POS classes to be defined, then patch prototypes
     rustic_pos.waitForPOSClasses(function() {
         // Patch prototypes BEFORE components are created
@@ -2085,6 +2089,8 @@ rustic_pos.startInitialization = function() {
             // Step 3: Wait for cur_pos to be ready, then apply customizations
             rustic_pos.waitForCurPOS(function() {
                 rustic_pos.onPOSReady();
+                rustic_pos.isInitializing = false;
+                rustic_pos.initialized = true;
             });
         });
     });
