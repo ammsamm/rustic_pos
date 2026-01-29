@@ -1002,23 +1002,14 @@ rustic_pos.addPaymentReferenceToPaymentScreen = function($paymentContainer) {
         `;
         $submitBtn.after(backBtnHtml);
 
-        $paymentContainer.find('.rustic-edit-cart-btn').on('click', function() {
-            // Temporarily bypass any confirmation dialogs
-            const originalConfirm = frappe.confirm;
-            frappe.confirm = function(message, onyes) {
-                if (onyes) onyes();
-            };
+        $paymentContainer.find('.rustic-edit-cart-btn').on('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
 
-            // Trigger the native edit-cart button
-            const $editCartBtn = $('.point-of-sale-app .edit-cart-btn');
-            if ($editCartBtn.length) {
-                $editCartBtn.trigger('click');
-            }
-
-            // Restore original confirm after a short delay
-            setTimeout(function() {
-                frappe.confirm = originalConfirm;
-            }, 100);
+            // Directly show/hide sections without using component methods
+            $('.point-of-sale-app .payment-container').addClass('d-none');
+            $('.point-of-sale-app .cart-container').removeClass('d-none');
+            $('.point-of-sale-app .item-selector').removeClass('d-none');
         });
     }
 
