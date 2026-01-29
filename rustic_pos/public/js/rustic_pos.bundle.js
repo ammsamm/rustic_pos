@@ -1003,8 +1003,11 @@ rustic_pos.addPaymentReferenceToPaymentScreen = function($paymentContainer) {
         $submitBtn.after(backBtnHtml);
 
         $paymentContainer.find('.rustic-back-to-items-btn').on('click', function() {
-            if (window.cur_pos && window.cur_pos.payment && window.cur_pos.payment.events) {
-                window.cur_pos.payment.events.toggle_other_sections(false);
+            // Use the same method as checkout button (in reverse)
+            if (window.cur_pos) {
+                cur_pos.item_selector.toggle_component(true);
+                cur_pos.cart.toggle_component(true);
+                cur_pos.payment.toggle_component(false);
             }
         });
     }
