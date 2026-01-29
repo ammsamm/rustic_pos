@@ -56,7 +56,7 @@ rustic_pos.preloadSettings = function(posProfile) {
                 'rustic_hide_form_view'
             ]
         },
-        async: false,
+        async: true,
         callback: function(r) {
             if (r.message) {
                 rustic_pos.settings_cache = {
@@ -1179,7 +1179,7 @@ rustic_pos.setupItemGroupToggle = function(component) {
             doctype: 'POS Profile',
             name: posProfile
         },
-        async: false,
+        async: true,
         callback: function(r) {
             if (!r.message) return;
 
@@ -1863,7 +1863,7 @@ rustic_pos.fetchAndShowUomButtons = function(component, item) {
             doctype: 'Item',
             name: item.item_code
         },
-        async: false,
+        async: true,
         callback: function(r) {
             if (r.message && r.message.uoms && r.message.uoms.length >= 1) {
                 // Always show toggle buttons for items with UOMs configured
