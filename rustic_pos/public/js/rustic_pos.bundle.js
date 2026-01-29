@@ -991,6 +991,24 @@ rustic_pos.addPaymentReferenceToPaymentScreen = function($paymentContainer) {
     // Insert before submit button
     $submitBtn.before(fieldHtml);
 
+    // Add "Back To Add Items" button after submit button
+    if (!$paymentContainer.find('.rustic-back-to-items-btn').length) {
+        const backBtnHtml = `
+            <div class="rustic-back-to-items-btn submit-order-btn"
+                style="margin-top: 8px; background-color: var(--gray-600);
+                    cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                ${__('Back To Add Items')}
+            </div>
+        `;
+        $submitBtn.after(backBtnHtml);
+
+        $paymentContainer.find('.rustic-back-to-items-btn').on('click', function() {
+            if (window.cur_pos && window.cur_pos.payment && window.cur_pos.payment.events) {
+                window.cur_pos.payment.events.toggle_other_sections(false);
+            }
+        });
+    }
+
     // Add click handler to save remarks before submit
     $submitBtn.off('click.rustic').on('click.rustic', function() {
         const $input = $('.point-of-sale-app .rustic-payment-ref-input');
