@@ -991,6 +991,37 @@ rustic_pos.addPaymentReferenceToPaymentScreen = function($paymentContainer) {
     // Insert before submit button
     $submitBtn.before(fieldHtml);
 
+    // Add "Edit Cart" button after submit button
+    if (!$paymentContainer.find('.rustic-edit-cart-btn').length) {
+        const backBtnHtml = `
+            <div class="rustic-edit-cart-btn submit-order-btn"
+                style="margin-top: 8px; background-color: var(--gray-600);
+                    cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                ${__('Edit Cart')}
+            </div>
+        `;
+        $submitBtn.after(backBtnHtml);
+
+        $paymentContainer.find('.rustic-edit-cart-btn').on('click', function() {
+            // Temporarily bypass any confirmation dialogs
+            const originalConfirm = frappe.confirm;
+            frappe.confirm = function(message, onyes) {
+                if (onyes) onyes();
+            };
+
+            // Trigger the native edit-cart button
+            const $editCartBtn = $('.point-of-sale-app .edit-cart-btn');
+            if ($editCartBtn.length) {
+                $editCartBtn.trigger('click');
+            }
+
+            // Restore original confirm after a short delay
+            setTimeout(function() {
+                frappe.confirm = originalConfirm;
+            }, 100);
+        });
+    }
+
     // Add click handler to save remarks before submit
     $submitBtn.off('click.rustic').on('click.rustic', function() {
         const $input = $('.point-of-sale-app .rustic-payment-ref-input');
