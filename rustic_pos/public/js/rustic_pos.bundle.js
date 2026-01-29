@@ -1003,9 +1003,13 @@ rustic_pos.addPaymentReferenceToPaymentScreen = function($paymentContainer) {
         $submitBtn.after(backBtnHtml);
 
         $paymentContainer.find('.rustic-back-to-items-btn').on('click', function() {
-            // Directly toggle back to cart/items without confirmation
-            if (window.cur_pos && window.cur_pos.payment) {
-                window.cur_pos.payment.toggle_component(false);
+            // Toggle back to cart/items view
+            if (window.cur_pos) {
+                // Hide payment section
+                $('.point-of-sale-app .payment-container').css('display', 'none');
+                // Show cart and item selector
+                $('.point-of-sale-app .item-selector').css('display', 'flex');
+                $('.point-of-sale-app .cart-container').css('display', 'flex');
             }
         });
     }
