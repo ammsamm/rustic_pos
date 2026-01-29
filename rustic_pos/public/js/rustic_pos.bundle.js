@@ -1003,10 +1003,9 @@ rustic_pos.addPaymentReferenceToPaymentScreen = function($paymentContainer) {
         $submitBtn.after(backBtnHtml);
 
         $paymentContainer.find('.rustic-back-to-items-btn').on('click', function() {
-            // Trigger the existing edit-cart button to go back
-            const $editCartBtn = $('.point-of-sale-app .edit-cart-btn');
-            if ($editCartBtn.length) {
-                $editCartBtn[0].click();
+            // Directly toggle back to cart/items without confirmation
+            if (window.cur_pos && window.cur_pos.payment) {
+                window.cur_pos.payment.toggle_component(false);
             }
         });
     }
