@@ -2062,7 +2062,6 @@ rustic_pos.cleanup = function() {
  */
 $(document).on('page-change', function() {
     if (frappe.get_route_str() === 'point-of-sale') {
-        rustic_pos.cleanup();
         rustic_pos.startInitialization();
     } else {
         rustic_pos.cleanup();
