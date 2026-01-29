@@ -2069,13 +2069,6 @@ $(document).on('page-change', function() {
     }
 });
 
-// Handle direct page load
-$(document).ready(function() {
-    if (frappe.get_route_str() === 'point-of-sale') {
-        rustic_pos.startInitialization();
-    }
-});
-
 /**
  * Start initialization process
  */
