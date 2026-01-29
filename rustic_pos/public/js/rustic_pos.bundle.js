@@ -967,7 +967,6 @@ rustic_pos.addPaymentReferenceToPaymentScreen = function($paymentContainer) {
     const $submitBtn = $paymentContainer.find('.submit-order-btn');
     if (!$submitBtn.length) return;
 
-    // Create the payment reference field (matching page design)
     const fieldHtml = `
         <div class="rustic-payment-reference fields-section" style="margin-bottom: 16px;">
             <div class="section-label" style="margin-bottom: 8px;">${__('Payment Reference')}</div>
@@ -992,6 +991,26 @@ rustic_pos.addPaymentReferenceToPaymentScreen = function($paymentContainer) {
     // Insert before submit button
     $submitBtn.before(fieldHtml);
 
+    // Add "Back To Add Items" button after submit button
+    if (!$paymentContainer.find('.rustic-back-to-items-btn').length) {
+        const backBtnHtml = `
+            <div class="rustic-back-to-items-btn submit-order-btn"
+                style="margin-top: 8px; background-color: var(--gray-600);
+                    cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                ${__('Back To Add Items')}
+            </div>
+        `;
+        $submitBtn.after(backBtnHtml);
+
+        $paymentContainer.find('.rustic-back-to-items-btn').on('click', function() {
+            // Trigger the existing edit-cart button to go back
+            const $editCartBtn = $('.point-of-sale-app .edit-cart-btn');
+            if ($editCartBtn.length) {
+                $editCartBtn[0].click();
+            }
+        });
+    }
+
     // Add click handler to save remarks before submit
     $submitBtn.off('click.rustic').on('click.rustic', function() {
         const $input = $('.point-of-sale-app .rustic-payment-ref-input');
@@ -1008,7 +1027,7 @@ rustic_pos.addPaymentReferenceToPaymentScreen = function($paymentContainer) {
  * Show payment reference (view-only) on invoice summary screen
  */
 rustic_pos.showPaymentReferenceOnSummary = function($summary, invoiceName) {
-    // Remove existing reference display
+    // Remove existing displays
     $summary.find('.rustic-payment-reference-display').remove();
 
     // Fetch remarks from database
@@ -1017,16 +1036,18 @@ rustic_pos.showPaymentReferenceOnSummary = function($summary, invoiceName) {
         args: {
             doctype: 'POS Invoice',
             filters: { name: invoiceName },
-            fieldname: 'remarks'
+            fieldname: ['remarks']
         },
         async: true,
         callback: function(r) {
-            // Only show if remarks has actual value (not empty, not "No Remarks")
-            const remarks = r.message && r.message.remarks;
-            if (remarks && remarks.trim() && remarks !== 'No Remarks') {
-                const $paymentsContainer = $summary.find('.payments-container');
-                const $summaryBtns = $summary.find('.summary-btns');
+            if (!r.message) return;
 
+            const remarks = r.message.remarks;
+            const $paymentsContainer = $summary.find('.payments-container');
+            const $summaryBtns = $summary.find('.summary-btns');
+
+            // Show remarks if has actual value
+            if (remarks && remarks.trim() && remarks !== 'No Remarks') {
                 const displayHtml = `
                     <div class="rustic-payment-reference-display" style="margin-top: 12px;">
                         <div class="label">${__('Payment Reference')}</div>
